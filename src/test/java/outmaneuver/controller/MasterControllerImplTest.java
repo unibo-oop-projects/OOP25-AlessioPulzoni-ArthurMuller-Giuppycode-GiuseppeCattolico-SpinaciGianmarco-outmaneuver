@@ -19,8 +19,6 @@ import java.util.List;
 
 class MasterControllerImplTest {
 
-    private static final double AREA_WIDTH = 800;
-    private static final double AREA_HEIGHT = 600;
     private static final long TICK_WAIT_MS = 100;
 
     private Plane plane;
@@ -43,8 +41,7 @@ class MasterControllerImplTest {
         plane = new PlaneImpl(new StandardStats());
         input = new InputControllerImpl();
         spyView = new SpyView();
-        entityCtrl = new EntityControllerImpl(plane, input, (evt, data) -> { },
-                AREA_WIDTH, AREA_HEIGHT);
+        entityCtrl = new EntityControllerImpl(plane, input, (evt, data) -> { });
         master = new MasterControllerImpl(entityCtrl);
     }
 

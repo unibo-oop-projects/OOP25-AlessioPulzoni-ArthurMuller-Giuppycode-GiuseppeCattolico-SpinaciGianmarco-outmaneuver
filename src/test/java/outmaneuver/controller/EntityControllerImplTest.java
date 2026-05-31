@@ -14,8 +14,6 @@ import outmaneuver.util.Vector2;
 
 class EntityControllerImplTest {
 
-    private static final double AREA_WIDTH = 800;
-    private static final double AREA_HEIGHT = 600;
     private static final double EPS = 1e-9;
 
     private Plane plane;
@@ -26,8 +24,7 @@ class EntityControllerImplTest {
     void setUp() {
         plane = new PlaneImpl(new StandardStats());
         input = new InputControllerImpl();
-        entityCtrl = new EntityControllerImpl(plane, input, (evt, data) -> { },
-                AREA_WIDTH, AREA_HEIGHT);
+        entityCtrl = new EntityControllerImpl(plane, input, (evt, data) -> { });
     }
 
     @Test
@@ -39,14 +36,14 @@ class EntityControllerImplTest {
 
     @Test
     void testLeftInputRotatesLeft() {
-        input.onKeyPressed(37);
+        input.onKeyPressed(37); // VK_LEFT
         entityCtrl.updateEntities(100);
         assertTrue(plane.getDirection() < 0, "Direction should be negative (left turn)");
     }
 
     @Test
     void testRightInputRotatesRight() {
-        input.onKeyPressed(39);
+        input.onKeyPressed(39); // VK_RIGHT
         entityCtrl.updateEntities(100);
         assertTrue(plane.getDirection() > 0, "Direction should be positive (right turn)");
     }
@@ -87,38 +84,6 @@ class EntityControllerImplTest {
         final Vector2 pos = plane.getPosition();
         assertTrue(pos.getX() > 100, "Plane should move in +X direction");
         assertEquals(100, pos.getY(), EPS, "Y should stay unchanged");
-    }
-
-    @Test
-    void testClampToBoundsKeepsPlaneInside() {
-        plane.setDirection(0);
-        plane.setPosition(new Vector2(AREA_WIDTH, AREA_HEIGHT));
-        for (int i = 0; i < 100; i++) {
-            entityCtrl.updateEntities(100);
-        }
-        final Vector2 pos = plane.getPosition();
-        final double radius = plane.getStats().getHitboxRadius();
-        assertTrue(pos.getX() <= AREA_WIDTH - radius + EPS,
-                "X should not exceed right boundary");
-        assertTrue(pos.getX() >= radius - EPS,
-                "X should not go below left boundary");
-        assertTrue(pos.getY() <= AREA_HEIGHT - radius + EPS,
-                "Y should not exceed bottom boundary");
-        assertTrue(pos.getY() >= radius - EPS,
-                "Y should not go below top boundary");
-    }
-
-    @Test
-    void testClampToBoundsBottomLeft() {
-        plane.setDirection(Math.PI);
-        plane.setPosition(new Vector2(0, 0));
-        for (int i = 0; i < 100; i++) {
-            entityCtrl.updateEntities(100);
-        }
-        final Vector2 pos = plane.getPosition();
-        final double radius = plane.getStats().getHitboxRadius();
-        assertTrue(pos.getX() >= radius - EPS, "X should not go below left boundary");
-        assertTrue(pos.getY() >= radius - EPS, "Y should not go above top boundary");
     }
 
     @Test

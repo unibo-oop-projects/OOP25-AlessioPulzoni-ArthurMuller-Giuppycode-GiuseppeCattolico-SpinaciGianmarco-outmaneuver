@@ -10,9 +10,6 @@ import outmaneuver.view.swing.SwingGameView;
 
 public final class Main {
 
-    private static final double AREA_WIDTH = 800;
-    private static final double AREA_HEIGHT = 600;
-
     private Main() {
     }
 
@@ -23,8 +20,7 @@ public final class Main {
         final MasterControllerImpl[] masterRef = new MasterControllerImpl[1];
         final EntityControllerImpl entityCtrl = new EntityControllerImpl(
                 plane, inputCtrl,
-                (evt, data) -> masterRef[0].onInternalEvent(evt, data),
-                AREA_WIDTH, AREA_HEIGHT);
+                (evt, data) -> masterRef[0].onInternalEvent(evt, data));
         final MasterControllerImpl master = new MasterControllerImpl(entityCtrl);
         masterRef[0] = master;
 
