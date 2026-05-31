@@ -15,19 +15,13 @@ public final class EntityControllerImpl implements EntityController {
     private final Plane plane;
     private final InputController inputController;
     private final BiConsumer<InternalEvent, Object> eventCallback;
-    private final double areaWidth;
-    private final double areaHeight;
 
     public EntityControllerImpl(final Plane plane,
                                 final InputController inputController,
-                                final BiConsumer<InternalEvent, Object> eventCallback,
-                                final double areaWidth,
-                                final double areaHeight) {
+                                final BiConsumer<InternalEvent, Object> eventCallback) {
         this.plane = Objects.requireNonNull(plane, "plane must not be null");
         this.inputController = Objects.requireNonNull(inputController, "inputController must not be null");
         this.eventCallback = Objects.requireNonNull(eventCallback, "eventCallback must not be null");
-        this.areaWidth = areaWidth;
-        this.areaHeight = areaHeight;
     }
 
     @Override
@@ -45,8 +39,7 @@ public final class EntityControllerImpl implements EntityController {
         final Vector2 velocity = Vector2.fromAngle(plane.getDirection())
                 .scale(plane.getEffectiveSpeed());
         final Vector2 newPos = plane.getPosition().add(velocity.scale(deltaSec));
-        final Vector2 clampedPos = clampToBounds(newPos, plane.getStats().getHitboxRadius());
-        plane.setPosition(clampedPos);
+        plane.setPosition(newPos);
     }
 
     @Override
@@ -72,12 +65,4 @@ public final class EntityControllerImpl implements EntityController {
         return normalised;
     }
 
-    private Vector2 clampToBounds(final Vector2 position, final double hitboxRadius) {
-        final double min = hitboxRadius;
-        final double maxX = areaWidth - hitboxRadius;
-        final double maxY = areaHeight - hitboxRadius;
-        final double clampedX = Math.max(min, Math.min(position.getX(), maxX));
-        final double clampedY = Math.max(min, Math.min(position.getY(), maxY));
-        return new Vector2(clampedX, clampedY);
-    }
 }
