@@ -34,6 +34,9 @@ public final class MasterControllerImpl implements MasterController, InternalEve
     }
 
     public void setEntityController(final EntityController entityController) {
+        if (this.entityController != null) {
+            throw new IllegalStateException("entityController already set");
+        }
         this.entityController = Objects.requireNonNull(entityController, "entityController must not be null");
     }
 
