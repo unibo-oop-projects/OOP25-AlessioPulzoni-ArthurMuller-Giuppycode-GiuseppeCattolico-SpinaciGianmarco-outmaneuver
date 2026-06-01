@@ -13,7 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-public class MainMenuView extends JPanel {
+public final class MainMenuView extends JPanel {
 
     private static final int TITLE_FONT_SIZE  = 64;
     private static final int BUTTON_FONT_SIZE = 20;

@@ -9,7 +9,7 @@ import outmaneuver.model.session.GameState;
 import outmaneuver.view.swing.gameover.GameOverView;
 import outmaneuver.view.swing.menu.MainMenuView;
 
-public class UIManager extends JPanel {
+public final class UIManager extends JPanel {
 
     private static final String SCREEN_MENU      = "MENU";
     private static final String SCREEN_PLAYING   = "PLAYING";
