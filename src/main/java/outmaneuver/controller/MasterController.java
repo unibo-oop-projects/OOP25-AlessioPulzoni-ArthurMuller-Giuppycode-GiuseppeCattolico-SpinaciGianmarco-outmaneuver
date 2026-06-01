@@ -11,4 +11,6 @@ public interface MasterController {
     void start();
 
     void stop();
+
+    void shutdown();
 }
