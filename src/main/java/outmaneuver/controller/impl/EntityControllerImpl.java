@@ -1,27 +1,26 @@
 package outmaneuver.controller.impl;
 
+import java.util.Objects;
+
 import outmaneuver.controller.EntityController;
-import outmaneuver.controller.InternalEvent;
 import outmaneuver.controller.InputController;
+import outmaneuver.controller.event.InternalEventListener;
 import outmaneuver.model.area.Plane;
 import outmaneuver.model.area.TurnState;
 import outmaneuver.util.Vector2;
-
-import java.util.Objects;
-import java.util.function.BiConsumer;
 
 public final class EntityControllerImpl implements EntityController {
 
     private final Plane plane;
     private final InputController inputController;
-    private final BiConsumer<InternalEvent, Object> eventCallback;
+    private final InternalEventListener eventListener;
 
     public EntityControllerImpl(final Plane plane,
                                 final InputController inputController,
-                                final BiConsumer<InternalEvent, Object> eventCallback) {
+                                final InternalEventListener eventListener) {
         this.plane = Objects.requireNonNull(plane, "plane must not be null");
         this.inputController = Objects.requireNonNull(inputController, "inputController must not be null");
-        this.eventCallback = Objects.requireNonNull(eventCallback, "eventCallback must not be null");
+        this.eventListener = Objects.requireNonNull(eventListener, "eventListener must not be null");
     }
 
     @Override

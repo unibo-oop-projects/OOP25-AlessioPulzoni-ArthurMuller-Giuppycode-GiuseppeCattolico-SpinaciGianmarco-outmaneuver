@@ -1,37 +1,40 @@
 package outmaneuver.controller.impl;
 
-import outmaneuver.controller.EntityController;
-import outmaneuver.controller.InternalEvent;
-import outmaneuver.controller.MasterController;
-import outmaneuver.controller.OutmaneuverEvent;
-import outmaneuver.util.Vector2;
-import outmaneuver.view.GameView;
-import outmaneuver.view.RenderState;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-public final class MasterControllerImpl implements MasterController {
+import outmaneuver.controller.EntityController;
+import outmaneuver.controller.InternalEvent;
+import outmaneuver.controller.MasterController;
+import outmaneuver.controller.OutmaneuverEvent;
+import outmaneuver.controller.event.InternalEventListener;
+import outmaneuver.view.GameView;
+import outmaneuver.view.RenderState;
+
+public final class MasterControllerImpl implements MasterController, InternalEventListener {
 
     private static final long TICK_PERIOD_MS = 16;
     private static final long MAX_DELTA_MS = 50;
 
     private final List<GameView> views = new ArrayList<>();
-    private final EntityController entityController;
+    private EntityController entityController;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> tickTask;
     private volatile boolean paused;
     private long lastTickTime;
 
-    public MasterControllerImpl(final EntityController entityController) {
-        this.entityController = Objects.requireNonNull(entityController, "entityController must not be null");
+    public MasterControllerImpl() {
         this.paused = false;
+    }
+
+    public void setEntityController(final EntityController entityController) {
+        this.entityController = Objects.requireNonNull(entityController, "entityController must not be null");
     }
 
     @Override
@@ -102,6 +105,7 @@ public final class MasterControllerImpl implements MasterController {
         views.forEach(action);
     }
 
+    @Override
     public void onInternalEvent(final InternalEvent evt, final Object data) {
         // No events to handle yet
     }

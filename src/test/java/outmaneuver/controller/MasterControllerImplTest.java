@@ -1,6 +1,12 @@
 package outmaneuver.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -13,9 +19,6 @@ import outmaneuver.model.area.StandardStats;
 import outmaneuver.util.Vector2;
 import outmaneuver.view.GameView;
 import outmaneuver.view.RenderState;
-
-import java.util.ArrayList;
-import java.util.List;
 
 class MasterControllerImplTest {
 
@@ -41,8 +44,9 @@ class MasterControllerImplTest {
         plane = new PlaneImpl(new StandardStats());
         input = new InputControllerImpl();
         spyView = new SpyView();
-        entityCtrl = new EntityControllerImpl(plane, input, (evt, data) -> { });
-        master = new MasterControllerImpl(entityCtrl);
+        master = new MasterControllerImpl();
+        entityCtrl = new EntityControllerImpl(plane, input, master);
+        master.setEntityController(entityCtrl);
     }
 
     @Test
