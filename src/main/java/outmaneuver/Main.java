@@ -1,35 +1,32 @@
 package outmaneuver;
 
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
+import outmaneuver.controller.impl.EntityControllerImpl;
+import outmaneuver.controller.impl.InputControllerImpl;
+import outmaneuver.controller.impl.MasterControllerImpl;
+import outmaneuver.model.area.Plane;
+import outmaneuver.model.area.PlaneImpl;
+import outmaneuver.model.area.StandardStats;
+import outmaneuver.view.swing.SwingGameView;
 
-import outmaneuver.model.session.GameState;
-import outmaneuver.view.UIManager;
-import outmaneuver.view.gameover.GameOverView;
-import outmaneuver.view.menu.MainMenuView;
-
-// TODO: classe temporanea per testing visuale — da sostituire con il controller reale
 public final class Main {
 
-    private Main() { }
+    private Main() {
+    }
 
     public static void main(final String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            final JFrame frame = new JFrame("OutManeuver");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(800, 600);
-            frame.setLocationRelativeTo(null);
+        final Plane plane = new PlaneImpl(new StandardStats());
+        final InputControllerImpl inputCtrl = new InputControllerImpl();
 
-            final GameOverView gameOverView = new GameOverView();
-            final MainMenuView mainMenuView = new MainMenuView(
-                () -> System.out.println("START pressed — controller non ancora collegato"),
-                () -> System.exit(0)
-            );
-            final UIManager uiManager = new UIManager(mainMenuView, gameOverView);
-            uiManager.showScreen(GameState.MENU);
+        final MasterControllerImpl[] masterRef = new MasterControllerImpl[1];
+        final EntityControllerImpl entityCtrl = new EntityControllerImpl(
+                plane, inputCtrl,
+                (evt, data) -> masterRef[0].onInternalEvent(evt, data));
+        final MasterControllerImpl master = new MasterControllerImpl(entityCtrl);
+        masterRef[0] = master;
 
-            frame.setContentPane(uiManager);
-            frame.setVisible(true);
-        });
+        final SwingGameView view = new SwingGameView(inputCtrl, master);
+        view.init();
+        master.attachView(view);
+        master.start();
     }
 }
