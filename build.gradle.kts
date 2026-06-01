@@ -13,12 +13,6 @@ plugins {
      */
     id("com.gradleup.shadow") version "9.4.1"
     id("org.danilopianini.gradle-java-qa") version "1.178.0"
-    id("org.openjfx.javafxplugin") version "0.1.0"
-}
-
-javafx {
-    version = "21"
-    modules = listOf("javafx.controls")
 }
 
 repositories { // Where to search for dependencies
