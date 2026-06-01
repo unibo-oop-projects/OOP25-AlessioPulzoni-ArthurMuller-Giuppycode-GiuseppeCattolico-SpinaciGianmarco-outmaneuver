@@ -1,15 +1,5 @@
 package outmaneuver.view.swing;
 
-import outmaneuver.controller.InputController;
-import outmaneuver.controller.MasterController;
-import outmaneuver.controller.OutmaneuverEvent;
-import outmaneuver.view.EntityRenderData;
-import outmaneuver.view.GameView;
-import outmaneuver.view.RenderState;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -17,8 +7,16 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+
+import outmaneuver.controller.InputController;
+import outmaneuver.controller.MasterController;
+import outmaneuver.controller.OutmaneuverEvent;
+import outmaneuver.view.EntityRenderData;
+import outmaneuver.view.GameView;
+import outmaneuver.view.RenderState;
 
 public final class SwingGameView implements GameView {
 
@@ -29,7 +27,6 @@ public final class SwingGameView implements GameView {
 
     private final InputController inputController;
     private final MasterController masterController;
-    private final JFrame frame;
     private final GamePanel gamePanel;
     private volatile RenderState latestState;
 
@@ -37,49 +34,36 @@ public final class SwingGameView implements GameView {
                          final MasterController masterController) {
         this.inputController = inputController;
         this.masterController = masterController;
-        this.frame = new JFrame("OutManeuver");
         this.gamePanel = new GamePanel();
         this.latestState = null;
     }
 
+    public JPanel getPanel() {
+        return gamePanel;
+    }
+
     public void init() {
-        SwingUtilities.invokeLater(() -> {
-            gamePanel.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
-            gamePanel.setFocusable(true);
-            gamePanel.addKeyListener(new KeyAdapter() {
-                @Override
-                public void keyPressed(final KeyEvent e) {
-                    inputController.onKeyPressed(e.getKeyCode());
-                    if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                        masterController.handleEvent(OutmaneuverEvent.QUIT_APPLICATION);
-                    }
-                    if (e.getKeyCode() == KeyEvent.VK_P) {
-                        masterController.handleEvent(OutmaneuverEvent.PAUSE_GAME);
-                    }
-                    if (e.getKeyCode() == KeyEvent.VK_R) {
-                        masterController.handleEvent(OutmaneuverEvent.RESUME_GAME);
-                    }
-                }
-
-                @Override
-                public void keyReleased(final KeyEvent e) {
-                    inputController.onKeyReleased(e.getKeyCode());
-                }
-            });
-
-            frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-            frame.addWindowListener(new WindowAdapter() {
-                @Override
-                public void windowClosing(final WindowEvent e) {
+        gamePanel.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
+        gamePanel.setFocusable(true);
+        gamePanel.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(final KeyEvent e) {
+                inputController.onKeyPressed(e.getKeyCode());
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
                     masterController.handleEvent(OutmaneuverEvent.QUIT_APPLICATION);
                 }
-            });
-            frame.add(gamePanel);
-            frame.pack();
-            frame.setResizable(false);
-            frame.setLocationRelativeTo(null);
-            frame.setVisible(true);
-            gamePanel.requestFocusInWindow();
+                if (e.getKeyCode() == KeyEvent.VK_P) {
+                    masterController.handleEvent(OutmaneuverEvent.PAUSE_GAME);
+                }
+                if (e.getKeyCode() == KeyEvent.VK_R) {
+                    masterController.handleEvent(OutmaneuverEvent.RESUME_GAME);
+                }
+            }
+
+            @Override
+            public void keyReleased(final KeyEvent e) {
+                inputController.onKeyReleased(e.getKeyCode());
+            }
         });
     }
 
