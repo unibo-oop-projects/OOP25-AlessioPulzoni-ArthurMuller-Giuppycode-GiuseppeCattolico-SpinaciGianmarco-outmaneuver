@@ -2,21 +2,20 @@ package outmaneuver.view.swing;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.Objects;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import outmaneuver.controller.InputController;
-import outmaneuver.controller.MasterController;
-import outmaneuver.controller.OutmaneuverEvent;
 import outmaneuver.view.EntityRenderData;
 import outmaneuver.view.GameView;
+import outmaneuver.view.HudSnapshot;
 import outmaneuver.view.RenderState;
 
 public final class SwingGameView implements GameView {
@@ -25,16 +24,17 @@ public final class SwingGameView implements GameView {
     private static final int PANEL_HEIGHT = 600;
     private static final int PLANE_RADIUS = 20;
     private static final int DIR_INDICATOR_LENGTH = 40;
+    private static final int HUD_MARGIN = 12;
+    private static final int HUD_LINE_HEIGHT = 22;
+    private static final int HUD_FONT_SIZE = 16;
+    private static final int PAUSED_FONT_SIZE = 48;
 
-    private final InputController inputController;
-    private final MasterController masterController;
+    private final KeyListener keyListener;
     private final GamePanel gamePanel;
     private volatile RenderState latestState;
 
-    public SwingGameView(final InputController inputController,
-                         final MasterController masterController) {
-        this.inputController = Objects.requireNonNull(inputController, "inputController must not be null");
-        this.masterController = Objects.requireNonNull(masterController, "masterController must not be null");
+    public SwingGameView(final KeyListener keyListener) {
+        this.keyListener = Objects.requireNonNull(keyListener, "keyListener must not be null");
         this.gamePanel = new GamePanel();
         this.latestState = null;
     }
@@ -46,26 +46,7 @@ public final class SwingGameView implements GameView {
     public void init() {
         gamePanel.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
         gamePanel.setFocusable(true);
-        gamePanel.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(final KeyEvent e) {
-                inputController.onKeyPressed(e.getKeyCode());
-                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                    masterController.handleEvent(OutmaneuverEvent.QUIT_APPLICATION);
-                }
-                if (e.getKeyCode() == KeyEvent.VK_P) {
-                    masterController.handleEvent(OutmaneuverEvent.PAUSE_GAME);
-                }
-                if (e.getKeyCode() == KeyEvent.VK_R) {
-                    masterController.handleEvent(OutmaneuverEvent.RESUME_GAME);
-                }
-            }
-
-            @Override
-            public void keyReleased(final KeyEvent e) {
-                inputController.onKeyReleased(e.getKeyCode());
-            }
-        });
+        gamePanel.addKeyListener(keyListener);
     }
 
     @Override
@@ -92,9 +73,45 @@ public final class SwingGameView implements GameView {
                 final double cameraX = planeData.getX();
                 final double cameraY = planeData.getY();
                 drawPlane(g2d, planeData, cameraX, cameraY);
+                if (state.getHud() != null) {
+                    drawHud(g2d, state.getHud());
+                }
             }
 
             g2d.dispose();
+        }
+
+        private void drawHud(final Graphics2D g2d, final HudSnapshot hud) {
+            final Font hudFont = new Font(Font.MONOSPACED, Font.BOLD, HUD_FONT_SIZE);
+            g2d.setFont(hudFont);
+            final FontMetrics fm = g2d.getFontMetrics();
+
+            final long totalSec = hud.elapsedMs() / 1000;
+            final String timeStr  = String.format("Time:   %02d:%02d", totalSec / 60, totalSec % 60);
+            final String speedStr = String.format("Speed:  %.1f", hud.speed());
+            final String shieldStr = "Shield: " + (hud.shieldActive() ? "ON" : "OFF");
+            final String starsStr = "Stars: " + hud.stars();
+
+            g2d.setColor(Color.WHITE);
+            g2d.drawString(timeStr,  HUD_MARGIN, HUD_MARGIN + HUD_LINE_HEIGHT);
+            g2d.drawString(speedStr, HUD_MARGIN, HUD_MARGIN + HUD_LINE_HEIGHT * 2);
+
+            g2d.setColor(hud.shieldActive() ? Color.CYAN : Color.GRAY);
+            g2d.drawString(shieldStr, HUD_MARGIN, HUD_MARGIN + HUD_LINE_HEIGHT * 3);
+
+            g2d.setColor(Color.YELLOW);
+            g2d.drawString(starsStr, getWidth() - fm.stringWidth(starsStr) - HUD_MARGIN, HUD_MARGIN + HUD_LINE_HEIGHT);
+
+            if (hud.paused()) {
+                final Font pausedFont = new Font(Font.SANS_SERIF, Font.BOLD, PAUSED_FONT_SIZE);
+                g2d.setFont(pausedFont);
+                final FontMetrics pfm = g2d.getFontMetrics();
+                final String pausedStr = "PAUSED";
+                g2d.setColor(new Color(255, 255, 255, 180));
+                g2d.drawString(pausedStr,
+                        (getWidth() - pfm.stringWidth(pausedStr)) / 2,
+                        getHeight() / 2);
+            }
         }
 
         private void drawPlane(final Graphics2D g2d, final EntityRenderData data,
