@@ -2,6 +2,7 @@ package outmaneuver;
 
 import javax.swing.JFrame;
 
+import outmaneuver.controller.MasterController;
 import outmaneuver.controller.impl.EntityControllerImpl;
 import outmaneuver.controller.impl.InputControllerImpl;
 import outmaneuver.controller.impl.MasterControllerImpl;
@@ -52,7 +53,7 @@ public final class AppBootstrapper {
     }
 
     private static void onStart(final UIManager uiManager,
-                                 final MasterControllerImpl master,
+                                 final MasterController master,
                                  final SwingGameView gameView) {
         uiManager.showScreen(GameState.PLAYING);
         gameView.getPanel().requestFocusInWindow();
