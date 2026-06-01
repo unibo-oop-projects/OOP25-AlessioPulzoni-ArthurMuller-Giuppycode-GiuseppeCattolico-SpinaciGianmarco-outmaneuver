@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.Objects;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -32,8 +33,8 @@ public final class SwingGameView implements GameView {
 
     public SwingGameView(final InputController inputController,
                          final MasterController masterController) {
-        this.inputController = inputController;
-        this.masterController = masterController;
+        this.inputController = Objects.requireNonNull(inputController, "inputController must not be null");
+        this.masterController = Objects.requireNonNull(masterController, "masterController must not be null");
         this.gamePanel = new GamePanel();
         this.latestState = null;
     }
