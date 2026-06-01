@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import outmaneuver.controller.impl.EntityControllerImpl;
+import outmaneuver.controller.impl.HudControllerImpl;
 import outmaneuver.controller.impl.InputControllerImpl;
 import outmaneuver.controller.impl.MasterControllerImpl;
 import outmaneuver.model.area.Plane;
@@ -44,7 +45,7 @@ class MasterControllerImplTest {
         plane = new PlaneImpl(new StandardStats());
         input = new InputControllerImpl();
         spyView = new SpyView();
-        master = new MasterControllerImpl();
+        master = new MasterControllerImpl(new HudControllerImpl());
         entityCtrl = new EntityControllerImpl(plane, input, master);
         master.setEntityController(entityCtrl);
     }
@@ -78,7 +79,7 @@ class MasterControllerImplTest {
         Thread.sleep(50);
         spyView.frames.clear();
 
-        master.handleEvent(OutmaneuverEvent.PAUSE_GAME);
+        master.handleEvent(OutmaneuverEvent.TOGGLE_PAUSE);
         final Vector2 posBefore = plane.getPosition();
         Thread.sleep(TICK_WAIT_MS);
         final Vector2 posAfter = plane.getPosition();
@@ -94,11 +95,11 @@ class MasterControllerImplTest {
         master.attachView(spyView);
         master.start();
         Thread.sleep(30);
-        master.handleEvent(OutmaneuverEvent.PAUSE_GAME);
+        master.handleEvent(OutmaneuverEvent.TOGGLE_PAUSE);
         Thread.sleep(30);
 
         final Vector2 posBefore = plane.getPosition();
-        master.handleEvent(OutmaneuverEvent.RESUME_GAME);
+        master.handleEvent(OutmaneuverEvent.TOGGLE_PAUSE);
         Thread.sleep(50);
         master.stop();
 
@@ -114,17 +115,19 @@ class MasterControllerImplTest {
         Thread.sleep(30);
 
         spyView.frames.clear();
-        master.handleEvent(OutmaneuverEvent.PAUSE_GAME);
+        master.handleEvent(OutmaneuverEvent.TOGGLE_PAUSE);
+        final Vector2 posDuringPause1 = plane.getPosition();
         Thread.sleep(TICK_WAIT_MS);
-        assertTrue(spyView.frames.size() <= 2,
-                "Fewer frames expected while paused, got " + spyView.frames.size());
+        final Vector2 posDuringPause2 = plane.getPosition();
+        assertFalse(spyView.frames.isEmpty(), "Frames should still arrive while paused (HUD overlay)");
+        assertEquals(posDuringPause1.getX(), posDuringPause2.getX(), 1e-9,
+                "Plane should not move while paused");
 
         spyView.frames.clear();
-        master.handleEvent(OutmaneuverEvent.RESUME_GAME);
+        master.handleEvent(OutmaneuverEvent.TOGGLE_PAUSE);
         Thread.sleep(TICK_WAIT_MS);
         master.stop();
-        assertTrue(spyView.frames.size() >= 2,
-                "Frames should resume after resume");
+        assertTrue(spyView.frames.size() >= 2, "Frames should resume after resume");
     }
 
     @Test
