@@ -1,7 +1,6 @@
-package outmaneuver.view.gameover;
+package outmaneuver.view.swing.gameover;
 
 import javax.swing.JPanel;
 
-// TODO: da implementare
 public class GameOverView extends JPanel {
 }

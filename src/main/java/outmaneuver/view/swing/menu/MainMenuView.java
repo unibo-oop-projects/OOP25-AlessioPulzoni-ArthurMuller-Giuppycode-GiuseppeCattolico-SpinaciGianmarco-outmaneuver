@@ -1,4 +1,4 @@
-package outmaneuver.view.menu;
+package outmaneuver.view.swing.menu;
 
 import java.awt.Color;
 import java.awt.Dimension;
