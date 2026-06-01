@@ -22,7 +22,7 @@ public final class AppBootstrapper {
     public static void launch() {
         final JFrame frame = new JFrame("OutManeuver");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setResizable(false);
+        frame.setResizable(true);
 
         final Plane plane = new PlaneImpl(new StandardStats());
         final InputControllerImpl inputCtrl = new InputControllerImpl();
@@ -48,6 +48,7 @@ public final class AppBootstrapper {
 
         frame.add(uiManager);
         frame.pack();
+        frame.setMinimumSize(frame.getSize());
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
