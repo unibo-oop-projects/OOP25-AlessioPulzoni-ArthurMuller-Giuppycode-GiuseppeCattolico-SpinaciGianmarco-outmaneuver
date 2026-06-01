@@ -12,18 +12,21 @@ import java.util.function.Consumer;
 import outmaneuver.controller.EntityController;
 import outmaneuver.controller.InternalEvent;
 import outmaneuver.controller.MasterController;
+import outmaneuver.controller.MissileController;
 import outmaneuver.controller.OutmaneuverEvent;
 import outmaneuver.controller.event.InternalEventListener;
+import outmaneuver.model.missile.MissileRenderData;
 import outmaneuver.view.GameView;
 import outmaneuver.view.RenderState;
 
 public final class MasterControllerImpl implements MasterController, InternalEventListener {
 
     private static final long TICK_PERIOD_MS = 16;
-    private static final long MAX_DELTA_MS = 50;
+    private static final long MAX_DELTA_MS   = 50;
 
     private final List<GameView> views = new ArrayList<>();
     private EntityController entityController;
+    private MissileController missileController; // AGGIUNTO
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> tickTask;
     private volatile boolean paused;
@@ -38,6 +41,11 @@ public final class MasterControllerImpl implements MasterController, InternalEve
             throw new IllegalStateException("entityController already set");
         }
         this.entityController = Objects.requireNonNull(entityController, "entityController must not be null");
+    }
+
+    // AGGIUNTO
+    public void setMissileController(final MissileController missileController) {
+        this.missileController = Objects.requireNonNull(missileController, "missileController must not be null");
     }
 
     @Override
@@ -88,17 +96,25 @@ public final class MasterControllerImpl implements MasterController, InternalEve
         long deltaMs = (now - lastTickTime) / 1_000_000;
         lastTickTime = now;
 
-        if (deltaMs > MAX_DELTA_MS) {
-            deltaMs = MAX_DELTA_MS;
-        }
-        if (deltaMs <= 0) {
-            return;
-        }
+        if (deltaMs > MAX_DELTA_MS) deltaMs = MAX_DELTA_MS;
+        if (deltaMs <= 0) return;
 
         entityController.updateEntities(deltaMs);
 
+        // AGGIUNTO — update missili
+        final double deltaSec = deltaMs / 1000.0;
+        if (missileController != null) {
+            missileController.update(entityController.getPlane(), deltaSec);
+        }
+
+        // AGGIUNTO — missiles nel RenderState
+        final List<MissileRenderData> missileData = missileController != null
+                ? missileController.getRenderData()
+                : List.of();
+
         final RenderState state = RenderState.builder()
                 .plane(entityController.getPlane())
+                .missiles(missileData) // AGGIUNTO
                 .build();
 
         notifyViews(v -> v.renderFrame(state));

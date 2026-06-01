@@ -6,6 +6,7 @@ import outmaneuver.controller.MasterController;
 import outmaneuver.controller.impl.EntityControllerImpl;
 import outmaneuver.controller.impl.InputControllerImpl;
 import outmaneuver.controller.impl.MasterControllerImpl;
+import outmaneuver.controller.impl.MissileControllerImpl;
 import outmaneuver.model.area.Plane;
 import outmaneuver.model.area.PlaneImpl;
 import outmaneuver.model.area.StandardStats;
@@ -16,6 +17,9 @@ import outmaneuver.view.swing.gameover.GameOverView;
 import outmaneuver.view.swing.menu.MainMenuView;
 
 public final class AppBootstrapper {
+
+    private static final int SCREEN_W = 800; // AGGIUNTO
+    private static final int SCREEN_H = 600; // AGGIUNTO
 
     private AppBootstrapper() { }
 
@@ -29,6 +33,10 @@ public final class AppBootstrapper {
         final MasterControllerImpl master = new MasterControllerImpl();
         final EntityControllerImpl entity = new EntityControllerImpl(plane, inputCtrl, master);
         master.setEntityController(entity);
+
+        // AGGIUNTO — crea e aggancia il missile controller
+        final MissileControllerImpl missileCtrl = new MissileControllerImpl(SCREEN_W, SCREEN_H);
+        master.setMissileController(missileCtrl);
 
         final SwingGameView gameView = new SwingGameView(inputCtrl, master);
         gameView.init();
@@ -60,4 +68,3 @@ public final class AppBootstrapper {
         master.start();
     }
 }
-
