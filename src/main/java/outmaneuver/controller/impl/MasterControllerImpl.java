@@ -31,10 +31,15 @@ public final class MasterControllerImpl implements MasterController, InternalEve
     private ScheduledFuture<?> tickTask;
     private volatile boolean paused;
     private long lastTickTime;
+    private Runnable onGameOver;
 
     public MasterControllerImpl(final HudController hudController) {
         this.hudController = Objects.requireNonNull(hudController, "hudController must not be null");
         this.paused = false;
+    }
+
+    public void setOnGameOver(final Runnable onGameOver) {
+        this.onGameOver = Objects.requireNonNull(onGameOver);
     }
 
     public void setEntityController(final EntityController entityController) {
@@ -58,6 +63,12 @@ public final class MasterControllerImpl implements MasterController, InternalEve
             case QUIT_APPLICATION -> {
                 shutdown();
                 System.exit(0);
+            }
+            case GAME_OVER -> {
+                stop();
+                if (onGameOver != null) {
+                    onGameOver.run();
+                }
             }
         }
     }
