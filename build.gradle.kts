@@ -21,6 +21,7 @@ repositories { // Where to search for dependencies
 
 dependencies {
     compileOnly("com.github.spotbugs:spotbugs-annotations:4.9.8")
+    implementation("com.google.code.gson:gson:2.11.0")
 
     testImplementation(platform("org.junit:junit-bom:6.0.3"))
     testImplementation("org.junit.jupiter:junit-jupiter-api")
