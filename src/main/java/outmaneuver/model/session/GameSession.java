@@ -10,9 +10,7 @@ public final class GameSession implements IGameSession {
     private GameState currentState;
     private Plane plane;
 
-    /** Millisecondi di gioco accumulati prima della pausa corrente. */
     private long accumulatedPlayingMs;
-    /** System.currentTimeMillis() all'ultimo ingresso in PLAYING. */
     private long playingStartMs;
 
     public GameSession() {
@@ -60,8 +58,6 @@ public final class GameSession implements IGameSession {
         currentState = state;
         onEnter(state);
     }
-
-    // ------------------------------------------------------------------ //
 
     private void onExit(final GameState exiting) {
         if (exiting == GameState.PLAYING) {
