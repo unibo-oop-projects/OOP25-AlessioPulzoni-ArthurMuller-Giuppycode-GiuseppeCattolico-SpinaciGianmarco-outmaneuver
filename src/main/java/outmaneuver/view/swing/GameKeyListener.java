@@ -25,6 +25,7 @@ public final class GameKeyListener extends KeyAdapter {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_ESCAPE -> masterController.handleEvent(OutmaneuverEvent.QUIT_APPLICATION);
             case KeyEvent.VK_P      -> masterController.handleEvent(OutmaneuverEvent.TOGGLE_PAUSE);
+            case KeyEvent.VK_G      -> masterController.handleEvent(OutmaneuverEvent.GAME_OVER);
             default -> { }
         }
     }
