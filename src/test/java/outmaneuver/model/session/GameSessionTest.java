@@ -122,9 +122,4 @@ class GameSessionTest {
     void transitionToNullThrows() {
         assertThrows(NullPointerException.class, () -> session.transitionTo(null));
     }
-
-    @Test
-    void equipPlaneThrowsOnNull() {
-        assertThrows(NullPointerException.class, () -> session.equipPlane(null));
-    }
 }

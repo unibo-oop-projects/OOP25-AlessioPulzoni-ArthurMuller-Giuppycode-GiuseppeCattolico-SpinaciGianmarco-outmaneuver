@@ -2,13 +2,10 @@ package outmaneuver.model.session;
 
 import java.util.Objects;
 
-import outmaneuver.model.area.Plane;
-
 public final class GameSession implements IGameSession {
 
     private int score;
     private GameState currentState;
-    private Plane plane;
 
     private long accumulatedPlayingMs;
     private long playingStartMs;
@@ -35,11 +32,6 @@ public final class GameSession implements IGameSession {
             return accumulatedPlayingMs + (System.currentTimeMillis() - playingStartMs);
         }
         return accumulatedPlayingMs;
-    }
-
-    @Override
-    public void equipPlane(final Plane plane) {
-        this.plane = Objects.requireNonNull(plane, "plane must not be null");
     }
 
     @Override

@@ -1,7 +1,5 @@
 package outmaneuver.model.session;
 
-import outmaneuver.model.area.Plane;
-
 public interface IGameSession {
 
     GameState getGameState();
@@ -10,8 +8,6 @@ public interface IGameSession {
 
     /** Restituisce i millisecondi trascorsi in stato PLAYING. */
     long getElapsedTimeMillis();
-
-    void equipPlane(Plane plane);
 
     /**
      * Incrementa il punteggio del valore indicato.
