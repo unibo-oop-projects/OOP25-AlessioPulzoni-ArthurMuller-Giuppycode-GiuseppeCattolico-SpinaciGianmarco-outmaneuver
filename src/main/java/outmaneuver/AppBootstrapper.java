@@ -1,5 +1,6 @@
 package outmaneuver;
 
+import java.nio.file.Path;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -14,6 +15,8 @@ import outmaneuver.controller.impl.MasterControllerImpl;
 import outmaneuver.model.area.Plane;
 import outmaneuver.model.area.PlaneImpl;
 import outmaneuver.model.area.StandardStats;
+import outmaneuver.model.leaderboard.JsonLeaderboardRepository;
+import outmaneuver.model.leaderboard.Leaderboard;
 import outmaneuver.model.session.GameState;
 import outmaneuver.view.swing.GameKeyListener;
 import outmaneuver.view.swing.SwingGameView;
@@ -42,13 +45,22 @@ public final class AppBootstrapper {
         gameView.init();
         master.attachView(gameView);
 
+        final Leaderboard leaderboard = new Leaderboard(
+                new JsonLeaderboardRepository(Path.of(System.getProperty("user.home"), ".outmaneuver", "scores.json")));
+
         final UIManager[] uiManagerRef = { null };
 
-        final GameOverView gameOverView = new GameOverView();
+        final GameOverView gameOverView = new GameOverView(
+                () -> onPlayAgain(uiManagerRef[0], master, gameView),
+                () -> uiManagerRef[0].showScreen(GameState.MENU)
+        );
         final MainMenuView mainMenuView = new MainMenuView(
             () -> onStart(uiManagerRef[0], master, gameView),
             () -> System.exit(0)
         );
+
+        // TODO: sostituire con GameEventBus.GAME_OVER quando Spinaci implementa il bus
+        master.setOnGameOver(() -> onGameOver(uiManagerRef[0], gameOverView, leaderboard, 0, "Player"));
 
         final Map<GameState, JPanel> screens = new EnumMap<>(GameState.class);
         screens.put(GameState.MENU, mainMenuView);
@@ -67,9 +79,27 @@ public final class AppBootstrapper {
         frame.setVisible(true);
     }
 
+    private static void onGameOver(final UIManager uiManager,
+                                    final GameOverView gameOverView,
+                                    final Leaderboard leaderboard,
+                                    final int finalScore,
+                                    final String playerName) {
+        leaderboard.save(finalScore, playerName);
+        gameOverView.show(finalScore, leaderboard.getTopScores());
+        uiManager.showScreen(GameState.GAME_OVER);
+    }
+
     private static void onStart(final UIManager uiManager,
                                  final MasterController master,
                                  final SwingGameView gameView) {
+        uiManager.showScreen(GameState.PLAYING);
+        gameView.getPanel().requestFocusInWindow();
+        master.start();
+    }
+
+    private static void onPlayAgain(final UIManager uiManager,
+                                     final MasterController master,
+                                     final SwingGameView gameView) {
         uiManager.showScreen(GameState.PLAYING);
         gameView.getPanel().requestFocusInWindow();
         master.start();
