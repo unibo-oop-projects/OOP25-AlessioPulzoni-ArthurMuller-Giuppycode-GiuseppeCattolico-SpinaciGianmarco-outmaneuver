@@ -19,6 +19,7 @@ import outmaneuver.view.swing.GameKeyListener;
 import outmaneuver.view.swing.SwingGameView;
 import outmaneuver.view.swing.UIManager;
 import outmaneuver.view.swing.gameover.GameOverView;
+import outmaneuver.view.swing.hud.SwingHudView;
 import outmaneuver.view.swing.menu.MainMenuView;
 
 public final class AppBootstrapper {
@@ -37,7 +38,7 @@ public final class AppBootstrapper {
         final EntityControllerImpl entity = new EntityControllerImpl(plane, inputCtrl, master);
         master.setEntityController(entity);
 
-        final SwingGameView gameView = new SwingGameView(new GameKeyListener(inputCtrl, master));
+        final SwingGameView gameView = new SwingGameView(new GameKeyListener(inputCtrl, master), new SwingHudView());
         gameView.init();
         master.attachView(gameView);
 
