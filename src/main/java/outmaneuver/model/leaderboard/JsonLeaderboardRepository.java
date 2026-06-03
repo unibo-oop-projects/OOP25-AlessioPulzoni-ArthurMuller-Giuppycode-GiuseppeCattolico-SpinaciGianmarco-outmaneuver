@@ -2,6 +2,7 @@ package outmaneuver.model.leaderboard;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
@@ -56,7 +57,7 @@ public final class JsonLeaderboardRepository implements ILeaderboardRepository {
                 gson.toJson(entries, SCORE_LIST_TYPE, writer);
             }
         } catch (IOException e) {
-            throw new LeaderboardIOException("Failed to persist leaderboard to " + filePath, e);
+            throw new UncheckedIOException("Failed to persist leaderboard to " + filePath, e);
         }
     }
 
