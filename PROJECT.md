@@ -398,9 +398,9 @@ Le interfacce condivise sono il punto di integrazione del team. Qualsiasi modifi
 **View:** `ParticleSystem` *(da impl.)*, `AudioManager` *(da impl.)*
 
 ### Cattolico Giuseppe
-**Model:** `IGameSession` ✓, `GameSession` ✓, `GameState` ✓, `ScoreEntry` ✓, `DifficultyConfig` ✓, `Collectible` ✓, `SpeedBoost` ✓, `StarCollectible` ✓, `ShieldPowerUp` ✓, `EmpPowerUp` *(da impl. — richiede `IGameArea`)*, `ILeaderboardRepository` ✓, `JsonLeaderboardRepository` ✓, `Leaderboard` ✓, `Shop` *(da impl.)*  
+**Model:** `IGameSession` ✓, `GameSession` ✓, `GameState` ✓, `ScoreEntry` ✓, `DifficultyConfig` ✓, `Collectible` ✓, `SpeedBoost` ✓, `StarCollectible` ✓, `ShieldPowerUp` ✓, `EmpPowerUp` *(da impl. — richiede `IGameArea`)*,  `Leaderboard` ✓, `Shop` *(da impl.)*  
 **Controller:** `HudController` ✓, `HudControllerImpl` ✓, `CollectibleSpawner` *(da impl.)*  
-**View:** `UIManager` ✓, `HudSnapshot` ✓, `MainMenuView` ✓, `GameOverView` *(da completare)*, `HUDView` *(da impl.)*, `ShopView` *(da impl.)*, `CollectibleRenderer` *(da impl.)*
+**View:** `UIManager` ✓, `HudSnapshot` ✓, `MainMenuView` ✓, `GameOverView` , `HUDView` , `ShopView` , `CollectibleRenderer` *(da impl.)*
 
 ---
 
@@ -468,8 +468,8 @@ Prima che ciascun membro inizi a scrivere implementazioni:
 - [ ] `IGameArea` e integrazione in `EntityControllerImpl` (Condiviso)
 - [ ] `EmpPowerUp` (Cattolico — aspetta `IGameArea`)
 - [ ] `EntityFactory`, `MissileSpawner`, `CollectibleSpawner` (Muller/Pulzoni/Cattolico)
-- [ ] `GameOverView`, `HUDView`, `ShopView`, `CollectibleRenderer` (Cattolico)
-- [ ] `Shop` (Cattolico)
+- [x] `GameOverView`, `HUDView`, `ShopView`, `CollectibleRenderer`*(da impl.)* (Cattolico)
+- [x] `Shop` (Cattolico)
 
 
 ---
