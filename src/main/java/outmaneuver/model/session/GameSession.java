@@ -69,7 +69,6 @@ public final class GameSession implements IGameSession {
             case PLAYING   -> to == GameState.PAUSED || to == GameState.GAME_OVER;
             case PAUSED    -> to == GameState.PLAYING || to == GameState.GAME_OVER;
             case GAME_OVER -> to == GameState.MENU;
-            case SHOP      -> false;
         };
         if (!valid) {
             throw new IllegalArgumentException("Invalid transition: " + from + " -> " + to);
