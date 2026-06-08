@@ -16,20 +16,19 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import outmaneuver.model.session.ScoreEntry;
+import outmaneuver.view.swing.leaderboard.LeaderboardTablePanel;
 
 public final class GameOverView extends JPanel {
 
     private static final int TITLE_FONT_SIZE   = 64;
     private static final int SCORE_FONT_SIZE   = 28;
-    private static final int TABLE_FONT_SIZE   = 16;
     private static final int BUTTON_FONT_SIZE  = 20;
     private static final int BUTTON_WIDTH      = 200;
     private static final int BUTTON_HEIGHT     = 50;
     private static final int VGAP              = 14;
-    private static final int TOP_ENTRIES       = 5;
 
     private final JLabel scoreLabel;
-    private final JPanel tablePanel;
+    private final LeaderboardTablePanel tablePanel;
 
     public GameOverView(final Runnable onPlayAgain, final Runnable onMenu) {
         final Runnable safePlayAgain = Objects.requireNonNull(onPlayAgain);
@@ -51,8 +50,7 @@ public final class GameOverView extends JPanel {
         scoreLabel.setFont(new Font(Font.MONOSPACED, Font.BOLD, SCORE_FONT_SIZE));
         scoreLabel.setForeground(Color.WHITE);
 
-        tablePanel = new JPanel(new GridBagLayout());
-        tablePanel.setBackground(Color.BLACK);
+        tablePanel = new LeaderboardTablePanel(5);
 
         final JButton playAgainButton = new JButton("PLAY AGAIN");
         final JButton menuButton      = new JButton("MENU");
@@ -79,50 +77,10 @@ public final class GameOverView extends JPanel {
         Objects.requireNonNull(topScores, "topScores must not be null");
         SwingUtilities.invokeLater(() -> {
             scoreLabel.setText("Score: " + finalScore);
-            rebuildTable(topScores);
+            tablePanel.refresh(topScores);
             revalidate();
             repaint();
         });
-    }
-
-    private void rebuildTable(final List<ScoreEntry> topScores) {
-        tablePanel.removeAll();
-
-        final GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(2, 12, 2, 12);
-        gbc.gridy  = 0;
-
-        addTableRow(gbc, "#", "Name", "Score", "Date", true);
-
-        final int count = Math.min(topScores.size(), TOP_ENTRIES);
-        for (int i = 0; i < count; i++) {
-            final ScoreEntry e = topScores.get(i);
-            addTableRow(gbc,
-                    String.valueOf(i + 1),
-                    e.playerName(),
-                    String.valueOf(e.score()),
-                    e.date().toString(),
-                    false);
-        }
-    }
-
-    private void addTableRow(final GridBagConstraints gbc,
-                              final String rank, final String name,
-                              final String score, final String date,
-                              final boolean header) {
-        final Font font = new Font(Font.MONOSPACED,
-                header ? Font.BOLD : Font.PLAIN, TABLE_FONT_SIZE);
-        final Color color = header ? Color.YELLOW : Color.WHITE;
-
-        int col = 0;
-        for (final String text : new String[]{rank, name, score, date}) {
-            final JLabel lbl = new JLabel(text, SwingConstants.CENTER);
-            lbl.setFont(font);
-            lbl.setForeground(color);
-            gbc.gridx = col++;
-            tablePanel.add(lbl, gbc);
-        }
-        gbc.gridy++;
     }
 }
 

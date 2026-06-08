@@ -24,6 +24,7 @@ import outmaneuver.model.shop.Shop;
 import outmaneuver.model.shop.ShopItem;
 import outmaneuver.view.swing.GameKeyListener;
 import outmaneuver.view.swing.SwingGameView;
+import outmaneuver.view.swing.leaderboard.LeaderboardView;
 import outmaneuver.view.swing.ScreenId;
 import outmaneuver.view.swing.UIManager;
 import outmaneuver.view.swing.gameover.GameOverView;
@@ -60,8 +61,9 @@ public final class AppBootstrapper {
                 // TODO: aggiungere altri PlaneStats quando disponibili
         ));
 
-        final UIManager[] uiManagerRef = { null };
-        final MainMenuView[] mainMenuRef = { null };
+        final UIManager[] uiManagerRef       = { null };
+        final MainMenuView[] mainMenuRef       = { null };
+        final LeaderboardView[] leaderboardRef = { null };
 
         final ShopView shopView = new ShopView(
                 shop.getCatalog(),
@@ -94,12 +96,22 @@ public final class AppBootstrapper {
                     uiManagerRef[0].showScreen(ScreenId.MENU);
                 }
         );
+        final LeaderboardView leaderboardView = new LeaderboardView(
+                profile::getTopScores,
+                () -> uiManagerRef[0].showScreen(ScreenId.MENU)
+        );
+        leaderboardRef[0] = leaderboardView;
+
         final MainMenuView mainMenuView = new MainMenuView(
                 profile.getPlayerName(),
                 () -> onStart(uiManagerRef[0], master, gameView),
                 () -> {
                     shopView.refreshCoins();
                     uiManagerRef[0].showScreen(ScreenId.SHOP);
+                },
+                () -> {
+                    leaderboardRef[0].refresh();
+                    uiManagerRef[0].showScreen(ScreenId.LEADERBOARD);
                 },
                 () -> System.exit(0)
         );
@@ -114,6 +126,7 @@ public final class AppBootstrapper {
         screens.put(ScreenId.PAUSED, gameView.getPanel());
         screens.put(ScreenId.GAME_OVER, gameOverView);
         screens.put(ScreenId.SHOP, shopView);
+        screens.put(ScreenId.LEADERBOARD, leaderboardView);
 
         final UIManager uiManager = new UIManager(screens);
         mainMenuView.refreshCoins(profile.getCoins());

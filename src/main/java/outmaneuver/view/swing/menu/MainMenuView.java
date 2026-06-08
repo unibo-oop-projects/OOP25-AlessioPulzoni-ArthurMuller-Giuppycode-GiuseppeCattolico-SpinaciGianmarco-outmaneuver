@@ -28,11 +28,13 @@ public final class MainMenuView extends JPanel {
     private final JLabel coinsLabel;
 
     public MainMenuView(final String playerName,
-                        final Runnable onStart, final Runnable onShop, final Runnable onExit) {
+                        final Runnable onStart, final Runnable onShop,
+                        final Runnable onLeaderboard, final Runnable onExit) {
         Objects.requireNonNull(playerName);
-        final Runnable safeStart = Objects.requireNonNull(onStart);
-        final Runnable safeShop  = Objects.requireNonNull(onShop);
-        final Runnable safeExit  = Objects.requireNonNull(onExit);
+        final Runnable safeStart       = Objects.requireNonNull(onStart);
+        final Runnable safeShop        = Objects.requireNonNull(onShop);
+        final Runnable safeLeaderboard = Objects.requireNonNull(onLeaderboard);
+        final Runnable safeExit        = Objects.requireNonNull(onExit);
 
         setBackground(Color.BLACK);
         setLayout(new BorderLayout());
@@ -62,16 +64,18 @@ public final class MainMenuView extends JPanel {
 
 
 
-        final JButton startButton = new JButton("START");
-        final JButton shopButton  = new JButton("SHOP");
-        final JButton exitButton  = new JButton("EXIT");
+        final JButton startButton       = new JButton("START");
+        final JButton shopButton        = new JButton("SHOP");
+        final JButton leaderboardButton = new JButton("LEADERBOARD");
+        final JButton exitButton        = new JButton("EXIT");
         final Dimension btnSize = new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT);
-        for (final JButton btn : new JButton[]{startButton, shopButton, exitButton}) {
+        for (final JButton btn : new JButton[]{startButton, shopButton, leaderboardButton, exitButton}) {
             btn.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, BUTTON_FONT_SIZE));
             btn.setPreferredSize(btnSize);
         }
         startButton.addActionListener(e -> safeStart.run());
         shopButton.addActionListener(e -> safeShop.run());
+        leaderboardButton.addActionListener(e -> safeLeaderboard.run());
         exitButton.addActionListener(e -> safeExit.run());
 
         final GridBagConstraints gbc = new GridBagConstraints();
@@ -79,10 +83,11 @@ public final class MainMenuView extends JPanel {
         gbc.fill   = GridBagConstraints.NONE;
         gbc.insets = new Insets(VGAP, 0, 0, 0);
 
-        gbc.gridy = 0; center.add(title,       gbc);
-        gbc.gridy = 2; center.add(startButton, gbc);
-        gbc.gridy = 3; center.add(shopButton,  gbc);
-        gbc.gridy = 4; center.add(exitButton,  gbc);
+        gbc.gridy = 0; center.add(title,            gbc);
+        gbc.gridy = 2; center.add(startButton,      gbc);
+        gbc.gridy = 3; center.add(shopButton,        gbc);
+        gbc.gridy = 4; center.add(leaderboardButton, gbc);
+        gbc.gridy = 5; center.add(exitButton,        gbc);
 
         add(center, BorderLayout.CENTER);
     }
