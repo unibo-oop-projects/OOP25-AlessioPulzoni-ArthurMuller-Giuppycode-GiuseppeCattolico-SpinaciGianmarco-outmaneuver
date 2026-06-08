@@ -19,12 +19,12 @@ import outmaneuver.model.area.StandardStats;
 import outmaneuver.model.profile.IPlayerProfileRepository;
 import outmaneuver.model.profile.JsonPlayerProfileRepository;
 import outmaneuver.model.profile.PlayerProfile;
-import outmaneuver.model.session.GameState;
 import outmaneuver.model.shop.IShop;
 import outmaneuver.model.shop.Shop;
 import outmaneuver.model.shop.ShopItem;
 import outmaneuver.view.swing.GameKeyListener;
 import outmaneuver.view.swing.SwingGameView;
+import outmaneuver.view.swing.ScreenId;
 import outmaneuver.view.swing.UIManager;
 import outmaneuver.view.swing.gameover.GameOverView;
 import outmaneuver.view.swing.hud.SwingHudView;
@@ -83,7 +83,7 @@ public final class AppBootstrapper {
                 },
                 () -> {
                     mainMenuRef[0].refreshCoins(profile.getCoins());
-                    uiManagerRef[0].showScreen(GameState.MENU);
+                    uiManagerRef[0].showScreen(ScreenId.MENU);
                 }
         );
 
@@ -91,7 +91,7 @@ public final class AppBootstrapper {
                 () -> onPlayAgain(uiManagerRef[0], master, gameView),
                 () -> {
                     mainMenuRef[0].refreshCoins(profile.getCoins());
-                    uiManagerRef[0].showScreen(GameState.MENU);
+                    uiManagerRef[0].showScreen(ScreenId.MENU);
                 }
         );
         final MainMenuView mainMenuView = new MainMenuView(
@@ -99,7 +99,7 @@ public final class AppBootstrapper {
                 () -> onStart(uiManagerRef[0], master, gameView),
                 () -> {
                     shopView.refreshCoins();
-                    uiManagerRef[0].showScreen(GameState.SHOP);
+                    uiManagerRef[0].showScreen(ScreenId.SHOP);
                 },
                 () -> System.exit(0)
         );
@@ -108,16 +108,16 @@ public final class AppBootstrapper {
         // TODO: sostituire con GameEventBus.GAME_OVER quando Spinaci implementa il bus
         master.setOnGameOver(() -> onGameOver(uiManagerRef[0], gameOverView, profile, 0));
 
-        final Map<GameState, JPanel> screens = new EnumMap<>(GameState.class);
-        screens.put(GameState.MENU, mainMenuView);
-        screens.put(GameState.PLAYING, gameView.getPanel());
-        screens.put(GameState.PAUSED, gameView.getPanel());
-        screens.put(GameState.GAME_OVER, gameOverView);
-        screens.put(GameState.SHOP, shopView);
+        final Map<ScreenId, JPanel> screens = new EnumMap<>(ScreenId.class);
+        screens.put(ScreenId.MENU, mainMenuView);
+        screens.put(ScreenId.PLAYING, gameView.getPanel());
+        screens.put(ScreenId.PAUSED, gameView.getPanel());
+        screens.put(ScreenId.GAME_OVER, gameOverView);
+        screens.put(ScreenId.SHOP, shopView);
 
         final UIManager uiManager = new UIManager(screens);
         mainMenuView.refreshCoins(profile.getCoins());
-        uiManager.showScreen(GameState.MENU);
+        uiManager.showScreen(ScreenId.MENU);
         uiManagerRef[0] = uiManager;
 
         frame.add(uiManager);
@@ -136,13 +136,13 @@ public final class AppBootstrapper {
         }
         profile.saveScore(finalScore, profile.getPlayerName());
         gameOverView.show(finalScore, profile.getTopScores());
-        uiManager.showScreen(GameState.GAME_OVER);
+        uiManager.showScreen(ScreenId.GAME_OVER);
     }
 
     private static void onStart(final UIManager uiManager,
                                  final MasterController master,
                                  final SwingGameView gameView) {
-        uiManager.showScreen(GameState.PLAYING);
+        uiManager.showScreen(ScreenId.PLAYING);
         gameView.getPanel().requestFocusInWindow();
         master.start();
     }
@@ -150,7 +150,7 @@ public final class AppBootstrapper {
     private static void onPlayAgain(final UIManager uiManager,
                                      final MasterController master,
                                      final SwingGameView gameView) {
-        uiManager.showScreen(GameState.PLAYING);
+        uiManager.showScreen(ScreenId.PLAYING);
         gameView.getPanel().requestFocusInWindow();
         master.start();
     }
