@@ -8,8 +8,14 @@ import java.util.Random;
 import outmaneuver.controller.MissileController;
 import outmaneuver.model.area.Plane;
 import outmaneuver.model.missile.BasicMissile;
+import outmaneuver.model.missile.BounceMissile;
+import outmaneuver.model.missile.ClockMissile;
+import outmaneuver.model.missile.FreezeMissile;
+import outmaneuver.model.missile.GhostMissile;
 import outmaneuver.model.missile.Missile;
 import outmaneuver.model.missile.MissileRenderData;
+import outmaneuver.model.missile.ShieldMissile;
+import outmaneuver.model.missile.SniperMissile;
 
 public final class MissileControllerImpl implements MissileController {
 
@@ -54,7 +60,21 @@ public final class MissileControllerImpl implements MissileController {
             if (m.isAlive()) m.update(plane, dt);
         }
 
-        processRemovals(plane);
+        // checkBounce per BounceMissile
+        for (final Missile m : activeMissiles) {
+            if (m instanceof final BounceMissile bm) {
+                bm.checkBounce(plane);
+            }
+        }
+
+        // Redirect missili fuori schermo — BounceMissile escluso
+        for (final Missile m : activeMissiles) {
+            if (m.isAlive() && !(m instanceof BounceMissile)) {
+                m.redirectIfOutOfBounds(plane, screenW, screenH);
+            }
+        }
+
+        processRemovals();
 
         activeMissiles.addAll(pendingAdditions);
         pendingAdditions.clear();
@@ -62,11 +82,26 @@ public final class MissileControllerImpl implements MissileController {
 
     private void spawnMissile(final Plane plane) {
         final double[] pos = randomBorderPosition(plane);
-        final Missile m = new BasicMissile(pos[0], pos[1]);
-        m.setInitialDirection(
-                plane.getPosition().getX(),
-                plane.getPosition().getY());
+        final Missile m = createRandom(pos[0], pos[1], plane);
+        if (!(m instanceof SniperMissile)) {
+            m.setInitialDirection(
+                    plane.getPosition().getX(),
+                    plane.getPosition().getY());
+        }
         activeMissiles.add(m);
+    }
+
+    // Spawn pesato — Basic più frequente, speciali più rari
+    private Missile createRandom(final double x, final double y, final Plane plane) {
+        return switch (rng.nextInt(8)) {
+            case 0, 1, 2 -> new BasicMissile(x, y);
+            case 3       -> new SniperMissile(x, y, plane);
+            case 4       -> new BounceMissile(x, y, screenW, screenH);
+            case 5       -> new GhostMissile(x, y);
+            case 6       -> new FreezeMissile(x, y);
+            case 7      -> new ClockMissile(x, y);
+            default      -> new ShieldMissile(x, y);
+        };
     }
 
     private double[] randomBorderPosition(final Plane plane) {
@@ -89,13 +124,12 @@ public final class MissileControllerImpl implements MissileController {
         };
     }
 
-    private void processRemovals(final Plane plane) {
+    // Solo i missili morti vengono rimossi
+    private void processRemovals() {
         final List<Missile> toRemove = new ArrayList<>();
         for (final Missile m : activeMissiles) {
-            final boolean dead      = !m.isAlive();
-            final boolean offScreen = m.isOffScreen(plane, screenW, screenH);
-            if (dead || offScreen) {
-                if (dead) processDeathEffects(m);
+            if (!m.isAlive()) {
+                processDeathEffects(m);
                 toRemove.add(m);
             }
         }
@@ -105,10 +139,7 @@ public final class MissileControllerImpl implements MissileController {
     private void processDeathEffects(final Missile m) {
         // Figli — SplitMissile, TwinsMissile
         pendingAdditions.addAll(m.getSpawnOnDeath());
-
-        // Altri tipi da aggiungere dopo
-        // if (m instanceof FreezeMissile) { ... }
-        // if (m instanceof ClockMissile)  { ... }
+        // FreezeMissile e ClockMissile gestiti da Spinaci via triggerFreeze/triggerSlow
     }
 
     @Override

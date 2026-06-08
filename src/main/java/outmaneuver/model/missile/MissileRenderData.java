@@ -2,7 +2,6 @@ package outmaneuver.model.missile;
 
 /*
  * DTO — dati che il renderer legge per disegnare un missile.
- * Analogo a EntityRenderData per il piano.
  */
 public final class MissileRenderData {
 
@@ -11,20 +10,22 @@ public final class MissileRenderData {
     private final double vx;
     private final double vy;
     private final double hitboxRadius;
-    private final double lifetimeRatio; // 0.0-1.0, oppure -1 se infinito
+    private final double lifetimeRatio;
     private final String missileType;
+    private final boolean ghostVisible; // AGGIUNTO
 
     public MissileRenderData(final double worldX, final double worldY,
                              final double vx, final double vy,
                              final double hitboxRadius, final double lifetimeRatio,
-                             final String missileType) {
-        this.worldX        = worldX;
-        this.worldY        = worldY;
-        this.vx            = vx;
-        this.vy            = vy;
-        this.hitboxRadius  = hitboxRadius;
+                             final String missileType, final boolean ghostVisible) {
+        this.worldX       = worldX;
+        this.worldY       = worldY;
+        this.vx           = vx;
+        this.vy           = vy;
+        this.hitboxRadius = hitboxRadius;
         this.lifetimeRatio = lifetimeRatio;
-        this.missileType   = missileType;
+        this.missileType  = missileType;
+        this.ghostVisible = ghostVisible;
     }
 
     public double getWorldX()        { return worldX; }
@@ -34,4 +35,5 @@ public final class MissileRenderData {
     public double getHitboxRadius()  { return hitboxRadius; }
     public double getLifetimeRatio() { return lifetimeRatio; }
     public String getMissileType()   { return missileType; }
+    public boolean isGhostVisible()  { return ghostVisible; }
 }

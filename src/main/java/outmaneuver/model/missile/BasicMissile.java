@@ -6,8 +6,8 @@ package outmaneuver.model.missile;
  */
 public final class BasicMissile extends Missile {
 
-    private static final double SPEED        = 250.0;
-    private static final double MAX_TURN     = 0.04;
+    private static final double SPEED        = 350.0;
+    private static final double MAX_TURN     = 0.015;
     private static final double RADIUS       = 10.0;
     private static final double LIFETIME     = 12.0;
 

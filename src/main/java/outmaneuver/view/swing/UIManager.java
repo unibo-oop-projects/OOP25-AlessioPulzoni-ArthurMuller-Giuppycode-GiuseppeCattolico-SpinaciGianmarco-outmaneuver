@@ -1,43 +1,47 @@
 package outmaneuver.view.swing;
 
 import java.awt.CardLayout;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Objects;
 
 import javax.swing.JPanel;
 
 import outmaneuver.model.session.GameState;
-import outmaneuver.view.swing.gameover.GameOverView;
-import outmaneuver.view.swing.menu.MainMenuView;
 
 public final class UIManager extends JPanel {
 
-    private static final String SCREEN_MENU      = "MENU";
-    private static final String SCREEN_PLAYING   = "PLAYING";
-    private static final String SCREEN_GAME_OVER = "GAME_OVER";
-
     private final CardLayout cardLayout;
+    private final Map<GameState, String> cardNames;
 
-    public UIManager(final MainMenuView mainMenuView,
-                     final GameOverView gameOverView,
-                     final JPanel gamePanel) {
-        Objects.requireNonNull(mainMenuView);
-        Objects.requireNonNull(gameOverView);
-        Objects.requireNonNull(gamePanel);
+    public UIManager(final Map<GameState, JPanel> screens) {
+        Objects.requireNonNull(screens, "screens must not be null");
+        if (screens.isEmpty()) {
+            throw new IllegalArgumentException("screens must not be empty");
+        }
 
         this.cardLayout = new CardLayout();
+        this.cardNames = new EnumMap<>(GameState.class);
         setLayout(cardLayout);
 
-        add(mainMenuView, SCREEN_MENU);
-        add(gamePanel,    SCREEN_PLAYING);
-        add(gameOverView, SCREEN_GAME_OVER);
+        final Map<JPanel, String> registered = new java.util.IdentityHashMap<>();
+        screens.forEach((state, panel) -> {
+            Objects.requireNonNull(state, "screen state must not be null");
+            Objects.requireNonNull(panel, "screen panel must not be null");
+            final String cardName = registered.computeIfAbsent(panel, p -> {
+                final String name = state.name();
+                add(p, name);
+                return name;
+            });
+            cardNames.put(state, cardName);
+        });
     }
 
     public void showScreen(final GameState state) {
-        final String card = switch (state) {
-            case MENU               -> SCREEN_MENU;
-            case PLAYING, PAUSED   -> SCREEN_PLAYING;
-            case GAME_OVER          -> SCREEN_GAME_OVER;
-        };
+        final String card = cardNames.get(Objects.requireNonNull(state));
+        if (card == null) {
+            throw new IllegalArgumentException("No screen registered for " + state);
+        }
         cardLayout.show(this, card);
     }
 }

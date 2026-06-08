@@ -1,20 +1,10 @@
 package outmaneuver.model.missile;
 
-import outmaneuver.model.area.Plane;
-import outmaneuver.util.Vector2;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
- * CLASSE ASTRATTA BASE PER TUTTI I MISSILI
- * Ogni missile ha:
- * - posizione nel mondo (worldX, worldY)
- * - movimento con velocità costante
- * - durata limitata (lifetime) o infinita (-1)
- * - hitbox circolare
- * - steering verso il piano nemico
- * - effetti speciali: freeze, slow
- */
+import outmaneuver.model.area.Plane;
+
 public abstract class Missile {
 
     // --- POSIZIONE E MOVIMENTO ---
@@ -33,15 +23,14 @@ public abstract class Missile {
     private double lifetime;
 
     // --- FREEZE ---
-    private boolean frozen     = false;
+    private boolean frozen      = false;
     private double  freezeTimer = 0;
 
-    // --- SLOW (usato da ClockMissile) ---
+    // --- SLOW ---
     private boolean slowed     = false;
     private double  slowTimer  = 0;
     private double  slowFactor = 1.0;
 
-    // COSTRUTTORE
     protected Missile(final double worldX, final double worldY,
                       final double speed, final double maxTurnAngle,
                       final double hitboxRadius, final double lifetime) {
@@ -56,15 +45,12 @@ public abstract class Missile {
         this.vy           = 0;
     }
 
-    // --- UPDATE ---
-    // Chiamato ogni frame dal MissileController con deltaSeconds
     public void update(final Plane plane, final double dt) {
         if (shouldSkipUpdate(dt)) return;
         steer(plane.getPosition().getX(), plane.getPosition().getY());
         move(dt);
     }
 
-    // Decide se saltare l'update: lifetime scaduta, morto, congelato, rallentato
     protected final boolean shouldSkipUpdate(final double dt) {
         if (lifetime >= 0) {
             lifetime -= dt;
@@ -75,14 +61,12 @@ public abstract class Missile {
         }
         if (!alive) return true;
 
-        // Freeze — missile completamente fermo
         if (frozen) {
             freezeTimer -= dt;
             if (freezeTimer <= 0) frozen = false;
             return true;
         }
 
-        // Slow — aggiorna timer ma non blocca
         if (slowed) {
             slowTimer -= dt;
             if (slowTimer <= 0) {
@@ -94,15 +78,13 @@ public abstract class Missile {
         return false;
     }
 
-    // --- MOVIMENTO ---
     protected final void move(final double dt) {
         final double factor = slowed ? slowFactor : 1.0;
         worldX += vx * dt * factor;
         worldY += vy * dt * factor;
     }
 
-    // --- STEERING ---
-    // Ruota il missile verso il bersaglio rispettando maxTurnAngle
+    // Steering standard — vira verso il bersaglio rispettando maxTurnAngle
     protected void steer(final double tx, final double ty) {
         final double dx           = tx - worldX;
         final double dy           = ty - worldY;
@@ -121,7 +103,6 @@ public abstract class Missile {
         return a;
     }
 
-    // --- DIREZIONE INIZIALE ---
     public void setInitialDirection(final double targetX, final double targetY) {
         final double angle = Math.atan2(targetY - worldY, targetX - worldX);
         vx = Math.cos(angle) * speed;
@@ -138,13 +119,32 @@ public abstract class Missile {
         this.worldY = y;
     }
 
-    // --- SPAWN ON DEATH ---
-    // Override in SplitMissile e TwinsMissile
-    public List<Missile> getSpawnOnDeath() {
-        return new ArrayList<>();
+    // Se è fuori dai margini ridireziona verso la posizione predetta dell'aereo
+    // PREDICTION_TIME — secondi in avanti che predice la posizione dell'aereo
+    private static final double PREDICTION_TIME = 0.8;
+
+    public boolean redirectIfOutOfBounds(final Plane plane,
+                                          final int screenW, final int screenH) {
+        final double dx = worldX - plane.getPosition().getX();
+        final double dy = worldY - plane.getPosition().getY();
+        final int margin = 150;
+        final boolean outX = Math.abs(dx) > screenW / 2.0 + margin;
+        final boolean outY = Math.abs(dy) > screenH / 2.0 + margin;
+
+        if (outX || outY) {
+            // Predice dove sarà l'aereo tra PREDICTION_TIME secondi
+            final double planeVx = plane.getEffectiveSpeed() * Math.cos(plane.getDirection());
+            final double planeVy = plane.getEffectiveSpeed() * Math.sin(plane.getDirection());
+            final double predictedX = plane.getPosition().getX() + planeVx * PREDICTION_TIME;
+            final double predictedY = plane.getPosition().getY() + planeVy * PREDICTION_TIME;
+            setInitialDirection(predictedX, predictedY);
+            return true;
+        }
+        return false;
     }
 
-    // --- STATO ---
+    public List<Missile> getSpawnOnDeath() { return new ArrayList<>(); }
+
     public void destroy()        { this.alive = false; }
     public boolean isAlive()     { return alive; }
 
@@ -153,7 +153,7 @@ public abstract class Missile {
         this.freezeTimer = duration;
     }
 
-    public boolean isFrozen()    { return frozen; }
+    public boolean isFrozen() { return frozen; }
 
     public void slowDown(final double factor, final double duration) {
         this.slowed     = true;
@@ -161,19 +161,15 @@ public abstract class Missile {
         this.slowTimer  = duration;
     }
 
-    public boolean isSlowed()    { return slowed; }
+    public boolean isSlowed() { return slowed; }
 
-    // --- HITBOX ---
-    // Controlla collisione circolare con il piano
     public boolean collidesWith(final Plane plane) {
-        final double dx = plane.getPosition().getX() - worldX;
-        final double dy = plane.getPosition().getY() - worldY;
+        final double dx   = plane.getPosition().getX() - worldX;
+        final double dy   = plane.getPosition().getY() - worldY;
         final double dist = Math.sqrt(dx * dx + dy * dy);
         return dist < hitboxRadius + plane.getStats().getHitboxRadius();
     }
 
-    // --- FUORI SCHERMO ---
-    // Un missile è fuori schermo se è troppo lontano dal piano (centro camera)
     public boolean isOffScreen(final Plane plane, final int screenW, final int screenH) {
         final double dx = worldX - plane.getPosition().getX();
         final double dy = worldY - plane.getPosition().getY();
@@ -182,7 +178,6 @@ public abstract class Missile {
             || Math.abs(dy) > screenH / 2.0 + margin;
     }
 
-    // --- GETTERS ---
     public double getWorldX()       { return worldX; }
     public double getWorldY()       { return worldY; }
     public double getVx()           { return vx; }
@@ -190,16 +185,18 @@ public abstract class Missile {
     public double getSpeed()        { return speed; }
     public double getHitboxRadius() { return hitboxRadius; }
 
-    // Override nelle sottoclassi per la barra lifetime
     protected double getMaxLifetime() { return -1; }
 
-    // Restituisce un DTO con i dati necessari al renderer
+    public boolean isGhostVisible() { return true; }
+
     public MissileRenderData getRenderData() {
-        return new MissileRenderData(worldX, worldY, vx, vy,
-                hitboxRadius, getMaxLifetime() > 0 ? lifetime / getMaxLifetime() : -1,
-                getMissileType());
+        return new MissileRenderData(
+                worldX, worldY, vx, vy,
+                hitboxRadius,
+                getMaxLifetime() > 0 ? lifetime / getMaxLifetime() : -1,
+                getMissileType(),
+                isGhostVisible());
     }
 
-    // Override nelle sottoclassi per identificare il tipo al renderer
     public abstract String getMissileType();
 }

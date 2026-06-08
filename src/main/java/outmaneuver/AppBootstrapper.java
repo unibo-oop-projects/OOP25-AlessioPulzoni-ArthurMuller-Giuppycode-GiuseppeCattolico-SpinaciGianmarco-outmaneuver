@@ -1,9 +1,14 @@
 package outmaneuver;
 
+import java.util.EnumMap;
+import java.util.Map;
+
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import outmaneuver.controller.MasterController;
 import outmaneuver.controller.impl.EntityControllerImpl;
+import outmaneuver.controller.impl.HudControllerImpl;
 import outmaneuver.controller.impl.InputControllerImpl;
 import outmaneuver.controller.impl.MasterControllerImpl;
 import outmaneuver.controller.impl.MissileControllerImpl;
@@ -11,6 +16,7 @@ import outmaneuver.model.area.Plane;
 import outmaneuver.model.area.PlaneImpl;
 import outmaneuver.model.area.StandardStats;
 import outmaneuver.model.session.GameState;
+import outmaneuver.view.swing.GameKeyListener;
 import outmaneuver.view.swing.SwingGameView;
 import outmaneuver.view.swing.UIManager;
 import outmaneuver.view.swing.gameover.GameOverView;
@@ -18,19 +24,20 @@ import outmaneuver.view.swing.menu.MainMenuView;
 
 public final class AppBootstrapper {
 
-    private static final int SCREEN_W = 800; // AGGIUNTO
-    private static final int SCREEN_H = 600; // AGGIUNTO
+    private static final int SCREEN_W = 800;
+    private static final int SCREEN_H = 600;
 
     private AppBootstrapper() { }
 
     public static void launch() {
         final JFrame frame = new JFrame("OutManeuver");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setResizable(false);
+        frame.setResizable(true);
 
         final Plane plane = new PlaneImpl(new StandardStats());
         final InputControllerImpl inputCtrl = new InputControllerImpl();
-        final MasterControllerImpl master = new MasterControllerImpl();
+        final HudControllerImpl hudCtrl = new HudControllerImpl();
+        final MasterControllerImpl master = new MasterControllerImpl(hudCtrl);
         final EntityControllerImpl entity = new EntityControllerImpl(plane, inputCtrl, master);
         master.setEntityController(entity);
 
@@ -38,7 +45,7 @@ public final class AppBootstrapper {
         final MissileControllerImpl missileCtrl = new MissileControllerImpl(SCREEN_W, SCREEN_H);
         master.setMissileController(missileCtrl);
 
-        final SwingGameView gameView = new SwingGameView(inputCtrl, master);
+        final SwingGameView gameView = new SwingGameView(new GameKeyListener(inputCtrl, master));
         gameView.init();
         master.attachView(gameView);
 
@@ -50,12 +57,19 @@ public final class AppBootstrapper {
             () -> System.exit(0)
         );
 
-        final UIManager uiManager = new UIManager(mainMenuView, gameOverView, gameView.getPanel());
+        final Map<GameState, JPanel> screens = new EnumMap<>(GameState.class);
+        screens.put(GameState.MENU, mainMenuView);
+        screens.put(GameState.PLAYING, gameView.getPanel());
+        screens.put(GameState.PAUSED, gameView.getPanel());
+        screens.put(GameState.GAME_OVER, gameOverView);
+
+        final UIManager uiManager = new UIManager(screens);
         uiManager.showScreen(GameState.MENU);
         uiManagerRef[0] = uiManager;
 
         frame.add(uiManager);
         frame.pack();
+        frame.setMinimumSize(frame.getSize());
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }

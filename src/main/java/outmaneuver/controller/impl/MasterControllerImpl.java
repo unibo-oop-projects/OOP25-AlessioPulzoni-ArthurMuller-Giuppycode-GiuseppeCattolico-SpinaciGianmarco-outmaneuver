@@ -10,11 +10,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import outmaneuver.controller.EntityController;
+import outmaneuver.controller.HudController;
 import outmaneuver.controller.InternalEvent;
 import outmaneuver.controller.MasterController;
 import outmaneuver.controller.MissileController;
 import outmaneuver.controller.OutmaneuverEvent;
 import outmaneuver.controller.event.InternalEventListener;
+import outmaneuver.model.area.Plane;
 import outmaneuver.model.missile.MissileRenderData;
 import outmaneuver.view.GameView;
 import outmaneuver.view.RenderState;
@@ -25,14 +27,16 @@ public final class MasterControllerImpl implements MasterController, InternalEve
     private static final long MAX_DELTA_MS   = 50;
 
     private final List<GameView> views = new ArrayList<>();
+    private final HudController hudController;
     private EntityController entityController;
-    private MissileController missileController; // AGGIUNTO
+    private MissileController missileController;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> tickTask;
     private volatile boolean paused;
     private long lastTickTime;
 
-    public MasterControllerImpl() {
+    public MasterControllerImpl(final HudController hudController) {
+        this.hudController = Objects.requireNonNull(hudController, "hudController must not be null");
         this.paused = false;
     }
 
@@ -43,7 +47,6 @@ public final class MasterControllerImpl implements MasterController, InternalEve
         this.entityController = Objects.requireNonNull(entityController, "entityController must not be null");
     }
 
-    // AGGIUNTO
     public void setMissileController(final MissileController missileController) {
         this.missileController = Objects.requireNonNull(missileController, "missileController must not be null");
     }
@@ -51,13 +54,16 @@ public final class MasterControllerImpl implements MasterController, InternalEve
     @Override
     public void handleEvent(final OutmaneuverEvent event) {
         switch (event) {
-            case PAUSE_GAME -> paused = true;
-            case RESUME_GAME -> {
-                paused = false;
-                lastTickTime = System.nanoTime();
+            case TOGGLE_PAUSE -> {
+                if (paused) {
+                    paused = false;
+                    lastTickTime = System.nanoTime();
+                } else {
+                    paused = true;
+                }
             }
             case QUIT_APPLICATION -> {
-                stop();
+                shutdown();
                 System.exit(0);
             }
         }
@@ -70,10 +76,12 @@ public final class MasterControllerImpl implements MasterController, InternalEve
 
     @Override
     public void start() {
+        Objects.requireNonNull(entityController, "entityController must be set before start()");
         if (tickTask != null && !tickTask.isCancelled()) {
             return;
         }
         lastTickTime = System.nanoTime();
+        hudController.reset();
         tickTask = scheduler.scheduleAtFixedRate(
                 this::tick, 0, TICK_PERIOD_MS, TimeUnit.MILLISECONDS);
     }
@@ -86,9 +94,16 @@ public final class MasterControllerImpl implements MasterController, InternalEve
         }
     }
 
+    @Override
+    public void shutdown() {
+        stop();
+        scheduler.shutdown();
+    }
+
     private void tick() {
         if (paused) {
             lastTickTime = System.nanoTime();
+            pushRenderFrame(true);
             return;
         }
 
@@ -101,20 +116,26 @@ public final class MasterControllerImpl implements MasterController, InternalEve
 
         entityController.updateEntities(deltaMs);
 
-        // AGGIUNTO — update missili
+        // update missili
         final double deltaSec = deltaMs / 1000.0;
         if (missileController != null) {
             missileController.update(entityController.getPlane(), deltaSec);
         }
 
-        // AGGIUNTO — missiles nel RenderState
+        pushRenderFrame(false);
+    }
+
+    private void pushRenderFrame(final boolean isPaused) {
+        final Plane plane = entityController.getPlane();
+
         final List<MissileRenderData> missileData = missileController != null
                 ? missileController.getRenderData()
                 : List.of();
 
         final RenderState state = RenderState.builder()
-                .plane(entityController.getPlane())
-                .missiles(missileData) // AGGIUNTO
+                .plane(plane)
+                .hud(hudController.buildSnapshot(plane, isPaused))
+                .missiles(missileData)
                 .build();
 
         notifyViews(v -> v.renderFrame(state));
@@ -126,6 +147,6 @@ public final class MasterControllerImpl implements MasterController, InternalEve
 
     @Override
     public void onInternalEvent(final InternalEvent evt, final Object data) {
-        // No events to handle yet
+        hudController.onInternalEvent(evt, data);
     }
 }
