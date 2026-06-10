@@ -10,8 +10,8 @@ import outmaneuver.model.missile.Missile;
  */
 public final class ShieldMissile extends Missile {
 
-    private static final double SPEED    = 190.0;
-    private static final double MAX_TURN = 0.045;
+    private static final double SPEED    = 350.0;
+    private static final double MAX_TURN = 0.015;
     private static final double RADIUS   = 11.0;
     private static final double LIFETIME = 14.0;
 

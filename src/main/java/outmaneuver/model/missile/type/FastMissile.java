@@ -7,8 +7,8 @@ import outmaneuver.model.missile.Missile;
  */
 public final class FastMissile extends Missile {
 
-    private static final double SPEED    = 420.0;
-    private static final double MAX_TURN = 0.03;
+    private static final double SPEED    = 450.0;
+    private static final double MAX_TURN = 0.01;
     private static final double RADIUS   = 8.0;
     private static final double LIFETIME = 8.0;
 

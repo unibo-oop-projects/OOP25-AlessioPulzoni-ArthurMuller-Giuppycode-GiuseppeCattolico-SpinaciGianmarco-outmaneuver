@@ -11,8 +11,8 @@ import outmaneuver.model.missile.Missile;
  */
 public final class FreezeMissile extends Missile {
 
-    private static final double SPEED    = 175.0;
-    private static final double MAX_TURN = 0.042;
+    private static final double SPEED    = 350.0;
+    private static final double MAX_TURN = 0.015;
     private static final double RADIUS   = 13.0;
     private static final double LIFETIME = 16.0;
 

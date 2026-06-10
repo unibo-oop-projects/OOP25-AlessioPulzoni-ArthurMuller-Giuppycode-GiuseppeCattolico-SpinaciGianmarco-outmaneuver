@@ -11,8 +11,8 @@ import outmaneuver.model.missile.Missile;
  */
 public final class ClockMissile extends Missile {
 
-    private static final double SPEED    = 160.0;
-    private static final double MAX_TURN = 0.04;
+    private static final double SPEED    = 350.0;
+    private static final double MAX_TURN = 0.015;
     private static final double RADIUS   = 12.0;
     private static final double LIFETIME = 15.0;
 
