@@ -1,0 +1,10 @@
+[
+  {
+    "id": "standard",
+    "baseSpeed": 200.0,
+    "turnRate": 3.0,
+    "hitboxRadius": 20.0,
+    "spriteId": "aircraft_standard",
+    "price": 0
+  }
+]
