@@ -6,5 +6,21 @@
     "hitboxRadius": 20.0,
     "spriteId": "aircraft_standard",
     "price": 0
+  },
+  {
+    "id": "interceptor",
+    "baseSpeed": 280.0,
+    "turnRate": 2.0,
+    "hitboxRadius": 15.0,
+    "spriteId": "aircraft_interceptor",
+    "price": 500
+  },
+  {
+    "id": "tanker",
+    "baseSpeed": 150.0,
+    "turnRate": 1.5,
+    "hitboxRadius": 30.0,
+    "spriteId": "aircraft_tanker",
+    "price": 300
   }
 ]
