@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import outmaneuver.controller.impl.HudControllerImpl;
 import outmaneuver.model.area.Plane;
 import outmaneuver.model.area.PlaneImpl;
-import outmaneuver.model.area.StandardStats;
+import outmaneuver.model.area.PlaneData;
 import outmaneuver.view.HudSnapshot;
 
 class HudControllerImplTest {
@@ -20,7 +20,7 @@ class HudControllerImplTest {
     @BeforeEach
     void setUp() {
         hud = new HudControllerImpl();
-        plane = new PlaneImpl(new StandardStats());
+        plane = new PlaneImpl(new PlaneData("standard", 200, 3, 20, "aircraft_standard", 0));
     }
 
     @Test
