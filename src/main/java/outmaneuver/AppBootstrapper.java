@@ -2,7 +2,6 @@ package outmaneuver;
 
 import java.nio.file.Path;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.JFrame;
@@ -13,9 +12,13 @@ import outmaneuver.controller.impl.EntityControllerImpl;
 import outmaneuver.controller.impl.HudControllerImpl;
 import outmaneuver.controller.impl.InputControllerImpl;
 import outmaneuver.controller.impl.MasterControllerImpl;
+import outmaneuver.model.area.JsonPlaneRepository;
 import outmaneuver.model.area.Plane;
+import outmaneuver.model.area.PlaneData;
 import outmaneuver.model.area.PlaneImpl;
-import outmaneuver.model.area.StandardStats;
+import outmaneuver.model.area.PlaneRepository;
+import outmaneuver.util.json.GsonProvider;
+import outmaneuver.util.json.JsonResourceLoader;
 import outmaneuver.model.profile.IPlayerProfileRepository;
 import outmaneuver.model.profile.JsonPlayerProfileRepository;
 import outmaneuver.model.profile.PlayerProfile;
@@ -41,7 +44,9 @@ public final class AppBootstrapper {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(true);
 
-        final Plane plane = new PlaneImpl(new StandardStats());
+        final PlaneRepository planeRepo = new JsonPlaneRepository(
+                JsonResourceLoader.forList("planes.json", PlaneData.class, GsonProvider.create()));
+        final Plane plane = new PlaneImpl(planeRepo.loadById("standard").orElseThrow());
         final InputControllerImpl inputCtrl = new InputControllerImpl();
         final HudControllerImpl hudCtrl = new HudControllerImpl();
         final MasterControllerImpl master = new MasterControllerImpl(hudCtrl);
@@ -56,10 +61,10 @@ public final class AppBootstrapper {
                 new JsonPlayerProfileRepository(Path.of(System.getProperty("user.home"), ".outmaneuver", "profile.json"));
         final PlayerProfile profile = new PlayerProfile(profileRepo);
 
-        final IShop shop = new Shop(List.of(
-                new ShopItem(new StandardStats(), 0)
-                // TODO: aggiungere altri PlaneStats quando disponibili
-        ));
+        final IShop shop = new Shop(
+                planeRepo.loadAll().stream()
+                        .map(p -> new ShopItem(p, p.price()))
+                        .toList());
 
         final UIManager[] uiManagerRef       = { null };
         final MainMenuView[] mainMenuRef       = { null };
