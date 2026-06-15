@@ -4,7 +4,7 @@ import java.util.List;
 
 import outmaneuver.model.area.Plane;
 import outmaneuver.model.missile.IMissile;
-import outmaneuver.model.missile.MissileRenderData;
+import outmaneuver.view.MissileRenderData;
 
 public interface MissileController {
 

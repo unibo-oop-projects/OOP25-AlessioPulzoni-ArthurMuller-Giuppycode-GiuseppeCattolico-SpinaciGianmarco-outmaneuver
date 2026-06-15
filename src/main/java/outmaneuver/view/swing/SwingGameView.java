@@ -17,10 +17,10 @@ import java.util.Objects;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import outmaneuver.model.missile.MissileRenderData;
 import outmaneuver.view.EntityRenderData;
 import outmaneuver.view.GameView;
 import outmaneuver.view.HudSnapshot;
+import outmaneuver.view.MissileRenderData;
 import outmaneuver.view.RenderState;
 
 public final class SwingGameView implements GameView {

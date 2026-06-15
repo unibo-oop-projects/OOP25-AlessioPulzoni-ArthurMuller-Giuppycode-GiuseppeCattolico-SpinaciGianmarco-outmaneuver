@@ -3,8 +3,6 @@ package outmaneuver.view;
 import java.util.List;
 
 import outmaneuver.model.area.Plane;
-import outmaneuver.model.missile.MissileRenderData;
-
 public final class RenderState {
 
     private final EntityRenderData plane;

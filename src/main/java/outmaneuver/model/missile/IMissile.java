@@ -3,6 +3,7 @@ package outmaneuver.model.missile;
 import java.util.List;
 
 import outmaneuver.model.area.Plane;
+import outmaneuver.view.MissileRenderData;
 
 /*
  * Contratto pubblico per tutti i tipi di missile.

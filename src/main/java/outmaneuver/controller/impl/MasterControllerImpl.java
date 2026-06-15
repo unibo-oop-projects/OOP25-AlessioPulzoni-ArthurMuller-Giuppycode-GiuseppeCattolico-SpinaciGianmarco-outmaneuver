@@ -17,8 +17,8 @@ import outmaneuver.controller.OutmaneuverEvent;
 import outmaneuver.controller.event.InternalEventListener;
 import outmaneuver.model.area.Plane;
 import outmaneuver.model.missile.IMissile;
-import outmaneuver.model.missile.MissileRenderData;
 import outmaneuver.view.GameView;
+import outmaneuver.view.MissileRenderData;
 import outmaneuver.view.RenderState;
 
 public final class MasterControllerImpl implements MasterController, InternalEventListener {

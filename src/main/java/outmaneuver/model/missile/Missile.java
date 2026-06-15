@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import outmaneuver.model.area.Plane;
+import outmaneuver.view.MissileRenderData;
 
 public abstract class Missile implements IMissile {
 

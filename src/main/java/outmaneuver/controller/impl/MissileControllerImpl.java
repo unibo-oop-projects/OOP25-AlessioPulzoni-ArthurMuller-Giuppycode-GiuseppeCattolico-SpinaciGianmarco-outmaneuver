@@ -1,9 +1,13 @@
 package outmaneuver.controller.impl;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+
 import outmaneuver.controller.MissileController;
 import outmaneuver.model.area.Plane;
 import outmaneuver.model.missile.IMissile;
-import outmaneuver.model.missile.MissileRenderData;
 import outmaneuver.model.missile.type.BasicMissile;
 import outmaneuver.model.missile.type.BounceMissile;
 import outmaneuver.model.missile.type.ClockMissile;
@@ -13,11 +17,7 @@ import outmaneuver.model.missile.type.GhostMissile;
 import outmaneuver.model.missile.type.ShieldMissile;
 import outmaneuver.model.missile.type.SniperMissile;
 import outmaneuver.model.missile.type.TwinsMissile;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import outmaneuver.view.MissileRenderData;
 
 public final class MissileControllerImpl implements MissileController {
 
