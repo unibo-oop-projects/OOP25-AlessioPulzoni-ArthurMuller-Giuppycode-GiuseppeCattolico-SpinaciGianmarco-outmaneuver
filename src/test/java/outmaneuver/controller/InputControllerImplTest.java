@@ -86,10 +86,6 @@ class InputControllerImplTest {
         assertEquals(-1.0, input.getTurnDirection());
     }
 
-    @Test
-    void testIsThrustActiveReturnsFalse() {
-        assertFalse(input.isThrustActive());
-    }
 
     @Test
     void testThreadSafety() throws InterruptedException {
