@@ -3,11 +3,11 @@ package outmaneuver.controller.impl;
 import java.util.Random;
 
 import outmaneuver.controller.EntityController;
-import outmaneuver.model.area.Plane;
-import outmaneuver.model.collectibles.Collectible;
-import outmaneuver.model.collectibles.ShieldPowerUp;
-import outmaneuver.model.collectibles.SpeedBoost;
-import outmaneuver.model.collectibles.StarCollectible;
+import outmaneuver.model.area.entity.plane.Plane;
+import outmaneuver.model.area.entity.collectibles.Collectible;
+import outmaneuver.model.area.entity.collectibles.ShieldPowerUp;
+import outmaneuver.model.area.entity.collectibles.SpeedBoost;
+import outmaneuver.model.area.entity.collectibles.StarCollectible;
 import outmaneuver.util.Vector2;
 
 public final class CollectibleSpawner {

@@ -1,8 +1,8 @@
-package outmaneuver.model.collectibles;
+package outmaneuver.model.area.entity.collectibles;
 
 import java.util.Objects;
 
-import outmaneuver.model.area.Plane;
+import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.model.collision.CollisionLayer;
 import outmaneuver.model.collision.Hitbox;
 import outmaneuver.model.session.IGameSession;
