@@ -1,6 +1,6 @@
 package outmaneuver.controller;
 
-import outmaneuver.model.area.Plane;
+import outmaneuver.model.area.entity.plane.Plane;
 
 public interface EntityController {
 

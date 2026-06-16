@@ -15,7 +15,7 @@ import outmaneuver.controller.InternalEvent;
 import outmaneuver.controller.MasterController;
 import outmaneuver.controller.OutmaneuverEvent;
 import outmaneuver.controller.event.InternalEventListener;
-import outmaneuver.model.area.Plane;
+import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.view.GameView;
 import outmaneuver.view.RenderState;
 

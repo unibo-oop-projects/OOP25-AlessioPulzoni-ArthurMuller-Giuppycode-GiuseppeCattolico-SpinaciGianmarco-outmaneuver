@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import outmaneuver.controller.HudController;
 import outmaneuver.controller.InternalEvent;
-import outmaneuver.model.area.Plane;
+import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.view.HudSnapshot;
 
 public final class HudControllerImpl implements HudController {

@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Test;
 
 import outmaneuver.controller.impl.EntityControllerImpl;
 import outmaneuver.controller.impl.InputControllerImpl;
-import outmaneuver.model.area.Plane;
-import outmaneuver.model.area.PlaneImpl;
-import outmaneuver.model.area.PlaneData;
-import outmaneuver.model.area.TurnState;
+import outmaneuver.model.area.entity.plane.Plane;
+import outmaneuver.model.area.entity.plane.PlaneData;
+import outmaneuver.model.area.entity.plane.PlaneImpl;
+import outmaneuver.model.area.entity.plane.TurnState;
 import outmaneuver.util.Vector2;
 
 class EntityControllerImplTest {

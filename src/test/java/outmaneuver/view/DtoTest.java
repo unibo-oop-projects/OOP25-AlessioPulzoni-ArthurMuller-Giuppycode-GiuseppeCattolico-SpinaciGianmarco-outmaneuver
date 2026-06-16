@@ -3,8 +3,8 @@ package outmaneuver.view;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
-import outmaneuver.model.area.PlaneImpl;
-import outmaneuver.model.area.PlaneData;
+import outmaneuver.model.area.entity.plane.PlaneData;
+import outmaneuver.model.area.entity.plane.PlaneImpl;
 import outmaneuver.util.Vector2;
 
 class DtoTest {

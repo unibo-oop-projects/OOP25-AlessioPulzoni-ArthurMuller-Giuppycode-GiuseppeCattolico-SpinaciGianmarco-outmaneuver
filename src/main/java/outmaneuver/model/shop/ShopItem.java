@@ -2,7 +2,7 @@ package outmaneuver.model.shop;
 
 import java.util.Objects;
 
-import outmaneuver.model.area.PlaneStats;
+import outmaneuver.model.area.entity.plane.PlaneStats;
 
 public record ShopItem(PlaneStats stats, int price) {
 

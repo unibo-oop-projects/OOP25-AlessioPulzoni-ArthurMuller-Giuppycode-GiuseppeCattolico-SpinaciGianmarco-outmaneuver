@@ -2,7 +2,7 @@ package outmaneuver.model.shop;
 
 import java.util.List;
 
-import outmaneuver.model.area.Plane;
+import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.model.wallet.IWallet;
 
 public interface IShop {

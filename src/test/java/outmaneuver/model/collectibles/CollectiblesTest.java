@@ -8,7 +8,10 @@ import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.Test;
 
-import outmaneuver.model.area.Plane;
+import outmaneuver.model.area.entity.collectibles.ShieldPowerUp;
+import outmaneuver.model.area.entity.collectibles.SpeedBoost;
+import outmaneuver.model.area.entity.collectibles.StarCollectible;
+import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.model.session.GameSession;
 import outmaneuver.model.session.GameState;
 

@@ -5,8 +5,8 @@ import java.util.Objects;
 import outmaneuver.controller.EntityController;
 import outmaneuver.controller.InputController;
 import outmaneuver.controller.event.InternalEventListener;
-import outmaneuver.model.area.Plane;
-import outmaneuver.model.area.TurnState;
+import outmaneuver.model.area.entity.plane.Plane;
+import outmaneuver.model.area.entity.plane.TurnState;
 import outmaneuver.util.Vector2;
 
 public final class EntityControllerImpl implements EntityController {

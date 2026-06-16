@@ -14,8 +14,8 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import outmaneuver.model.area.Plane;
-import outmaneuver.model.area.PlaneStats;
+import outmaneuver.model.area.entity.plane.Plane;
+import outmaneuver.model.area.entity.plane.PlaneStats;
 import outmaneuver.model.wallet.IWallet;
 
 class ShopTest {

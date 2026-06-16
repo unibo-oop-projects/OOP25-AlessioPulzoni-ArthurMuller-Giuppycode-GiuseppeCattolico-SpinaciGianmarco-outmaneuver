@@ -18,7 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
-import outmaneuver.model.area.PlaneStats;
+import outmaneuver.model.area.entity.plane.PlaneStats;
 import outmaneuver.model.shop.ShopItem;
 
 public final class ShopView extends JPanel {

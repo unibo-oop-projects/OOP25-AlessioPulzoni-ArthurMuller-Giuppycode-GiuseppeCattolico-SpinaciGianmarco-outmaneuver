@@ -4,6 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import outmaneuver.model.area.entity.plane.PlaneData;
+import outmaneuver.model.area.entity.plane.PlaneImpl;
+import outmaneuver.model.area.entity.plane.PlaneStats;
+import outmaneuver.model.area.entity.plane.TurnState;
 import outmaneuver.util.Vector2;
 
 class PlaneImplTest {

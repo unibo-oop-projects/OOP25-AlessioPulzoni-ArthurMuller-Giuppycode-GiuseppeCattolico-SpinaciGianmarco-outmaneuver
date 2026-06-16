@@ -1,4 +1,4 @@
-package outmaneuver.model.area;
+package outmaneuver.model.area.entity.plane;
 
 import outmaneuver.util.Vector2;
 import java.util.Objects;

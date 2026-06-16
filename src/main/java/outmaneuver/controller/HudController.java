@@ -1,7 +1,7 @@
 package outmaneuver.controller;
 
 import outmaneuver.controller.event.InternalEventListener;
-import outmaneuver.model.area.Plane;
+import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.view.HudSnapshot;
 
 public interface HudController extends InternalEventListener {

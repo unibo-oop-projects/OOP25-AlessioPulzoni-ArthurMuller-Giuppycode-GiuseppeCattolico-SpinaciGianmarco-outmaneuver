@@ -1,6 +1,6 @@
 package outmaneuver.view;
 
-import outmaneuver.model.area.Plane;
+import outmaneuver.model.area.entity.plane.Plane;
 
 public final class RenderState {
 
