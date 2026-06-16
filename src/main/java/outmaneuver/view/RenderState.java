@@ -1,15 +1,20 @@
 package outmaneuver.view;
 
 import outmaneuver.model.area.entity.plane.Plane;
+import java.util.List;
+
 
 public final class RenderState {
 
     private final EntityRenderData plane;
     private final HudSnapshot hud;
+    private final List<EntityRenderData> collectibles;
 
-    private RenderState(final EntityRenderData plane, final HudSnapshot hud) {
+    private RenderState(final EntityRenderData plane, final HudSnapshot hud,
+                        final List<EntityRenderData> collectibles) {
         this.plane = plane;
         this.hud = hud;
+        this.collectibles = collectibles;
     }
 
     public EntityRenderData getPlane() {
@@ -20,6 +25,10 @@ public final class RenderState {
         return hud;
     }
 
+    public List<EntityRenderData> getCollectibles() {
+        return collectibles;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -28,6 +37,7 @@ public final class RenderState {
 
         private Plane plane;
         private HudSnapshot hud;
+        private List<EntityRenderData> collectibles = List.of();
 
         private Builder() {
         }
@@ -42,6 +52,11 @@ public final class RenderState {
             return this;
         }
 
+        public Builder collectibles(final List<EntityRenderData> collectibles) {
+            this.collectibles = collectibles;
+            return this;
+        }
+
         public RenderState build() {
             final EntityRenderData planeData = new EntityRenderData(
                     plane.getPosition().getX(),
@@ -49,7 +64,7 @@ public final class RenderState {
                     plane.getDirection(),
                     plane.getStats().getSpriteId()
             );
-            return new RenderState(planeData, hud);
+            return new RenderState(planeData, hud, collectibles);
         }
     }
 }

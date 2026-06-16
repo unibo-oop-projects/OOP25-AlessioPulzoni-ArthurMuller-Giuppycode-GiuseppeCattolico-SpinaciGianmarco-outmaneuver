@@ -14,6 +14,7 @@ import outmaneuver.controller.impl.EntityControllerImpl;
 import outmaneuver.controller.impl.HudControllerImpl;
 import outmaneuver.controller.impl.InputControllerImpl;
 import outmaneuver.controller.impl.MasterControllerImpl;
+import outmaneuver.model.session.GameSession;
 import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.model.area.entity.plane.PlaneData;
 import outmaneuver.model.area.entity.plane.PlaneImpl;
@@ -46,8 +47,11 @@ class MasterControllerImplTest {
         input = new InputControllerImpl();
         spyView = new SpyView();
         master = new MasterControllerImpl(new HudControllerImpl());
-        entityCtrl = new EntityControllerImpl(plane, input, master);
+        final CollisionEngine collisionEngine = new CollisionEngine(master);
+        entityCtrl = new EntityControllerImpl(input, master, collisionEngine, new GameSession());
+        entityCtrl.spawnPlane(plane);
         master.setEntityController(entityCtrl);
+        master.setCollisionEngine(collisionEngine);
     }
 
     @Test
