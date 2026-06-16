@@ -8,5 +8,4 @@ public interface InputController {
 
     double getTurnDirection();
 
-    boolean isThrustActive();
 }
