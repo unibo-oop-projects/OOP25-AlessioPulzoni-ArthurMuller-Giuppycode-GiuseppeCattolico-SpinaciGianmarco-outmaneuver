@@ -68,7 +68,7 @@ public final class AppBootstrapper {
         gameView.init();
         master.attachView(gameView);
 
-        final Path profilePath = Path.of(System.getProperty("user.home"), ".outmaneuver", "profile.json");
+        final Path profilePath = JsonPlayerProfileRepository.defaultProfilePath();
         final boolean isFirstLaunch = !Files.exists(profilePath);
         final IPlayerProfileRepository profileRepo =
                 JsonPlayerProfileRepository.create(profilePath);
