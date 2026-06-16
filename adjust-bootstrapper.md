@@ -40,3 +40,4 @@ Sì, ha troppe responsabilità. Secondo il Single Responsibility Principle, dovr
 
 sistemare hud che non richieda il plane
 vedere perche non calcola il punteggio finale
+sistemare il salvataggio di profile.json anche per windows in appdata.local
