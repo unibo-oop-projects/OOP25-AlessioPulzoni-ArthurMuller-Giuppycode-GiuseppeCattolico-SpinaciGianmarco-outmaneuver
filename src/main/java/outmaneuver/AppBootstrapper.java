@@ -58,7 +58,7 @@ public final class AppBootstrapper {
         master.attachView(gameView);
 
         final IPlayerProfileRepository profileRepo =
-                new JsonPlayerProfileRepository(Path.of(System.getProperty("user.home"), ".outmaneuver", "profile.json"));
+                JsonPlayerProfileRepository.create(Path.of(System.getProperty("user.home"), ".outmaneuver", "profile.json"));
         final PlayerProfile profile = new PlayerProfile(profileRepo);
 
         final IShop shop = new Shop(
