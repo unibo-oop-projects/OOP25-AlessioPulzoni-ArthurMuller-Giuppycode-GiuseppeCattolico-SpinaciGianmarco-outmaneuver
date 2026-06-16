@@ -2,6 +2,7 @@ package outmaneuver.model.profile;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.util.Locale;
 import java.util.Objects;
 
 import com.google.gson.Gson;
@@ -14,10 +15,40 @@ import outmaneuver.util.json.JsonFileStore;
 
 public final class JsonPlayerProfileRepository implements IPlayerProfileRepository {
 
+    private static final String PROFILE_FILE = "profile.json";
+    private static final String PROFILE_DIR = ".outmaneuver";
+
     private final JsonFileStore<PlayerProfileData> store;
 
     public JsonPlayerProfileRepository(final JsonFileStore<PlayerProfileData> store) {
         this.store = Objects.requireNonNull(store, "store must not be null");
+    }
+
+    /**
+     * Restituisce il path predefinito per il file di profilo in base alla
+     * piattaforma:
+     * <ul>
+     *   <li>Windows → {@code %LOCALAPPDATA%\.outmaneuver\profile.json}
+     *   <li>altri OS → {@code ~/.outmaneuver/profile.json}
+     * </ul>
+     */
+    public static Path defaultProfilePath() {
+        if (isWindows()) {
+            return Path.of(System.getenv("LOCALAPPDATA"), PROFILE_DIR, PROFILE_FILE);
+        }
+        return Path.of(System.getProperty("user.home"), PROFILE_DIR, PROFILE_FILE);
+    }
+
+    private static boolean isWindows() {
+        return System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("win");
+    }
+
+    /**
+     * Factory method: crea un repository configurato con il percorso predefinito
+     * (vedi {@link #defaultProfilePath()}).
+     */
+    public static JsonPlayerProfileRepository create() {
+        return create(defaultProfilePath());
     }
 
     /**
