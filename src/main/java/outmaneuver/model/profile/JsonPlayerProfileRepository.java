@@ -1,71 +1,50 @@
 package outmaneuver.model.profile;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.UncheckedIOException;
-import java.io.Writer;
-import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Objects;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializer;
-import com.google.gson.reflect.TypeToken;
+
+import outmaneuver.util.json.GsonProvider;
+import outmaneuver.util.json.JsonFileStore;
 
 public final class JsonPlayerProfileRepository implements IPlayerProfileRepository {
 
-    private static final Type PROFILE_TYPE = new TypeToken<PlayerProfileData>() { }.getType();
+    private final JsonFileStore<PlayerProfileData> store;
 
-    private final Path filePath;
-    private final Gson gson;
+    public JsonPlayerProfileRepository(final JsonFileStore<PlayerProfileData> store) {
+        this.store = Objects.requireNonNull(store, "store must not be null");
+    }
 
-    public JsonPlayerProfileRepository(final Path filePath) {
-        this.filePath = Objects.requireNonNull(filePath, "filePath must not be null");
-        this.gson = buildGson();
+    /**
+     * Factory method: crea un repository configurato con il path del file utente.
+     * Usa un {@link Gson} con supporto a {@link java.time.LocalDate}.
+     */
+    public static JsonPlayerProfileRepository create(final Path filePath) {
+        Objects.requireNonNull(filePath, "filePath must not be null");
+        final Gson gson = GsonProvider.builder()
+                .registerTypeAdapter(LocalDate.class,
+                        (JsonSerializer<LocalDate>) (src, t, ctx) -> new JsonPrimitive(src.toString()))
+                .registerTypeAdapter(LocalDate.class,
+                        (JsonDeserializer<LocalDate>) (json, t, ctx) -> LocalDate.parse(json.getAsString()))
+                .create();
+        return new JsonPlayerProfileRepository(
+                JsonFileStore.forType(filePath, PlayerProfileData.class, gson));
     }
 
     @Override
     public PlayerProfileData load() {
-        if (!Files.exists(filePath)) {
-            return PlayerProfileData.defaultProfile();
-        }
-        try (Reader reader = Files.newBufferedReader(filePath, StandardCharsets.UTF_8)) {
-            final PlayerProfileData data = gson.fromJson(reader, PROFILE_TYPE);
-            return data != null ? data : PlayerProfileData.defaultProfile();
-        } catch (IOException e) {
-            return PlayerProfileData.defaultProfile();
-        }
+        final PlayerProfileData data = store.load();
+        return data != null ? data : PlayerProfileData.defaultProfile();
     }
 
     @Override
     public void persist(final PlayerProfileData data) {
         Objects.requireNonNull(data, "data must not be null");
-        try {
-            if (filePath.getParent() != null) {
-                Files.createDirectories(filePath.getParent());
-            }
-            try (Writer writer = Files.newBufferedWriter(filePath, StandardCharsets.UTF_8)) {
-                gson.toJson(data, PROFILE_TYPE, writer);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException("Failed to persist player profile to " + filePath, e);
-        }
-    }
-
-    private static Gson buildGson() {
-        final JsonSerializer<LocalDate> serializer =
-                (src, typeOfSrc, context) -> context.serialize(src.toString());
-        final JsonDeserializer<LocalDate> deserializer =
-                (json, typeOfT, context) -> LocalDate.parse(json.getAsString());
-        return new GsonBuilder()
-                .registerTypeAdapter(LocalDate.class, serializer)
-                .registerTypeAdapter(LocalDate.class, deserializer)
-                .setPrettyPrinting()
-                .create();
+        store.save(data);
     }
 }

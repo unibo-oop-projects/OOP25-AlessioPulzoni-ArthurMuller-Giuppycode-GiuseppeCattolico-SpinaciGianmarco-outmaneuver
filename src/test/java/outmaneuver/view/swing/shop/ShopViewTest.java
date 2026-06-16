@@ -9,12 +9,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 
 import outmaneuver.model.area.PlaneStats;
-import outmaneuver.model.area.StandardStats;
+import outmaneuver.model.area.PlaneData;
 import outmaneuver.model.shop.ShopItem;
 
 class ShopViewTest {
 
-    private static final StandardStats STATS = new StandardStats();
+    private static final PlaneData STATS = new PlaneData("standard", 200, 3, 20, "aircraft_standard", 0);
     private static final ShopItem ITEM = new ShopItem(STATS, 100);
     private static final Supplier<PlaneStats> EQUIPPED = () -> STATS;
     private static final Predicate<String> NOT_OWNED  = id -> false;

@@ -3,10 +3,8 @@ package outmaneuver.view;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
-import outmaneuver.model.area.Plane;
 import outmaneuver.model.area.PlaneImpl;
-import outmaneuver.model.area.StandardStats;
-import outmaneuver.model.area.TurnState;
+import outmaneuver.model.area.PlaneData;
 import outmaneuver.util.Vector2;
 
 class DtoTest {
@@ -32,7 +30,7 @@ class DtoTest {
 
     @Test
     void testRenderStateBuilder() {
-        final var plane = new PlaneImpl(new StandardStats());
+        final var plane = new PlaneImpl(new PlaneData("standard", 200, 3, 20, "aircraft_standard", 0));
         plane.setPosition(new Vector2(150, 250));
         plane.setDirection(Math.PI / 3);
 
@@ -49,7 +47,7 @@ class DtoTest {
 
     @Test
     void testRenderStateImmutability() {
-        final var plane = new PlaneImpl(new StandardStats());
+        final var plane = new PlaneImpl(new PlaneData("standard", 200, 3, 20, "aircraft_standard", 0));
         final var state = RenderState.builder()
                 .plane(plane)
                 .build();

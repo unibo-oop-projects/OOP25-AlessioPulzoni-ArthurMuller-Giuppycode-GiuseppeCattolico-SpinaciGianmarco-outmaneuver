@@ -16,7 +16,7 @@ class PlayerProfileTest {
 
     @BeforeEach
     void setUp(@TempDir final Path tmpDir) {
-        profile = new PlayerProfile(new JsonPlayerProfileRepository(tmpDir.resolve("profile.json")));
+        profile = new PlayerProfile(JsonPlayerProfileRepository.create(tmpDir.resolve("profile.json")));
     }
 
     // ── default state ──
@@ -123,12 +123,12 @@ class PlayerProfileTest {
     @Test
     void profilePersistsAcrossInstances(@TempDir final Path tmpDir) {
         final Path file = tmpDir.resolve("profile.json");
-        final PlayerProfile p1 = new PlayerProfile(new JsonPlayerProfileRepository(file));
+        final PlayerProfile p1 = new PlayerProfile(JsonPlayerProfileRepository.create(file));
         p1.addCoins(250);
         p1.addOwnedPlane("heavy");
         p1.saveScore(500, "Bob");
 
-        final PlayerProfile p2 = new PlayerProfile(new JsonPlayerProfileRepository(file));
+        final PlayerProfile p2 = new PlayerProfile(JsonPlayerProfileRepository.create(file));
         assertEquals(250, p2.getCoins());
         assertTrue(p2.ownsPlane("heavy"));
         assertEquals(500, p2.getTopScores().get(0).score());

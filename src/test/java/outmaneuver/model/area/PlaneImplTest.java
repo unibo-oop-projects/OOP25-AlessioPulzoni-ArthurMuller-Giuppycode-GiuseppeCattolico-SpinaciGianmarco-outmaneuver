@@ -14,7 +14,7 @@ class PlaneImplTest {
 
     @BeforeEach
     void setUp() {
-        plane = new PlaneImpl(new StandardStats());
+        plane = new PlaneImpl(new PlaneData("standard", 200, 3, 20, "aircraft_standard", 0));
     }
 
     @Test
@@ -107,13 +107,14 @@ class PlaneImplTest {
     }
 
     @Test
-    void testStandardStats() {
-        final var stats = new StandardStats();
-        assertEquals("standard", stats.getId());
-        assertEquals(200.0, stats.getBaseSpeed());
-        assertEquals(3.0, stats.getTurnRate());
-        assertEquals(20.0, stats.getHitboxRadius());
-        assertEquals("aircraft_standard", stats.getSpriteId());
+    void testPlaneData() {
+        final var stats = new PlaneData("interceptor", 280, 2, 15, "aircraft_interceptor", 500);
+        assertEquals("interceptor", stats.getId());
+        assertEquals(280.0, stats.getBaseSpeed());
+        assertEquals(2.0, stats.getTurnRate());
+        assertEquals(15.0, stats.getHitboxRadius());
+        assertEquals("aircraft_interceptor", stats.getSpriteId());
+        assertEquals(500, stats.price());
     }
 
     @Test

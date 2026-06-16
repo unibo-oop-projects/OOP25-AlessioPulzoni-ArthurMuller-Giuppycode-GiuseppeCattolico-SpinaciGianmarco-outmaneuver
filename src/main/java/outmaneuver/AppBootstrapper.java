@@ -2,20 +2,24 @@ package outmaneuver;
 
 import java.nio.file.Path;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import outmaneuver.controller.MasterController;
+import outmaneuver.controller.OutmaneuverEvent;
 import outmaneuver.controller.impl.EntityControllerImpl;
 import outmaneuver.controller.impl.HudControllerImpl;
 import outmaneuver.controller.impl.InputControllerImpl;
 import outmaneuver.controller.impl.MasterControllerImpl;
+import outmaneuver.model.area.JsonPlaneRepository;
 import outmaneuver.model.area.Plane;
+import outmaneuver.model.area.PlaneData;
 import outmaneuver.model.area.PlaneImpl;
-import outmaneuver.model.area.StandardStats;
+import outmaneuver.model.area.PlaneRepository;
+import outmaneuver.util.json.GsonProvider;
+import outmaneuver.util.json.JsonResourceLoader;
 import outmaneuver.model.profile.IPlayerProfileRepository;
 import outmaneuver.model.profile.JsonPlayerProfileRepository;
 import outmaneuver.model.profile.PlayerProfile;
@@ -25,6 +29,7 @@ import outmaneuver.model.shop.ShopItem;
 import outmaneuver.view.swing.GameKeyListener;
 import outmaneuver.view.swing.SwingGameView;
 import outmaneuver.view.swing.leaderboard.LeaderboardView;
+import outmaneuver.view.swing.pause.PauseView;
 import outmaneuver.view.swing.ScreenId;
 import outmaneuver.view.swing.UIManager;
 import outmaneuver.view.swing.gameover.GameOverView;
@@ -41,7 +46,9 @@ public final class AppBootstrapper {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(true);
 
-        final Plane plane = new PlaneImpl(new StandardStats());
+        final PlaneRepository planeRepo = new JsonPlaneRepository(
+                JsonResourceLoader.forList("planes.json", PlaneData.class, GsonProvider.create()));
+        final Plane plane = new PlaneImpl(planeRepo.loadById("standard").orElseThrow());
         final InputControllerImpl inputCtrl = new InputControllerImpl();
         final HudControllerImpl hudCtrl = new HudControllerImpl();
         final MasterControllerImpl master = new MasterControllerImpl(hudCtrl);
@@ -53,16 +60,15 @@ public final class AppBootstrapper {
         master.attachView(gameView);
 
         final IPlayerProfileRepository profileRepo =
-                new JsonPlayerProfileRepository(Path.of(System.getProperty("user.home"), ".outmaneuver", "profile.json"));
+                JsonPlayerProfileRepository.create(Path.of(System.getProperty("user.home"), ".outmaneuver", "profile.json"));
         final PlayerProfile profile = new PlayerProfile(profileRepo);
 
-        final IShop shop = new Shop(List.of(
-                new ShopItem(new StandardStats(), 0)
-                // TODO: aggiungere altri PlaneStats quando disponibili
-        ));
+        final IShop shop = new Shop(
+                planeRepo.loadAll().stream()
+                        .map(p -> new ShopItem(p, p.price()))
+                        .toList());
 
         final UIManager[] uiManagerRef       = { null };
-        final MainMenuView[] mainMenuRef       = { null };
         final LeaderboardView[] leaderboardRef = { null };
 
         final ShopView shopView = new ShopView(
@@ -83,18 +89,12 @@ public final class AppBootstrapper {
                     plane.setStats(item.stats());
                     return true;
                 },
-                () -> {
-                    mainMenuRef[0].refreshCoins(profile.getCoins());
-                    uiManagerRef[0].showScreen(ScreenId.MENU);
-                }
+                () -> uiManagerRef[0].showScreen(ScreenId.MENU)
         );
 
         final GameOverView gameOverView = new GameOverView(
                 () -> onPlayAgain(uiManagerRef[0], master, gameView),
-                () -> {
-                    mainMenuRef[0].refreshCoins(profile.getCoins());
-                    uiManagerRef[0].showScreen(ScreenId.MENU);
-                }
+                () -> uiManagerRef[0].showScreen(ScreenId.MENU)
         );
         final LeaderboardView leaderboardView = new LeaderboardView(
                 profile::getTopScores,
@@ -104,6 +104,7 @@ public final class AppBootstrapper {
 
         final MainMenuView mainMenuView = new MainMenuView(
                 profile.getPlayerName(),
+                profile::getCoins,
                 () -> onStart(uiManagerRef[0], master, gameView),
                 () -> {
                     shopView.refreshCoins();
@@ -115,21 +116,33 @@ public final class AppBootstrapper {
                 },
                 () -> System.exit(0)
         );
-        mainMenuRef[0] = mainMenuView;
 
         // TODO: sostituire con GameEventBus.GAME_OVER quando Spinaci implementa il bus
         master.setOnGameOver(() -> onGameOver(uiManagerRef[0], gameOverView, profile, 0));
 
+        master.setOnPause(() -> uiManagerRef[0].showScreen(ScreenId.PAUSED));
+        master.setOnResume(() -> {
+            uiManagerRef[0].showScreen(ScreenId.PLAYING);
+            gameView.getPanel().requestFocusInWindow();
+        });
+
+        final PauseView pauseView = new PauseView(
+                () -> master.handleEvent(OutmaneuverEvent.TOGGLE_PAUSE),
+                () -> {
+                    master.stop();
+                    uiManagerRef[0].showScreen(ScreenId.MENU);
+                }
+        );
+
         final Map<ScreenId, JPanel> screens = new EnumMap<>(ScreenId.class);
         screens.put(ScreenId.MENU, mainMenuView);
         screens.put(ScreenId.PLAYING, gameView.getPanel());
-        screens.put(ScreenId.PAUSED, gameView.getPanel());
+        screens.put(ScreenId.PAUSED, pauseView);
         screens.put(ScreenId.GAME_OVER, gameOverView);
         screens.put(ScreenId.SHOP, shopView);
         screens.put(ScreenId.LEADERBOARD, leaderboardView);
 
         final UIManager uiManager = new UIManager(screens);
-        mainMenuView.refreshCoins(profile.getCoins());
         uiManager.showScreen(ScreenId.MENU);
         uiManagerRef[0] = uiManager;
 
