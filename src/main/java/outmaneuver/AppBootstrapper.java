@@ -109,6 +109,7 @@ public final class AppBootstrapper {
         final MainMenuView mainMenuView = new MainMenuView(
                 profile::getPlayerName,
                 profile::getCoins,
+                () -> plane.getStats().getId(),
                 () -> onStart(uiManagerRef[0], master, gameView),
                 () -> {
                     shopView.refreshCoins();
