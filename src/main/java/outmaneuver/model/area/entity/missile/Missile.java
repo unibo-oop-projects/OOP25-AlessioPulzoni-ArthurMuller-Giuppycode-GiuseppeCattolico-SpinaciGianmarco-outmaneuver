@@ -1,6 +1,6 @@
-package outmaneuver.model.area;
+package outmaneuver.model.area.entity.missile;
 
-import outmaneuver.model.Entity;
+import outmaneuver.model.area.entity.Entity;
 
 /**
  * Interface for missile entities.

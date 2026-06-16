@@ -1,10 +1,10 @@
 package outmaneuver.controller;
 
+import outmaneuver.model.area.entity.Entity;
 import outmaneuver.model.area.entity.plane.Plane;
 import java.util.List;
 
 import outmaneuver.controller.event.InternalEventListener;
-import outmaneuver.model.Entity;
 
 
 public interface EntityController extends InternalEventListener {
