@@ -9,6 +9,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.Objects;
+import java.util.function.IntSupplier;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -28,9 +29,11 @@ public final class MainMenuView extends JPanel {
     private final JLabel coinsLabel;
 
     public MainMenuView(final String playerName,
+                        final IntSupplier coinsSupplier,
                         final Runnable onStart, final Runnable onShop,
                         final Runnable onLeaderboard, final Runnable onExit) {
         Objects.requireNonNull(playerName);
+        Objects.requireNonNull(coinsSupplier);
         final Runnable safeStart       = Objects.requireNonNull(onStart);
         final Runnable safeShop        = Objects.requireNonNull(onShop);
         final Runnable safeLeaderboard = Objects.requireNonNull(onLeaderboard);
@@ -90,10 +93,12 @@ public final class MainMenuView extends JPanel {
         gbc.gridy = 5; center.add(exitButton,        gbc);
 
         add(center, BorderLayout.CENTER);
-    }
 
-    /** Aggiorna il saldo monete mostrato. Chiamare prima di mostrare questa schermata. */
-    public void refreshCoins(final int coins) {
-        coinsLabel.setText("Coins: " + coins);
+        addHierarchyListener(e -> {
+            if ((e.getChangeFlags() & java.awt.event.HierarchyEvent.SHOWING_CHANGED) != 0
+                    && isShowing()) {
+                coinsLabel.setText("Coins: " + coinsSupplier.getAsInt());
+            }
+        });
     }
 }
