@@ -8,6 +8,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import outmaneuver.controller.MasterController;
+import outmaneuver.controller.OutmaneuverEvent;
 import outmaneuver.controller.impl.EntityControllerImpl;
 import outmaneuver.controller.impl.HudControllerImpl;
 import outmaneuver.controller.impl.InputControllerImpl;
@@ -28,6 +29,7 @@ import outmaneuver.model.shop.ShopItem;
 import outmaneuver.view.swing.GameKeyListener;
 import outmaneuver.view.swing.SwingGameView;
 import outmaneuver.view.swing.leaderboard.LeaderboardView;
+import outmaneuver.view.swing.pause.PauseView;
 import outmaneuver.view.swing.ScreenId;
 import outmaneuver.view.swing.UIManager;
 import outmaneuver.view.swing.gameover.GameOverView;
@@ -67,7 +69,6 @@ public final class AppBootstrapper {
                         .toList());
 
         final UIManager[] uiManagerRef       = { null };
-        final MainMenuView[] mainMenuRef       = { null };
         final LeaderboardView[] leaderboardRef = { null };
 
         final ShopView shopView = new ShopView(
@@ -88,18 +89,12 @@ public final class AppBootstrapper {
                     plane.setStats(item.stats());
                     return true;
                 },
-                () -> {
-                    mainMenuRef[0].refreshCoins(profile.getCoins());
-                    uiManagerRef[0].showScreen(ScreenId.MENU);
-                }
+                () -> uiManagerRef[0].showScreen(ScreenId.MENU)
         );
 
         final GameOverView gameOverView = new GameOverView(
                 () -> onPlayAgain(uiManagerRef[0], master, gameView),
-                () -> {
-                    mainMenuRef[0].refreshCoins(profile.getCoins());
-                    uiManagerRef[0].showScreen(ScreenId.MENU);
-                }
+                () -> uiManagerRef[0].showScreen(ScreenId.MENU)
         );
         final LeaderboardView leaderboardView = new LeaderboardView(
                 profile::getTopScores,
@@ -109,6 +104,7 @@ public final class AppBootstrapper {
 
         final MainMenuView mainMenuView = new MainMenuView(
                 profile.getPlayerName(),
+                profile::getCoins,
                 () -> onStart(uiManagerRef[0], master, gameView),
                 () -> {
                     shopView.refreshCoins();
@@ -120,21 +116,33 @@ public final class AppBootstrapper {
                 },
                 () -> System.exit(0)
         );
-        mainMenuRef[0] = mainMenuView;
 
         // TODO: sostituire con GameEventBus.GAME_OVER quando Spinaci implementa il bus
         master.setOnGameOver(() -> onGameOver(uiManagerRef[0], gameOverView, profile, 0));
 
+        master.setOnPause(() -> uiManagerRef[0].showScreen(ScreenId.PAUSED));
+        master.setOnResume(() -> {
+            uiManagerRef[0].showScreen(ScreenId.PLAYING);
+            gameView.getPanel().requestFocusInWindow();
+        });
+
+        final PauseView pauseView = new PauseView(
+                () -> master.handleEvent(OutmaneuverEvent.TOGGLE_PAUSE),
+                () -> {
+                    master.stop();
+                    uiManagerRef[0].showScreen(ScreenId.MENU);
+                }
+        );
+
         final Map<ScreenId, JPanel> screens = new EnumMap<>(ScreenId.class);
         screens.put(ScreenId.MENU, mainMenuView);
         screens.put(ScreenId.PLAYING, gameView.getPanel());
-        screens.put(ScreenId.PAUSED, gameView.getPanel());
+        screens.put(ScreenId.PAUSED, pauseView);
         screens.put(ScreenId.GAME_OVER, gameOverView);
         screens.put(ScreenId.SHOP, shopView);
         screens.put(ScreenId.LEADERBOARD, leaderboardView);
 
         final UIManager uiManager = new UIManager(screens);
-        mainMenuView.refreshCoins(profile.getCoins());
         uiManager.showScreen(ScreenId.MENU);
         uiManagerRef[0] = uiManager;
 
