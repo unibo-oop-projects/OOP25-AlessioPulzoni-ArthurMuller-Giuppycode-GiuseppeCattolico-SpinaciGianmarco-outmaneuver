@@ -1,0 +1,11 @@
+[
+  { "type": "basic",  "speed": 350.0, "maxTurn": 0.015, "radius": 10.0, "lifetime": 12.0 },
+  { "type": "fast",   "speed": 420.0, "maxTurn": 0.030, "radius": 8.0,  "lifetime": 8.0  },
+  { "type": "sniper", "speed": 580.0, "maxTurn": 0.0,   "radius": 6.0,  "lifetime": -1   },
+  { "type": "bounce", "speed": 400.0, "maxTurn": 0.0,   "radius": 11.0, "lifetime": -1   },
+  { "type": "ghost",  "speed": 350.0, "maxTurn": 0.015, "radius": 10.0, "lifetime": 18.0 },
+  { "type": "shield", "speed": 190.0, "maxTurn": 0.045, "radius": 11.0, "lifetime": 14.0 },
+  { "type": "freeze", "speed": 175.0, "maxTurn": 0.042, "radius": 13.0, "lifetime": 16.0 },
+  { "type": "clock",  "speed": 160.0, "maxTurn": 0.040, "radius": 12.0, "lifetime": 15.0 },
+  { "type": "twins",  "speed": 580.0, "maxTurn": 0.0,   "radius": 6.0,  "lifetime": -1   }
+]
