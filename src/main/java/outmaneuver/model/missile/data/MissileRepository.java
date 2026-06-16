@@ -5,7 +5,6 @@ import java.util.Optional;
 
 /*
  * Interfaccia per accedere ai dati dei missili.
- * Analogo a PlaneRepository per i piani.
  */
 public interface MissileRepository {
 

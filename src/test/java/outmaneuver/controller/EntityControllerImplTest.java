@@ -1,6 +1,11 @@
 package outmaneuver.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -10,11 +15,21 @@ import outmaneuver.model.area.Plane;
 import outmaneuver.model.area.PlaneImpl;
 import outmaneuver.model.area.StandardStats;
 import outmaneuver.model.area.TurnState;
+import outmaneuver.model.missile.IMissile;
 import outmaneuver.util.Vector2;
+import outmaneuver.view.MissileRenderData;
 
 class EntityControllerImplTest {
 
     private static final double EPS = 1e-9;
+
+    // Mock minimale di MissileController per i test
+    private static final MissileController DUMMY_MISSILE_CTRL = new MissileController() {
+        @Override public void update(outmaneuver.model.area.Plane p, double dt) { }
+        @Override public List<MissileRenderData> getRenderData() { return List.of(); }
+        @Override public List<IMissile> getActiveMissiles() { return List.of(); }
+        @Override public void reset() { }
+    };
 
     private Plane plane;
     private InputControllerImpl input;
@@ -24,7 +39,7 @@ class EntityControllerImplTest {
     void setUp() {
         plane = new PlaneImpl(new StandardStats());
         input = new InputControllerImpl();
-        entityCtrl = new EntityControllerImpl(plane, input, (evt, data) -> { });
+        entityCtrl = new EntityControllerImpl(plane, input, (evt, data) -> { }, DUMMY_MISSILE_CTRL);
     }
 
     @Test
@@ -36,14 +51,14 @@ class EntityControllerImplTest {
 
     @Test
     void testLeftInputRotatesLeft() {
-        input.onKeyPressed(37); // VK_LEFT
+        input.onKeyPressed(37);
         entityCtrl.updateEntities(100);
         assertTrue(plane.getDirection() < 0, "Direction should be negative (left turn)");
     }
 
     @Test
     void testRightInputRotatesRight() {
-        input.onKeyPressed(39); // VK_RIGHT
+        input.onKeyPressed(39);
         entityCtrl.updateEntities(100);
         assertTrue(plane.getDirection() > 0, "Direction should be positive (right turn)");
     }

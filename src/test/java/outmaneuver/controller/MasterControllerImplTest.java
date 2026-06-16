@@ -17,13 +17,23 @@ import outmaneuver.controller.impl.MasterControllerImpl;
 import outmaneuver.model.area.Plane;
 import outmaneuver.model.area.PlaneImpl;
 import outmaneuver.model.area.StandardStats;
+import outmaneuver.model.missile.IMissile;
 import outmaneuver.util.Vector2;
 import outmaneuver.view.GameView;
+import outmaneuver.view.MissileRenderData;
 import outmaneuver.view.RenderState;
 
 class MasterControllerImplTest {
 
     private static final long TICK_WAIT_MS = 100;
+
+    // Mock minimale di MissileController per i test
+    private static final MissileController DUMMY_MISSILE_CTRL = new MissileController() {
+        @Override public void update(outmaneuver.model.area.Plane p, double dt) { }
+        @Override public List<MissileRenderData> getRenderData() { return List.of(); }
+        @Override public List<IMissile> getActiveMissiles() { return List.of(); }
+        @Override public void reset() { }
+    };
 
     private Plane plane;
     private InputControllerImpl input;
@@ -46,7 +56,7 @@ class MasterControllerImplTest {
         input = new InputControllerImpl();
         spyView = new SpyView();
         master = new MasterControllerImpl(new HudControllerImpl());
-        entityCtrl = new EntityControllerImpl(plane, input, master);
+        entityCtrl = new EntityControllerImpl(plane, input, master, DUMMY_MISSILE_CTRL);
         master.setEntityController(entityCtrl);
     }
 
