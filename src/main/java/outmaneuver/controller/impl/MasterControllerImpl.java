@@ -31,10 +31,25 @@ public final class MasterControllerImpl implements MasterController, InternalEve
     private ScheduledFuture<?> tickTask;
     private volatile boolean paused;
     private long lastTickTime;
+    private Runnable onGameOver;
+    private Runnable onPause;
+    private Runnable onResume;
 
     public MasterControllerImpl(final HudController hudController) {
         this.hudController = Objects.requireNonNull(hudController, "hudController must not be null");
         this.paused = false;
+    }
+
+    public void setOnGameOver(final Runnable onGameOver) {
+        this.onGameOver = Objects.requireNonNull(onGameOver);
+    }
+
+    public void setOnPause(final Runnable onPause) {
+        this.onPause = Objects.requireNonNull(onPause);
+    }
+
+    public void setOnResume(final Runnable onResume) {
+        this.onResume = Objects.requireNonNull(onResume);
     }
 
     public void setEntityController(final EntityController entityController) {
@@ -51,13 +66,25 @@ public final class MasterControllerImpl implements MasterController, InternalEve
                 if (paused) {
                     paused = false;
                     lastTickTime = System.nanoTime();
+                    if (onResume != null) {
+                        onResume.run();
+                    }
                 } else {
                     paused = true;
+                    if (onPause != null) {
+                        onPause.run();
+                    }
                 }
             }
             case QUIT_APPLICATION -> {
                 shutdown();
                 System.exit(0);
+            }
+            case GAME_OVER -> {
+                stop();
+                if (onGameOver != null) {
+                    onGameOver.run();
+                }
             }
         }
     }
@@ -73,6 +100,7 @@ public final class MasterControllerImpl implements MasterController, InternalEve
         if (tickTask != null && !tickTask.isCancelled()) {
             return;
         }
+        paused = false;
         lastTickTime = System.nanoTime();
         hudController.reset();
         tickTask = scheduler.scheduleAtFixedRate(

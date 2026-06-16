@@ -8,7 +8,7 @@ import outmaneuver.controller.impl.EntityControllerImpl;
 import outmaneuver.controller.impl.InputControllerImpl;
 import outmaneuver.model.area.Plane;
 import outmaneuver.model.area.PlaneImpl;
-import outmaneuver.model.area.StandardStats;
+import outmaneuver.model.area.PlaneData;
 import outmaneuver.model.area.TurnState;
 import outmaneuver.util.Vector2;
 
@@ -22,7 +22,7 @@ class EntityControllerImplTest {
 
     @BeforeEach
     void setUp() {
-        plane = new PlaneImpl(new StandardStats());
+        plane = new PlaneImpl(new PlaneData("standard", 200, 3, 20, "aircraft_standard", 0));
         input = new InputControllerImpl();
         entityCtrl = new EntityControllerImpl(plane, input, (evt, data) -> { });
     }

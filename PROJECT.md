@@ -181,6 +181,18 @@ src/main/java/outmaneuver/
 │   │   ├── GameState.java              (enum)
 │   │   └── ScoreEntry.java             (record)
 │   │
+│   ├── powerup/
+│   │   ├── Collectible.java            (@FunctionalInterface — owner: Cattolico)
+│   │   ├── SpeedBoost.java
+│   │   ├── StarCollectible.java
+│   │   ├── ShieldPowerUp.java
+│   │   └── EmpPowerUp.java             (richiede IGameArea — da impl.)
+│   │
+│   ├── leaderboard/
+│   │   ├── ILeaderboardRepository.java
+│   │   ├── JsonLeaderboardRepository.java
+│   │   └── Leaderboard.java
+│   │
 │   └── DifficultyConfig.java           (record immutabile — owner: Cattolico)
 │
 ├── controller/
@@ -231,8 +243,8 @@ src/main/java/outmaneuver/
 
 | Classe / Interfaccia | Tipo | Owner | Responsabilità |
 |---|---|---|---|
-| `IGameSession` | Interface | Cattolico | Contratto pubblico della sessione: `getScore()`, `getElapsedTimeMillis()`, `getGameState()`, `equipPlane(Plane)`. Usata da `MasterControllerImpl` e `CollisionEngine`. |
-| `GameSession` | Class | Cattolico | Implementa `IGameSession`. Mantiene punteggio, timer, `GameState`. |
+| `IGameSession` | Interface | Cattolico | Contratto pubblico della sessione: `getScore()`, `getElapsedTimeMillis()`, `getGameState()`, `equipPlane(Plane)`, `incrementScore(int)`, `transitionTo(GameState)`. |
+| `GameSession` | Class | Cattolico | Implementa `IGameSession`. Score mutabile, timer che conta solo i ms in stato `PLAYING` (accumula attraverso pause), macchina a stati con transizioni validate. Nessuna dipendenza da `GameEventBus`. |
 | `GameState` | Enum | Cattolico | `MENU`, `PLAYING`, `PAUSED`, `GAME_OVER`. Usato da `MasterControllerImpl` e `UIManager`. |
 | `ScoreEntry` | Record | Cattolico | `int score`, `String playerName`, `LocalDate date`. Implementa `Comparable<ScoreEntry>` per ordinamento decrescente. |
 | `DifficultyConfig` | Record | Cattolico | `double initialSpawnRate`, `double spawnRateIncrement`, `int maxMissilesOnScreen`. Immutabile. Include factory method `defaultConfig()`. |
@@ -244,10 +256,15 @@ src/main/java/outmaneuver/
 | `IMissile` | Interface | Pulzoni | *(da implementare)* Contratto del Missile: `update(float dt)`, `getPosition()`, `deactivate()`, `getType()`. |
 | `SteeringBehavior` | Interface | Pulzoni | *(da implementare)* Pattern Strategy per il comportamento di inseguimento. |
 | `MissileType` | Enum | Pulzoni | *(da implementare)* Tipologie di missile con parametri distinti di velocità e manovrabilità. |
-| `PowerUp` | Interface | Cattolico | *(da implementare)* `void apply(Plane plane, IGameSession session)`. Interfaccia funzionale Strategy. |
+| `Collectible` | Interface | Cattolico | `@FunctionalInterface` — `void apply(Plane plane, IGameSession session)`. Contratto Strategy per tutti i collezionabili. |
+| `SpeedBoost` | Class | Cattolico | Implementa `Collectible`. Chiama `plane.applySpeedMultiplier(factor, durationMs)`. |
+| `StarCollectible` | Class | Cattolico | Implementa `Collectible`. Chiama `session.incrementScore(scoreValue)`. |
+| `ShieldPowerUp` | Class | Cattolico | Implementa `Collectible`. Attiva lo scudo e lo disattiva su virtual thread dopo `durationMs`. |
+| `EmpPowerUp` | Class | Cattolico | *(da implementare — richiede `IGameArea`)* Disattiva tutti i missili attivi. |
+| `ILeaderboardRepository` | Interface | Cattolico | `List<ScoreEntry> load()`, `void persist(List<ScoreEntry>)`. Isola I/O da file. |
+| `JsonLeaderboardRepository` | Class | Cattolico | Implementa `ILeaderboardRepository` con Gson. Adapter `LocalDate` custom, silent load su file assente. |
+| `Leaderboard` | Class | Cattolico | Top-N punteggi ordinati. `save(int, String)` e `getTopScores()`. Lista risultato non modificabile. |
 | `IGameArea` | Interface | Condiviso | *(da implementare)* Contenitore stato dinamico partita: `getMissiles()`, `getCollectibles()`, `getPlane()`, `getMissileCount()`. |
-| `Leaderboard` | Class | Cattolico | *(da implementare)* Top-N punteggi su file JSON. |
-| `ILeaderboardRepository` | Interface | Cattolico | *(da implementare)* `List<ScoreEntry> load()`, `void persist(List<ScoreEntry>)`. |
 | `Shop` | Class | Cattolico | *(da implementare)* Catalogo velivoli acquistabili. |
 
 ### 7.2 Controller
@@ -325,7 +342,7 @@ Transitano via `InternalEventListener` senza passare per `GameEventBus`.
 | `MISSILE_PLANE_COLLISION` | CollisionEvent | CollisionEngine | GameSession (→ GAME_OVER se no shield) |
 | `GAME_OVER` | ScorePayload | GameSession | MasterControllerImpl (stop loop), UIManager |
 | `SCORE_CHANGED` | `delta: int` | StarCollectible | GameSession, HUDView |
-| `POWERUP_COLLECTED` | PowerUpType, planeId | CollisionEngine | Cattolico (apply powerup) |
+| `COLLECTIBLE_COLLECTED` | CollectibleType, planeId | CollisionEngine | Cattolico (`Collectible.apply()`) |
 | `MISSILE_DESTROYED` | missileId | EntityRemover | MissileSpawner (aggiorna contatore) |
 | `ENTITY_REMOVE_REQUEST` | entityId | CollisionEngine | EntityRemover |
 
@@ -358,9 +375,9 @@ Le interfacce condivise sono il punto di integrazione del team. Qualsiasi modifi
 | `SteeringBehavior` | `model.missile` | Pulzoni | Strategy per algoritmo di inseguimento |
 | `ICollidable` | `controller.collision` | Spinaci | Contratto entità collidibili con hitbox |
 | `IGameArea` | `model.area` | Condiviso | Contenitore entità attive (missili, collezionabili, velivolo) |
-| `PowerUp` | `model.powerup` | Cattolico | Strategy per effetti collezionabili |
+| `Collectible` | `model.powerup` | Cattolico | Strategy per effetti collezionabili (`SpeedBoost`, `StarCollectible`, `ShieldPowerUp` ✓ — `EmpPowerUp` da impl.) |
 | `EntityFactory` | `controller` | Muller | Factory per `IMissile` e collezionabili |
-| `ILeaderboardRepository` | `model.leaderboard` | Cattolico | Isola I/O JSON da logica classifica |
+| `ILeaderboardRepository` | `model.leaderboard` | Cattolico | Isola I/O JSON da logica classifica ✓ |
 
 ---
 
@@ -381,9 +398,9 @@ Le interfacce condivise sono il punto di integrazione del team. Qualsiasi modifi
 **View:** `ParticleSystem` *(da impl.)*, `AudioManager` *(da impl.)*
 
 ### Cattolico Giuseppe
-**Model:** `IGameSession`, `GameSession`, `GameState`, `ScoreEntry`, `DifficultyConfig`, `PowerUp` *(da impl.)*, `SpeedBoost` *(da impl.)*, `StarCollectible` *(da impl.)*, `ShieldPowerUp` *(da impl.)*, `EmpPowerUp` *(da impl.)*, `Leaderboard` *(da impl.)*, `ILeaderboardRepository` *(da impl.)*, `JsonLeaderboardRepository` *(da impl.)*, `Shop` *(da impl.)*  
-**Controller:** `HudController`, `HudControllerImpl`, `CollectibleSpawner` *(da impl.)*  
-**View:** `UIManager`, `HudSnapshot`, `MainMenuView`, `GameOverView`, `HUDView` *(da impl.)*, `ShopView` *(da impl.)*, `CollectibleRenderer` *(da impl.)*
+**Model:** `IGameSession` ✓, `GameSession` ✓, `GameState` ✓, `ScoreEntry` ✓, `DifficultyConfig` ✓, `Collectible` ✓, `SpeedBoost` ✓, `StarCollectible` ✓, `ShieldPowerUp` ✓, `EmpPowerUp` *(da impl. — richiede `IGameArea`)*,  `Leaderboard` ✓, `Shop` *(da impl.)*  
+**Controller:** `HudController` ✓, `HudControllerImpl` ✓, `CollectibleSpawner` *(da impl.)*  
+**View:** `UIManager` ✓, `HudSnapshot` ✓, `MainMenuView` ✓, `GameOverView` , `HUDView` , `ShopView` , `CollectibleRenderer` *(da impl.)*
 
 ---
 
@@ -422,7 +439,7 @@ Le interfacce condivise sono il punto di integrazione del team. Qualsiasi modifi
 | Pattern | Dove |
 |---|---|
 | **Observer** | `GameEventBus` *(da completare)* — comunicazione publish/subscribe tra moduli; `InternalEventListener` — notifiche interne tra controller |
-| **Strategy** | `SteeringBehavior` *(da impl.)* — algoritmo inseguimento intercambiabile; `PowerUp` *(da impl.)* — effetto intercambiabile per tipo collezionabile |
+| **Strategy** | `SteeringBehavior` *(da impl.)* — algoritmo inseguimento intercambiabile; `Collectible` — effetto intercambiabile per ogni tipo di collezionabile |
 | **Builder** | `RenderState.Builder` — costruzione step-by-step dello snapshot di rendering |
 | **Factory Method** | `EntityFactory` *(da impl.)* — creazione di `IMissile` e collezionabili |
 | **State** | `GameState` + `UIManager` — `CardLayout` mostra schermata diversa per MENU/PLAYING/PAUSED/GAME_OVER |
@@ -436,19 +453,23 @@ Le interfacce condivise sono il punto di integrazione del team. Qualsiasi modifi
 Prima che ciascun membro inizi a scrivere implementazioni:
 
 - [x] `Plane`, `PlaneStats`, `PlaneImpl`, `StandardStats`, `TurnState` — model velivolo (Muller) ✓
-- [x] `IGameSession`, `GameState`, `ScoreEntry`, `DifficultyConfig` — model sessione (Cattolico) ✓
+- [x] `Plane`, `PlaneStats`, `PlaneImpl`, `StandardStats`, `TurnState` — model velivolo (Muller) ✓
+- [x] `IGameSession`, `GameSession`, `GameState`, `ScoreEntry`, `DifficultyConfig` — model sessione (Cattolico) ✓
+- [x] `Collectible`, `SpeedBoost`, `StarCollectible`, `ShieldPowerUp` — collezionabili (Cattolico) ✓
+- [x] `ILeaderboardRepository`, `JsonLeaderboardRepository`, `Leaderboard` — classifica (Cattolico) ✓
 - [x] `MasterController`, `EntityController`, `InputController`, `HudController` — interfacce controller (Muller/Cattolico) ✓
 - [x] `InternalEventListener`, `InternalEvent`, `OutmaneuverEvent` — eventi interni (Muller) ✓
 - [x] `GameView`, `RenderState`, `HudSnapshot`, `EntityRenderData` — layer view base ✓
-- [x] `UIManager`, `SwingGameView`, `MainMenuView`, `GameOverView` — schermate Swing ✓
+- [x] `UIManager`, `SwingGameView`, `MainMenuView` — schermate Swing ✓
 - [x] Game loop funzionante in `MasterControllerImpl` (Muller) ✓
 - [ ] `GameEventBus` implementazione completa (Spinaci) — tutti lo dipendono per missili/collisioni
 - [ ] `IMissile`, `SteeringBehavior`, tipi missile (Pulzoni)
 - [ ] `ICollidable`, `CollisionEngine`, `EntityRemover` (Spinaci)
 - [ ] `IGameArea` e integrazione in `EntityControllerImpl` (Condiviso)
-- [ ] Sistema `PowerUp` e collezionabili (Cattolico)
-- [ ] `Leaderboard`, `ILeaderboardRepository`, `JsonLeaderboardRepository` (Cattolico)
+- [ ] `EmpPowerUp` (Cattolico — aspetta `IGameArea`)
 - [ ] `EntityFactory`, `MissileSpawner`, `CollectibleSpawner` (Muller/Pulzoni/Cattolico)
+- [x] `GameOverView`, `HUDView`, `ShopView`, `CollectibleRenderer`*(da impl.)* (Cattolico)
+- [x] `Shop` (Cattolico)
 
 
 ---
