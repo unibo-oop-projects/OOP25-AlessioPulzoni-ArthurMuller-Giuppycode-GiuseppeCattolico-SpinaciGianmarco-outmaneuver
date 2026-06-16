@@ -15,6 +15,7 @@ import outmaneuver.controller.HudController;
 import outmaneuver.controller.InternalEvent;
 import outmaneuver.controller.MasterController;
 import outmaneuver.controller.OutmaneuverEvent;
+import outmaneuver.controller.ScoreController;
 import outmaneuver.controller.event.InternalEventListener;
 import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.model.area.entity.collectibles.Collectible;
@@ -29,6 +30,7 @@ public final class MasterControllerImpl implements MasterController, InternalEve
 
     private final List<GameView> views = new ArrayList<>();
     private final HudController hudController;
+    private ScoreController scoreController;
     private EntityController entityController;
     private CollisionEngine collisionEngine;
     private CollectibleSpawner collectibleSpawner;
@@ -70,6 +72,10 @@ public final class MasterControllerImpl implements MasterController, InternalEve
             throw new IllegalStateException("collisionEngine already set");
         }
         this.collisionEngine = Objects.requireNonNull(collisionEngine, "collisionEngine must not be null");
+    }
+
+    public void setScoreController(final ScoreController scoreController) {
+        this.scoreController = Objects.requireNonNull(scoreController, "scoreController must not be null");
     }
 
     @Override
@@ -117,6 +123,9 @@ public final class MasterControllerImpl implements MasterController, InternalEve
         paused = false;
         lastTickTime = System.nanoTime();
         hudController.reset();
+        if (scoreController != null) {
+            scoreController.reset();
+        }
         tickTask = scheduler.scheduleAtFixedRate(
                 this::tick, 0, TICK_PERIOD_MS, TimeUnit.MILLISECONDS);
     }
@@ -156,6 +165,9 @@ public final class MasterControllerImpl implements MasterController, InternalEve
         entityController.updateEntities(deltaMs);
         collectibleSpawner.tick(deltaMs, entityController.getPlane());
         collisionEngine.tick();
+        if (scoreController != null) {
+            scoreController.onTick(deltaMs);
+        }
         pushRenderFrame(false);
     }
 
@@ -183,10 +195,17 @@ public final class MasterControllerImpl implements MasterController, InternalEve
             case PLANE_MISSILE_COLLISION -> {
                 //notifyViews(v -> v.onPlaneHit((CollisionData) data)); da implementare
             }
-            case PLANE_COLLECTIBLE_COLLISION ->
+            case PLANE_COLLECTIBLE_COLLISION -> {
                 hudController.onInternalEvent(InternalEvent.PLANE_COLLECTIBLE_COLLISION, data);
+                if (scoreController != null) {
+                    scoreController.onInternalEvent(InternalEvent.PLANE_COLLECTIBLE_COLLISION, data);
+                }
+            }
             case MISSILE_MISSILE_COLLISION -> {
                 // notifyViews(v -> v.onMissileCollision((CollisionData) data)); da implementare
+                if (scoreController != null) {
+                    scoreController.onInternalEvent(InternalEvent.MISSILE_MISSILE_COLLISION, data);
+                }
             }
         }
     }
