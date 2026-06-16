@@ -1,7 +1,13 @@
 package outmaneuver.model.profile;
 
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.Objects;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializer;
 
 import outmaneuver.util.json.GsonProvider;
 import outmaneuver.util.json.JsonFileStore;
@@ -16,12 +22,18 @@ public final class JsonPlayerProfileRepository implements IPlayerProfileReposito
 
     /**
      * Factory method: crea un repository configurato con il path del file utente.
-     * Usa {@link GsonProvider#createWithDateAdapters()} per il supporto a {@link java.time.LocalDate}.
+     * Usa un {@link Gson} con supporto a {@link java.time.LocalDate}.
      */
     public static JsonPlayerProfileRepository create(final Path filePath) {
         Objects.requireNonNull(filePath, "filePath must not be null");
+        final Gson gson = GsonProvider.builder()
+                .registerTypeAdapter(LocalDate.class,
+                        (JsonSerializer<LocalDate>) (src, t, ctx) -> new JsonPrimitive(src.toString()))
+                .registerTypeAdapter(LocalDate.class,
+                        (JsonDeserializer<LocalDate>) (json, t, ctx) -> LocalDate.parse(json.getAsString()))
+                .create();
         return new JsonPlayerProfileRepository(
-                JsonFileStore.forType(filePath, PlayerProfileData.class, GsonProvider.createWithDateAdapters()));
+                JsonFileStore.forType(filePath, PlayerProfileData.class, gson));
     }
 
     @Override
