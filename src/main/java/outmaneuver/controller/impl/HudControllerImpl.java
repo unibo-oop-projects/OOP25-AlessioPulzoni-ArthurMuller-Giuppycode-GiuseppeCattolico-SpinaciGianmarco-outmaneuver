@@ -5,6 +5,7 @@ import java.util.Objects;
 import outmaneuver.controller.HudController;
 import outmaneuver.controller.InternalEvent;
 import outmaneuver.model.area.entity.plane.Plane;
+import outmaneuver.model.area.entity.collectibles.StarCollectible;
 import outmaneuver.view.HudSnapshot;
 
 public final class HudControllerImpl implements HudController {
@@ -49,7 +50,7 @@ public final class HudControllerImpl implements HudController {
 
     @Override
     public void onInternalEvent(final InternalEvent evt, final Object data) {
-        if (evt == InternalEvent.STAR_COLLECTED) {
+        if (evt == InternalEvent.PLANE_COLLECTIBLE_COLLISION && data instanceof StarCollectible) {
             stars++;
         }
     }

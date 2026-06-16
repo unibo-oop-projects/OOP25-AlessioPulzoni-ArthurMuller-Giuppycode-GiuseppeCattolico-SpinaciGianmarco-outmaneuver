@@ -1,5 +1,7 @@
 package outmaneuver.model.area.entity.plane;
 
+import outmaneuver.model.collision.CollisionLayer;
+import outmaneuver.model.collision.Hitbox;
 import outmaneuver.util.Vector2;
 import java.util.Objects;
 
@@ -91,5 +93,15 @@ public final class PlaneImpl implements Plane {
             multiplierEndTime = 0;
         }
         return stats.getBaseSpeed() * speedMultiplier;
+    }
+
+    @Override
+    public Hitbox getHitbox() {
+        return new Hitbox(position, stats.getHitboxRadius());
+    }
+
+    @Override
+    public CollisionLayer getCollisionLayer() {
+        return CollisionLayer.PLANE;
     }
 }

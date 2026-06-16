@@ -10,6 +10,8 @@ import outmaneuver.controller.impl.HudControllerImpl;
 import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.model.area.entity.plane.PlaneData;
 import outmaneuver.model.area.entity.plane.PlaneImpl;
+import outmaneuver.model.area.entity.collectibles.StarCollectible;
+import outmaneuver.util.Vector2;
 import outmaneuver.view.HudSnapshot;
 
 class HudControllerImplTest {
@@ -37,14 +39,15 @@ class HudControllerImplTest {
 
     @Test
     void starsIncrementOnStarCollected() {
-        hud.onInternalEvent(InternalEvent.STAR_COLLECTED, null);
-        hud.onInternalEvent(InternalEvent.STAR_COLLECTED, null);
+        final StarCollectible star = new StarCollectible(Vector2.ZERO, 10);
+        hud.onInternalEvent(InternalEvent.PLANE_COLLECTIBLE_COLLISION, star);
+        hud.onInternalEvent(InternalEvent.PLANE_COLLECTIBLE_COLLISION, star);
         assertEquals(2, hud.buildSnapshot(plane, false).stars());
     }
 
     @Test
     void resetClearsStars() {
-        hud.onInternalEvent(InternalEvent.STAR_COLLECTED, null);
+        hud.onInternalEvent(InternalEvent.PLANE_COLLECTIBLE_COLLISION, new StarCollectible(Vector2.ZERO, 10));
         hud.reset();
         assertEquals(0, hud.buildSnapshot(plane, false).stars());
     }

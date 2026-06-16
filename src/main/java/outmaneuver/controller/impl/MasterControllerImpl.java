@@ -9,6 +9,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import outmaneuver.controller.CollisionEngine;
 import outmaneuver.controller.EntityController;
 import outmaneuver.controller.HudController;
 import outmaneuver.controller.InternalEvent;
@@ -16,6 +17,8 @@ import outmaneuver.controller.MasterController;
 import outmaneuver.controller.OutmaneuverEvent;
 import outmaneuver.controller.event.InternalEventListener;
 import outmaneuver.model.area.entity.plane.Plane;
+import outmaneuver.model.area.entity.collectibles.Collectible;
+import outmaneuver.view.EntityRenderData;
 import outmaneuver.view.GameView;
 import outmaneuver.view.RenderState;
 
@@ -27,6 +30,8 @@ public final class MasterControllerImpl implements MasterController, InternalEve
     private final List<GameView> views = new ArrayList<>();
     private final HudController hudController;
     private EntityController entityController;
+    private CollisionEngine collisionEngine;
+    private CollectibleSpawner collectibleSpawner;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> tickTask;
     private volatile boolean paused;
@@ -57,6 +62,14 @@ public final class MasterControllerImpl implements MasterController, InternalEve
             throw new IllegalStateException("entityController already set");
         }
         this.entityController = Objects.requireNonNull(entityController, "entityController must not be null");
+        this.collectibleSpawner = new CollectibleSpawner(this.entityController);
+    }
+
+    public void setCollisionEngine(final CollisionEngine collisionEngine) {
+        if (this.collisionEngine != null) {
+            throw new IllegalStateException("collisionEngine already set");
+        }
+        this.collisionEngine = Objects.requireNonNull(collisionEngine, "collisionEngine must not be null");
     }
 
     @Override
@@ -97,6 +110,7 @@ public final class MasterControllerImpl implements MasterController, InternalEve
     @Override
     public void start() {
         Objects.requireNonNull(entityController, "entityController must be set before start()");
+        Objects.requireNonNull(collisionEngine, "collisionEngine must be set before start()");
         if (tickTask != null && !tickTask.isCancelled()) {
             return;
         }
@@ -140,14 +154,21 @@ public final class MasterControllerImpl implements MasterController, InternalEve
         }
 
         entityController.updateEntities(deltaMs);
+        collectibleSpawner.tick(deltaMs, entityController.getPlane());
+        collisionEngine.tick();
         pushRenderFrame(false);
     }
 
     private void pushRenderFrame(final boolean isPaused) {
         final Plane plane = entityController.getPlane();
+        final List<EntityRenderData> collectibles = entityController.getEntities().stream()
+                .filter(e -> e instanceof Collectible)
+                .map(e -> new EntityRenderData(e.getPosition().getX(), e.getPosition().getY(), 0, "collectible"))
+                .toList();
         final RenderState state = RenderState.builder()
                 .plane(plane)
                 .hud(hudController.buildSnapshot(plane, isPaused))
+                .collectibles(collectibles)
                 .build();
         notifyViews(v -> v.renderFrame(state));
     }
@@ -158,6 +179,15 @@ public final class MasterControllerImpl implements MasterController, InternalEve
 
     @Override
     public void onInternalEvent(final InternalEvent evt, final Object data) {
-        hudController.onInternalEvent(evt, data);
+        switch (evt) {
+            case PLANE_MISSILE_COLLISION -> {
+                //notifyViews(v -> v.onPlaneHit((CollisionData) data)); da implementare
+            }
+            case PLANE_COLLECTIBLE_COLLISION ->
+                hudController.onInternalEvent(InternalEvent.PLANE_COLLECTIBLE_COLLISION, data);
+            case MISSILE_MISSILE_COLLISION -> {
+                // notifyViews(v -> v.onMissileCollision((CollisionData) data)); da implementare
+            }
+        }
     }
 }

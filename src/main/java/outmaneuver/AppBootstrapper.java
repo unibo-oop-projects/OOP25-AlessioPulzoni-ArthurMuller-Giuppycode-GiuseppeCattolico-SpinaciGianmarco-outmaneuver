@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import outmaneuver.controller.CollisionEngine;
 import outmaneuver.controller.MasterController;
 import outmaneuver.controller.OutmaneuverEvent;
 import outmaneuver.controller.impl.EntityControllerImpl;
@@ -21,6 +22,7 @@ import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.model.area.entity.plane.PlaneData;
 import outmaneuver.model.area.entity.plane.PlaneImpl;
 import outmaneuver.model.area.entity.plane.PlaneRepository;
+import outmaneuver.model.session.GameSession;
 import outmaneuver.model.profile.IPlayerProfileRepository;
 import outmaneuver.model.profile.JsonPlayerProfileRepository;
 import outmaneuver.model.profile.PlayerProfile;
@@ -54,8 +56,12 @@ public final class AppBootstrapper {
         final InputControllerImpl inputCtrl = new InputControllerImpl();
         final HudControllerImpl hudCtrl = new HudControllerImpl();
         final MasterControllerImpl master = new MasterControllerImpl(hudCtrl);
-        final EntityControllerImpl entity = new EntityControllerImpl(plane, inputCtrl, master);
+        final CollisionEngine collisionEngine = new CollisionEngine(master);
+        final GameSession session = new GameSession();
+        final EntityControllerImpl entity = new EntityControllerImpl(inputCtrl, master, collisionEngine, session);
+        entity.spawnPlane(plane);
         master.setEntityController(entity);
+        master.setCollisionEngine(collisionEngine);
 
         final SwingGameView gameView = new SwingGameView(new GameKeyListener(inputCtrl, master), new SwingHudView());
         gameView.setPreferredSize(new java.awt.Dimension(800, 600));

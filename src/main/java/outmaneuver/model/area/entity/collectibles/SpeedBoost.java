@@ -2,13 +2,15 @@ package outmaneuver.model.area.entity.collectibles;
 
 import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.model.session.IGameSession;
+import outmaneuver.util.Vector2;
 
-public final class SpeedBoost implements Collectible {
+public final class SpeedBoost extends AbstractCollectible {
 
     private final double factor;
     private final long durationMs;
 
-    public SpeedBoost(final double factor, final long durationMs) {
+    public SpeedBoost(final Vector2 position, final double factor, final long durationMs) {
+        super(position); // Initialize position with the provided value
         if (factor <= 0) {
             throw new IllegalArgumentException("factor must be positive");
         }

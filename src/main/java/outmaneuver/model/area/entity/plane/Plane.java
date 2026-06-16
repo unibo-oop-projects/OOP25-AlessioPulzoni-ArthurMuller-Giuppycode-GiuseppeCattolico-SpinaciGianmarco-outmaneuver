@@ -1,12 +1,9 @@
 package outmaneuver.model.area.entity.plane;
 
-import outmaneuver.util.Vector2;
 
-public interface Plane {
+import outmaneuver.model.Entity;
 
-    Vector2 getPosition();
-
-    void setPosition(Vector2 position);
+public interface Plane extends Entity {
 
     double getDirection();
 

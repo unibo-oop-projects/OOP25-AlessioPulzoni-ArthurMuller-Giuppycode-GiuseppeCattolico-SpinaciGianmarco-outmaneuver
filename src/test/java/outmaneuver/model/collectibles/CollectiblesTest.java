@@ -14,6 +14,7 @@ import outmaneuver.model.area.entity.collectibles.StarCollectible;
 import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.model.session.GameSession;
 import outmaneuver.model.session.GameState;
+import outmaneuver.util.Vector2;
 
 class CollectiblesTest {
 
@@ -23,20 +24,20 @@ class CollectiblesTest {
     void speedBoostAppliesMultiplierToPlane() {
         final Plane plane = mock(Plane.class);
         final GameSession session = new GameSession();
-        new SpeedBoost(2.0, 3000).apply(plane, session);
+        new SpeedBoost(Vector2.ZERO, 2.0, 3000L).apply(plane, session);
         verify(plane).applySpeedMultiplier(2.0, 3000);
     }
 
     @Test
     void speedBoostThrowsOnNonPositiveFactor() {
-        assertThrows(IllegalArgumentException.class, () -> new SpeedBoost(0, 1000));
-        assertThrows(IllegalArgumentException.class, () -> new SpeedBoost(-1, 1000));
+        assertThrows(IllegalArgumentException.class, () -> new SpeedBoost(Vector2.ZERO, 0, 1000L));
+        assertThrows(IllegalArgumentException.class, () -> new SpeedBoost(Vector2.ZERO, -1, 1000L));
     }
 
     @Test
     void speedBoostThrowsOnNonPositiveDuration() {
-        assertThrows(IllegalArgumentException.class, () -> new SpeedBoost(2.0, 0));
-        assertThrows(IllegalArgumentException.class, () -> new SpeedBoost(2.0, -1));
+        assertThrows(IllegalArgumentException.class, () -> new SpeedBoost(Vector2.ZERO, 2.0, 0L));
+        assertThrows(IllegalArgumentException.class, () -> new SpeedBoost(Vector2.ZERO, 2.0, -1L));
     }
 
     // StarCollectible
@@ -45,7 +46,7 @@ class CollectiblesTest {
     void starCollectibleIncrementsSessionScore() {
         final Plane plane = mock(Plane.class);
         final GameSession session = new GameSession();
-        new StarCollectible(50).apply(plane, session);
+        new StarCollectible(Vector2.ZERO, 50).apply(plane, session);
         assertEquals(50, session.getScore());
     }
 
@@ -53,15 +54,15 @@ class CollectiblesTest {
     void starCollectibleAccumulatesScore() {
         final Plane plane = mock(Plane.class);
         final GameSession session = new GameSession();
-        new StarCollectible(30).apply(plane, session);
-        new StarCollectible(20).apply(plane, session);
+        new StarCollectible(Vector2.ZERO, 30).apply(plane, session);
+        new StarCollectible(Vector2.ZERO, 20).apply(plane, session);
         assertEquals(50, session.getScore());
     }
 
     @Test
     void starCollectibleThrowsOnNonPositiveValue() {
-        assertThrows(IllegalArgumentException.class, () -> new StarCollectible(0));
-        assertThrows(IllegalArgumentException.class, () -> new StarCollectible(-5));
+        assertThrows(IllegalArgumentException.class, () -> new StarCollectible(Vector2.ZERO, 0));
+        assertThrows(IllegalArgumentException.class, () -> new StarCollectible(Vector2.ZERO, -5));
     }
 
     // ShieldPowerUp
@@ -70,7 +71,7 @@ class CollectiblesTest {
     void shieldPowerUpActivatesShield() {
         final Plane plane = mock(Plane.class);
         final GameSession session = new GameSession();
-        new ShieldPowerUp(5000).apply(plane, session);
+        new ShieldPowerUp(Vector2.ZERO, 5000L).apply(plane, session);
         verify(plane).activateShield();
     }
 
@@ -78,14 +79,14 @@ class CollectiblesTest {
     void shieldPowerUpDeactivatesAfterDuration() throws InterruptedException {
         final Plane plane = mock(Plane.class);
         final GameSession session = new GameSession();
-        new ShieldPowerUp(80).apply(plane, session);
+        new ShieldPowerUp(Vector2.ZERO, 80L).apply(plane, session);
         Thread.sleep(150);
         verify(plane).deactivateShield();
     }
 
     @Test
     void shieldPowerUpThrowsOnNonPositiveDuration() {
-        assertThrows(IllegalArgumentException.class, () -> new ShieldPowerUp(0));
-        assertThrows(IllegalArgumentException.class, () -> new ShieldPowerUp(-1));
+        assertThrows(IllegalArgumentException.class, () -> new ShieldPowerUp(Vector2.ZERO, 0L));
+        assertThrows(IllegalArgumentException.class, () -> new ShieldPowerUp(Vector2.ZERO, -1L));
     }
 }
