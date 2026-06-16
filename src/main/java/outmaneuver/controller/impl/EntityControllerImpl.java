@@ -87,6 +87,7 @@ public final class EntityControllerImpl implements EntityController {
         }
     }
 
+    // to do spawn generico di entità
     public void spawnPlane(final Entity plane) {
         addEntity(plane);
     }
