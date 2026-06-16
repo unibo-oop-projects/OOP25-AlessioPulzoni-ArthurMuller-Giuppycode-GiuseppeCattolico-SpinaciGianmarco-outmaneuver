@@ -15,6 +15,7 @@ import outmaneuver.controller.impl.EntityControllerImpl;
 import outmaneuver.controller.impl.HudControllerImpl;
 import outmaneuver.controller.impl.InputControllerImpl;
 import outmaneuver.controller.impl.MasterControllerImpl;
+import outmaneuver.controller.impl.ScoreControllerImpl;
 import outmaneuver.util.json.GsonProvider;
 import outmaneuver.util.json.JsonResourceLoader;
 import outmaneuver.model.area.entity.plane.JsonPlaneRepository;
@@ -23,6 +24,7 @@ import outmaneuver.model.area.entity.plane.PlaneData;
 import outmaneuver.model.area.entity.plane.PlaneImpl;
 import outmaneuver.model.area.entity.plane.PlaneRepository;
 import outmaneuver.model.session.GameSession;
+import outmaneuver.model.session.IGameSession;
 import outmaneuver.model.profile.IPlayerProfileRepository;
 import outmaneuver.model.profile.JsonPlayerProfileRepository;
 import outmaneuver.model.profile.PlayerProfile;
@@ -62,6 +64,7 @@ public final class AppBootstrapper {
         entity.spawnPlane(plane);
         master.setEntityController(entity);
         master.setCollisionEngine(collisionEngine);
+        master.setScoreController(new ScoreControllerImpl(session));
 
         final SwingGameView gameView = new SwingGameView(new GameKeyListener(inputCtrl, master), new SwingHudView());
         gameView.setPreferredSize(new java.awt.Dimension(800, 600));
@@ -104,7 +107,7 @@ public final class AppBootstrapper {
         );
 
         final GameOverView gameOverView = new GameOverView(
-                () -> onPlayAgain(uiManagerRef[0], master, gameView),
+                () -> onPlayAgain(uiManagerRef[0], master, gameView, session),
                 () -> uiManagerRef[0].showScreen(ScreenId.MENU)
         );
         final LeaderboardView leaderboardView = new LeaderboardView(
@@ -130,7 +133,7 @@ public final class AppBootstrapper {
         );
 
         // TODO: sostituire con GameEventBus.GAME_OVER quando Spinaci implementa il bus
-        master.setOnGameOver(() -> onGameOver(uiManagerRef[0], gameOverView, profile, 0));
+        master.setOnGameOver(() -> onGameOver(uiManagerRef[0], gameOverView, profile, session.getScore()));
 
         master.setOnPause(() -> uiManagerRef[0].showScreen(ScreenId.PAUSED));
         master.setOnResume(() -> {
@@ -191,7 +194,9 @@ public final class AppBootstrapper {
 
     private static void onPlayAgain(final UIManager uiManager,
                                      final MasterController master,
-                                     final SwingGameView gameView) {
+                                     final SwingGameView gameView,
+                                     final IGameSession session) {
+        session.reset();
         uiManager.showScreen(ScreenId.PLAYING);
         gameView.requestFocusInWindow();
         master.start();
