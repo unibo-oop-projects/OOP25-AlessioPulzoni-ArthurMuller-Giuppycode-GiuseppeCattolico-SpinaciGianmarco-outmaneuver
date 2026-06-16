@@ -2,7 +2,6 @@ package outmaneuver.model.collectibles;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -13,7 +12,6 @@ import outmaneuver.model.area.entity.collectibles.SpeedBoost;
 import outmaneuver.model.area.entity.collectibles.StarCollectible;
 import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.model.session.GameSession;
-import outmaneuver.model.session.GameState;
 import outmaneuver.util.Vector2;
 
 class CollectiblesTest {
@@ -43,20 +41,17 @@ class CollectiblesTest {
     // StarCollectible
 
     @Test
-    void starCollectibleIncrementsSessionScore() {
+    void starCollectibleApplyDoesNotIncrementSessionScore() {
         final Plane plane = mock(Plane.class);
         final GameSession session = new GameSession();
         new StarCollectible(Vector2.ZERO, 50).apply(plane, session);
-        assertEquals(50, session.getScore());
+        assertEquals(0, session.getScore());
     }
 
     @Test
-    void starCollectibleAccumulatesScore() {
-        final Plane plane = mock(Plane.class);
-        final GameSession session = new GameSession();
-        new StarCollectible(Vector2.ZERO, 30).apply(plane, session);
-        new StarCollectible(Vector2.ZERO, 20).apply(plane, session);
-        assertEquals(50, session.getScore());
+    void starCollectibleGetScoreValueReturnsConfiguredValue() {
+        assertEquals(30, new StarCollectible(Vector2.ZERO, 30).getScoreValue());
+        assertEquals(20, new StarCollectible(Vector2.ZERO, 20).getScoreValue());
     }
 
     @Test

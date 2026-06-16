@@ -55,6 +55,7 @@ class EntityControllerImplTest {
         @Override public long getElapsedTimeMillis() { return 0; }
         @Override public void incrementScore(final int delta) { }
         @Override public void transitionTo(final GameState state) { }
+        @Override public void reset() { }
     };
 
     // ── Fixtures ─────────────────────────────────────────────────────
