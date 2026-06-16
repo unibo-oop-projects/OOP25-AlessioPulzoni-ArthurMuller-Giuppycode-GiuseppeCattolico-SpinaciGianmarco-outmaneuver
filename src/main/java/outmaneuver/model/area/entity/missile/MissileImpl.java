@@ -1,4 +1,4 @@
-package outmaneuver.model.area;
+package outmaneuver.model.area.entity.missile;
 
 import outmaneuver.model.collision.CollisionLayer;
 import outmaneuver.model.collision.Hitbox;

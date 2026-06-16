@@ -9,7 +9,7 @@ public final class StarCollectible extends AbstractCollectible {
     private final int scoreValue;
 
     public StarCollectible(final Vector2 position, final int scoreValue) {
-        super(position); // Initialize position with the provided value
+        super(position);
         if (scoreValue <= 0) {
             throw new IllegalArgumentException("scoreValue must be positive");
         }

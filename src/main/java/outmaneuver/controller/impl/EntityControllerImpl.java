@@ -11,9 +11,9 @@ import outmaneuver.controller.InternalEvent;
 import outmaneuver.controller.event.InternalEventListener;
 import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.model.area.entity.plane.TurnState;
-import outmaneuver.model.Entity;
-import outmaneuver.model.area.Missile;
+import outmaneuver.model.area.entity.Entity;
 import outmaneuver.model.area.entity.collectibles.Collectible;
+import outmaneuver.model.area.entity.missile.Missile;
 import outmaneuver.model.session.IGameSession;
 import outmaneuver.util.Vector2;
 
