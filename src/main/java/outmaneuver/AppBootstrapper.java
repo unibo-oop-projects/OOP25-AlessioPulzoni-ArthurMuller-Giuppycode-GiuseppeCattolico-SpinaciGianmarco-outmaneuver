@@ -58,6 +58,7 @@ public final class AppBootstrapper {
         master.setEntityController(entity);
 
         final SwingGameView gameView = new SwingGameView(new GameKeyListener(inputCtrl, master), new SwingHudView());
+        gameView.setPreferredSize(new java.awt.Dimension(800, 600));
         gameView.init();
         master.attachView(gameView);
 
@@ -128,7 +129,7 @@ public final class AppBootstrapper {
         master.setOnPause(() -> uiManagerRef[0].showScreen(ScreenId.PAUSED));
         master.setOnResume(() -> {
             uiManagerRef[0].showScreen(ScreenId.PLAYING);
-            gameView.getPanel().requestFocusInWindow();
+            gameView.requestFocusInWindow();
         });
 
         final PauseView pauseView = new PauseView(
@@ -145,7 +146,7 @@ public final class AppBootstrapper {
             uiManagerRef[0].showScreen(ScreenId.MENU);
         }));
         screens.put(ScreenId.MENU, mainMenuView);
-        screens.put(ScreenId.PLAYING, gameView.getPanel());
+        screens.put(ScreenId.PLAYING, gameView);
         screens.put(ScreenId.PAUSED, pauseView);
         screens.put(ScreenId.GAME_OVER, gameOverView);
         screens.put(ScreenId.SHOP, shopView);
@@ -178,7 +179,7 @@ public final class AppBootstrapper {
                                  final MasterController master,
                                  final SwingGameView gameView) {
         uiManager.showScreen(ScreenId.PLAYING);
-        gameView.getPanel().requestFocusInWindow();
+        gameView.requestFocusInWindow();
         master.start();
     }
 
@@ -186,7 +187,7 @@ public final class AppBootstrapper {
                                      final MasterController master,
                                      final SwingGameView gameView) {
         uiManager.showScreen(ScreenId.PLAYING);
-        gameView.getPanel().requestFocusInWindow();
+        gameView.requestFocusInWindow();
         master.start();
     }
 }
