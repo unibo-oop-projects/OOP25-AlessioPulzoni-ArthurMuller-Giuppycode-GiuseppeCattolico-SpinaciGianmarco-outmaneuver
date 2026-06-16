@@ -10,6 +10,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.Objects;
 import java.util.function.IntSupplier;
+import java.util.function.Supplier;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -27,12 +28,13 @@ public final class MainMenuView extends JPanel {
     private static final int VGAP               = 20;
 
     private final JLabel coinsLabel;
+    private final JLabel userLabel;
 
-    public MainMenuView(final String playerName,
+    public MainMenuView(final Supplier<String> playerNameSupplier,
                         final IntSupplier coinsSupplier,
                         final Runnable onStart, final Runnable onShop,
                         final Runnable onLeaderboard, final Runnable onExit) {
-        Objects.requireNonNull(playerName);
+        Objects.requireNonNull(playerNameSupplier);
         Objects.requireNonNull(coinsSupplier);
         final Runnable safeStart       = Objects.requireNonNull(onStart);
         final Runnable safeShop        = Objects.requireNonNull(onShop);
@@ -43,7 +45,7 @@ public final class MainMenuView extends JPanel {
         setLayout(new BorderLayout());
 
         // ── username top-right and wallet ──────────────────────────────────────────
-        final JLabel userLabel = new JLabel("\uD83D\uDC64 " + playerName);
+        userLabel = new JLabel("", SwingConstants.LEFT);
         userLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, USERNAME_FONT_SIZE));
         userLabel.setForeground(Color.LIGHT_GRAY);
 
@@ -97,6 +99,7 @@ public final class MainMenuView extends JPanel {
         addHierarchyListener(e -> {
             if ((e.getChangeFlags() & java.awt.event.HierarchyEvent.SHOWING_CHANGED) != 0
                     && isShowing()) {
+                userLabel.setText("👤 " + playerNameSupplier.get());
                 coinsLabel.setText("Coins: " + coinsSupplier.getAsInt());
             }
         });
