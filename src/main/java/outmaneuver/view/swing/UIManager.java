@@ -7,21 +7,21 @@ import java.util.Objects;
 
 import javax.swing.JPanel;
 
-import outmaneuver.model.session.GameState;
+import outmaneuver.view.swing.ScreenId;
 
 public final class UIManager extends JPanel {
 
     private final CardLayout cardLayout;
-    private final Map<GameState, String> cardNames;
+    private final Map<ScreenId, String> cardNames;
 
-    public UIManager(final Map<GameState, JPanel> screens) {
+    public UIManager(final Map<ScreenId, JPanel> screens) {
         Objects.requireNonNull(screens, "screens must not be null");
         if (screens.isEmpty()) {
             throw new IllegalArgumentException("screens must not be empty");
         }
 
         this.cardLayout = new CardLayout();
-        this.cardNames = new EnumMap<>(GameState.class);
+        this.cardNames = new EnumMap<>(ScreenId.class);
         setLayout(cardLayout);
 
         final Map<JPanel, String> registered = new java.util.IdentityHashMap<>();
@@ -37,7 +37,7 @@ public final class UIManager extends JPanel {
         });
     }
 
-    public void showScreen(final GameState state) {
+    public void showScreen(final ScreenId state) {
         final String card = cardNames.get(Objects.requireNonNull(state));
         if (card == null) {
             throw new IllegalArgumentException("No screen registered for " + state);

@@ -16,7 +16,7 @@ import outmaneuver.controller.impl.InputControllerImpl;
 import outmaneuver.controller.impl.MasterControllerImpl;
 import outmaneuver.model.area.Plane;
 import outmaneuver.model.area.PlaneImpl;
-import outmaneuver.model.area.StandardStats;
+import outmaneuver.model.area.PlaneData;
 import outmaneuver.util.Vector2;
 import outmaneuver.view.GameView;
 import outmaneuver.view.RenderState;
@@ -42,7 +42,7 @@ class MasterControllerImplTest {
 
     @BeforeEach
     void setUp() {
-        plane = new PlaneImpl(new StandardStats());
+        plane = new PlaneImpl(new PlaneData("standard", 200, 3, 20, "aircraft_standard", 0));
         input = new InputControllerImpl();
         spyView = new SpyView();
         master = new MasterControllerImpl(new HudControllerImpl());
