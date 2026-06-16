@@ -97,13 +97,11 @@ public final class PlaneImpl implements Plane {
 
     @Override
     public Hitbox getHitbox() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getHitbox'");
+        return new Hitbox(position, stats.getHitboxRadius());
     }
 
     @Override
     public CollisionLayer getCollisionLayer() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getCollisionLayer'");
+        return CollisionLayer.PLANE;
     }
 }
