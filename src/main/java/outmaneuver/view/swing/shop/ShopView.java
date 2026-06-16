@@ -135,10 +135,12 @@ public final class ShopView extends JPanel {
     }
 
     private void buy() {
-        final boolean success = onPurchase.apply(catalog.get(currentIndex));
+        final ShopItem item = catalog.get(currentIndex);
+        final boolean alreadyOwned = isOwnedFn.test(item.stats().getId());
+        final boolean success = onPurchase.apply(item);
         if (success) {
             feedbackLabel.setForeground(Color.GREEN);
-            feedbackLabel.setText("Purchased!");
+            feedbackLabel.setText(alreadyOwned ? "Equipped!" : "Purchased!");
         } else {
             feedbackLabel.setForeground(Color.RED);
             feedbackLabel.setText("Insufficient coins!");
@@ -159,11 +161,11 @@ public final class ShopView extends JPanel {
         final boolean owned    = isOwnedFn.test(id);
 
         if (equipped) {
-            priceLabel.setText("FREE");
+            priceLabel.setText("OWNED");
             buyBtn.setText("EQUIPPED");
             buyBtn.setEnabled(false);
         } else if (owned) {
-            priceLabel.setText("FREE");
+            priceLabel.setText("OWNED");
             buyBtn.setText("EQUIP");
             buyBtn.setEnabled(true);
         } else {
