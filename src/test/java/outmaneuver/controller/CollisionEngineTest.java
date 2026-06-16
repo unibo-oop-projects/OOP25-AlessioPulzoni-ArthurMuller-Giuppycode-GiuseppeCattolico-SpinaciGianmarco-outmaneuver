@@ -9,8 +9,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import outmaneuver.controller.event.InternalEventListener;
+import outmaneuver.model.area.collision.CollisionData;
 import outmaneuver.model.area.entity.missile.MissileImpl;
-import outmaneuver.model.collision.CollisionData;
 import outmaneuver.util.Vector2;
 
 class CollisionEngineTest {

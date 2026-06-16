@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Objects;
 
 import outmaneuver.controller.event.InternalEventListener;
-import outmaneuver.model.collision.CollisionData;
-import outmaneuver.model.collision.CollisionLayer;
-import outmaneuver.model.collision.Hitbox;
-import outmaneuver.model.collision.ICollidable;
+import outmaneuver.model.area.collision.CollisionData;
+import outmaneuver.model.area.collision.CollisionLayer;
+import outmaneuver.model.area.collision.Hitbox;
+import outmaneuver.model.area.collision.ICollidable;
 import outmaneuver.util.Vector2;
 
 public class CollisionEngine {

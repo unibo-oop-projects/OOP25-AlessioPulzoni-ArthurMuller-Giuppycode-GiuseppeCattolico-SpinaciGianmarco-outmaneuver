@@ -1,6 +1,6 @@
 package outmaneuver.model.area.entity;
 
-import outmaneuver.model.collision.ICollidable;
+import outmaneuver.model.area.collision.ICollidable;
 import outmaneuver.util.Vector2;
 
 

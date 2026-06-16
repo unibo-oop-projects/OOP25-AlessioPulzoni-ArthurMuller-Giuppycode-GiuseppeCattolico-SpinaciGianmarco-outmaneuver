@@ -1,4 +1,4 @@
-package outmaneuver.model.collision;
+package outmaneuver.model.area.collision;
 
 /** Minimal contract to participate in collisions. */
 public interface ICollidable {

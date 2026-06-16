@@ -1,4 +1,4 @@
-package outmaneuver.model.collision;
+package outmaneuver.model.area.collision;
 
 import outmaneuver.util.Vector2;
 

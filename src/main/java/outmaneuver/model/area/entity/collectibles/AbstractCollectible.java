@@ -2,9 +2,9 @@ package outmaneuver.model.area.entity.collectibles;
 
 import java.util.Objects;
 
+import outmaneuver.model.area.collision.CollisionLayer;
+import outmaneuver.model.area.collision.Hitbox;
 import outmaneuver.model.area.entity.plane.Plane;
-import outmaneuver.model.collision.CollisionLayer;
-import outmaneuver.model.collision.Hitbox;
 import outmaneuver.model.session.IGameSession;
 import outmaneuver.util.Vector2;
 

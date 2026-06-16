@@ -1,4 +1,4 @@
-package outmaneuver.model.collision;
+package outmaneuver.model.area.collision;
 
 public enum CollisionLayer {
     PLANE,
