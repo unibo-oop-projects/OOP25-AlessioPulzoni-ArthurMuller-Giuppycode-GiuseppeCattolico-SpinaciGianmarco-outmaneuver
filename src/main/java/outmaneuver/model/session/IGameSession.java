@@ -9,6 +9,9 @@ public interface IGameSession {
     /** Restituisce i millisecondi trascorsi in stato PLAYING. */
     long getElapsedTimeMillis();
 
+    /** Azzera score, stato e timer (chiamato ad ogni nuova partita). */
+    void reset();
+
     /**
      * Incrementa il punteggio del valore indicato.
      *
