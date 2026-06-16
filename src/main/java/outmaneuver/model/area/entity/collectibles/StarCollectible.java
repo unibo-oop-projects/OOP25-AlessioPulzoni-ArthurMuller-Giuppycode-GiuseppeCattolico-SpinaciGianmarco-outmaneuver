@@ -1,8 +1,7 @@
 package outmaneuver.model.area.entity.collectibles;
 
-import outmaneuver.model.area.entity.plane.Plane;
-import outmaneuver.model.session.IGameSession;
 import outmaneuver.util.Vector2;
+
 
 public final class StarCollectible extends AbstractCollectible {
 
@@ -16,8 +15,7 @@ public final class StarCollectible extends AbstractCollectible {
         this.scoreValue = scoreValue;
     }
 
-    @Override
-    public void apply(final Plane plane, final IGameSession session) {
-        session.incrementScore(scoreValue);
+    public int getScoreValue() {
+        return scoreValue;
     }
 }
