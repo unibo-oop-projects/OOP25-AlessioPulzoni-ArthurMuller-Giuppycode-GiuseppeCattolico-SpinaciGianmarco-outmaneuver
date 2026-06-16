@@ -1,10 +1,6 @@
 package outmaneuver.controller.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-
+import outmaneuver.controller.CollisionEngine;
 import outmaneuver.controller.MissileController;
 import outmaneuver.model.area.Plane;
 import outmaneuver.model.missile.IMissile;
@@ -18,6 +14,11 @@ import outmaneuver.model.missile.type.ShieldMissile;
 import outmaneuver.model.missile.type.SniperMissile;
 import outmaneuver.model.missile.type.TwinsMissile;
 import outmaneuver.view.MissileRenderData;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 public final class MissileControllerImpl implements MissileController {
 
@@ -33,15 +34,18 @@ public final class MissileControllerImpl implements MissileController {
     private final int screenW;
     private final int screenH;
     private final Random rng = new Random();
+    private final CollisionEngine collisionEngine; // AGGIUNTO
 
     private double startDelay    = START_DELAY;
     private double spawnTimer    = 0;
     private double spawnInterval = INITIAL_INTERVAL;
     private double elapsedTime   = 0;
 
-    public MissileControllerImpl(final int screenW, final int screenH) {
-        this.screenW = screenW;
-        this.screenH = screenH;
+    public MissileControllerImpl(final int screenW, final int screenH,
+                                 final CollisionEngine collisionEngine) { // AGGIUNTO
+        this.screenW         = screenW;
+        this.screenH         = screenH;
+        this.collisionEngine = collisionEngine; // AGGIUNTO
     }
 
     @Override
@@ -78,7 +82,11 @@ public final class MissileControllerImpl implements MissileController {
 
         processRemovals();
 
-        activeMissiles.addAll(pendingAdditions);
+        // Aggiungi figli dopo la rimozione
+        for (final IMissile m : pendingAdditions) {
+            activeMissiles.add(m);
+            collisionEngine.register(m); // AGGIUNTO
+        }
         pendingAdditions.clear();
     }
 
@@ -91,6 +99,7 @@ public final class MissileControllerImpl implements MissileController {
                     plane.getPosition().getY());
         }
         activeMissiles.add(m);
+        collisionEngine.register(m); // AGGIUNTO
     }
 
     private IMissile createRandom(final double x, final double y, final Plane plane) {
@@ -132,6 +141,7 @@ public final class MissileControllerImpl implements MissileController {
         for (final IMissile m : activeMissiles) {
             if (!m.isAlive()) {
                 processDeathEffects(m);
+                collisionEngine.unregister(m); // AGGIUNTO
                 toRemove.add(m);
             }
         }
@@ -151,12 +161,16 @@ public final class MissileControllerImpl implements MissileController {
         return result;
     }
 
+    @Override
     public List<IMissile> getActiveMissiles() {
         return Collections.unmodifiableList(activeMissiles);
     }
 
     @Override
     public void reset() {
+        for (final IMissile m : activeMissiles) {
+            collisionEngine.unregister(m); // AGGIUNTO
+        }
         activeMissiles.clear();
         pendingAdditions.clear();
         spawnTimer    = 0;
