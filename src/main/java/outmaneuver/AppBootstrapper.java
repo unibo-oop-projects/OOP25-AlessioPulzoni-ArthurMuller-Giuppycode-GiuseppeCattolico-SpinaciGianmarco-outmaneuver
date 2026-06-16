@@ -1,5 +1,6 @@
 package outmaneuver;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.EnumMap;
 import java.util.Map;
@@ -35,6 +36,7 @@ import outmaneuver.view.swing.UIManager;
 import outmaneuver.view.swing.gameover.GameOverView;
 import outmaneuver.view.swing.hud.SwingHudView;
 import outmaneuver.view.swing.menu.MainMenuView;
+import outmaneuver.view.swing.setup.UsernameSetupView;
 import outmaneuver.view.swing.shop.ShopView;
 
 public final class AppBootstrapper {
@@ -59,8 +61,10 @@ public final class AppBootstrapper {
         gameView.init();
         master.attachView(gameView);
 
+        final Path profilePath = Path.of(System.getProperty("user.home"), ".outmaneuver", "profile.json");
+        final boolean isFirstLaunch = !Files.exists(profilePath);
         final IPlayerProfileRepository profileRepo =
-                JsonPlayerProfileRepository.create(Path.of(System.getProperty("user.home"), ".outmaneuver", "profile.json"));
+                JsonPlayerProfileRepository.create(profilePath);
         final PlayerProfile profile = new PlayerProfile(profileRepo);
 
         final IShop shop = new Shop(
@@ -103,7 +107,7 @@ public final class AppBootstrapper {
         leaderboardRef[0] = leaderboardView;
 
         final MainMenuView mainMenuView = new MainMenuView(
-                profile.getPlayerName(),
+                profile::getPlayerName,
                 profile::getCoins,
                 () -> onStart(uiManagerRef[0], master, gameView),
                 () -> {
@@ -135,6 +139,10 @@ public final class AppBootstrapper {
         );
 
         final Map<ScreenId, JPanel> screens = new EnumMap<>(ScreenId.class);
+        screens.put(ScreenId.SETUP, new UsernameSetupView(name -> {
+            profile.setPlayerName(name);
+            uiManagerRef[0].showScreen(ScreenId.MENU);
+        }));
         screens.put(ScreenId.MENU, mainMenuView);
         screens.put(ScreenId.PLAYING, gameView.getPanel());
         screens.put(ScreenId.PAUSED, pauseView);
@@ -143,7 +151,7 @@ public final class AppBootstrapper {
         screens.put(ScreenId.LEADERBOARD, leaderboardView);
 
         final UIManager uiManager = new UIManager(screens);
-        uiManager.showScreen(ScreenId.MENU);
+        uiManager.showScreen(isFirstLaunch ? ScreenId.SETUP : ScreenId.MENU);
         uiManagerRef[0] = uiManager;
 
         frame.add(uiManager);
