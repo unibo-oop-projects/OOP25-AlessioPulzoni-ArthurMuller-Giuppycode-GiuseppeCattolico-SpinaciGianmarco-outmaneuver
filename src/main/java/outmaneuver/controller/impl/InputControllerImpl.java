@@ -35,8 +35,4 @@ public final class InputControllerImpl implements InputController {
         return left ? -1.0 : 1.0;
     }
 
-    @Override
-    public synchronized boolean isThrustActive() {
-        return false;
-    }
 }
