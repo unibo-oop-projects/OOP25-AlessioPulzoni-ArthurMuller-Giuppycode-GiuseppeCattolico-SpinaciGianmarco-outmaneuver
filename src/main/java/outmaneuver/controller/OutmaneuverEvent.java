@@ -2,5 +2,6 @@ package outmaneuver.controller;
 
 public enum OutmaneuverEvent {
     TOGGLE_PAUSE,
-    QUIT_APPLICATION
+    QUIT_APPLICATION,
+    GAME_OVER
 }
