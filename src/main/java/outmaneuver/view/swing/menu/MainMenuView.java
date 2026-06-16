@@ -29,13 +29,16 @@ public final class MainMenuView extends JPanel {
 
     private final JLabel coinsLabel;
     private final JLabel userLabel;
+    private final JLabel planeLabel;
 
     public MainMenuView(final Supplier<String> playerNameSupplier,
                         final IntSupplier coinsSupplier,
+                        final Supplier<String> equippedPlaneSupplier,
                         final Runnable onStart, final Runnable onShop,
                         final Runnable onLeaderboard, final Runnable onExit) {
         Objects.requireNonNull(playerNameSupplier);
         Objects.requireNonNull(coinsSupplier);
+        Objects.requireNonNull(equippedPlaneSupplier);
         final Runnable safeStart       = Objects.requireNonNull(onStart);
         final Runnable safeShop        = Objects.requireNonNull(onShop);
         final Runnable safeLeaderboard = Objects.requireNonNull(onLeaderboard);
@@ -57,7 +60,20 @@ public final class MainMenuView extends JPanel {
         topBar.setBackground(Color.BLACK);
         topBar.add(userLabel);
         topBar.add(coinsLabel);
-        add(topBar, BorderLayout.NORTH);
+
+        planeLabel = new JLabel("", SwingConstants.LEFT);
+        planeLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, USERNAME_FONT_SIZE));
+        planeLabel.setForeground(Color.CYAN);
+
+        final JPanel topLeft = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 6));
+        topLeft.setBackground(Color.BLACK);
+        topLeft.add(planeLabel);
+
+        final JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setBackground(Color.BLACK);
+        topPanel.add(topLeft, BorderLayout.WEST);
+        topPanel.add(topBar,  BorderLayout.EAST);
+        add(topPanel, BorderLayout.NORTH);
 
         // ── main content ────────────────────────────────────────────────
         final JPanel center = new JPanel(new GridBagLayout());
@@ -101,6 +117,7 @@ public final class MainMenuView extends JPanel {
                     && isShowing()) {
                 userLabel.setText("👤 " + playerNameSupplier.get());
                 coinsLabel.setText("Coins: " + coinsSupplier.getAsInt());
+                planeLabel.setText("Plane equipped: " + equippedPlaneSupplier.get());
             }
         });
     }
