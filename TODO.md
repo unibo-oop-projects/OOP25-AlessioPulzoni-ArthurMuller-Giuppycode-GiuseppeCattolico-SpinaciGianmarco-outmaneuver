@@ -26,4 +26,4 @@ inoltre ho bisogno che spinac mi passi un internal event anche per la collission
 
 inoltre ragionare sul fatto se lasciare le chiamate di internaleventlistener per le collisioni dentro mastercontroller (ultime righe) oppure portarle all'interno di collision engine.
 
-capire perche tutti i controller estendono internalEventListener mentre CollisionEngine lo inizializza al suo interno
+capire perche tutti i controller estendono internalEventListener mentre CollisionEngine lo inizializza al suo interno e mastercontrollerimpl lo implementa
