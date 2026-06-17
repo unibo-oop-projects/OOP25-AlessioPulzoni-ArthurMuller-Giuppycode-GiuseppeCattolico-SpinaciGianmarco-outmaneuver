@@ -13,5 +13,8 @@ bin/
 .settings/
 .classpath
 
+# Ignore dev docs for personal use
+docs/dev/personal/*
+
 AGENTS.md
 adjust-bootstrapper.md
