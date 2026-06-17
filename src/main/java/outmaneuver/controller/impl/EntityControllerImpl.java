@@ -10,13 +10,12 @@ import outmaneuver.controller.InputController;
 import outmaneuver.controller.InternalEvent;
 import outmaneuver.controller.MissileController;
 import outmaneuver.controller.event.InternalEventListener;
+import outmaneuver.model.area.collision.ICollidable;
 import outmaneuver.model.area.entity.Entity;
 import outmaneuver.model.area.entity.collectibles.Collectible;
 import outmaneuver.model.area.entity.missile.Missile;
-import outmaneuver.model.area.entity.missile.MissileImpl;
 import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.model.area.entity.plane.TurnState;
-import outmaneuver.model.area.collision.ICollidable;
 import outmaneuver.model.session.IGameSession;
 import outmaneuver.util.Vector2;
 
@@ -50,8 +49,6 @@ public final class EntityControllerImpl implements EntityController {
         for (final Entity e : entities) {
             if (e instanceof final Plane plane) {
                 updatePlane(plane, deltaMs);
-            } else if (e instanceof final Missile m) {
-                updateMissile(m, deltaMs);
             } else if (e instanceof final Collectible c) {
                 checkCollectible(c, toRemove);
             }
@@ -80,10 +77,6 @@ public final class EntityControllerImpl implements EntityController {
         if (missileController != null) {
             missileController.update(plane, deltaSec);
         }
-    }
-
-    private void updateMissile(final Missile missile, final long deltaMs) {
-        missile.update(deltaMs);
     }
 
     private void checkCollectible(final Collectible c, final List<Entity> toRemove) {
@@ -115,7 +108,7 @@ public final class EntityControllerImpl implements EntityController {
     private void addEntity(final Entity entity) {
         Objects.requireNonNull(entity);
         entities.add(entity);
-        if ((entity instanceof MissileImpl || entity instanceof Plane)
+        if ((entity instanceof Missile || entity instanceof Plane)
                 && entity instanceof ICollidable collidable) {
             collisionEngine.register(collidable);
         }
@@ -128,7 +121,7 @@ public final class EntityControllerImpl implements EntityController {
                 planeReset((Plane) e);
                 return false; // tieni il piano
             }
-            if (e instanceof MissileImpl && e instanceof ICollidable collidable) {
+            if (e instanceof Missile && e instanceof ICollidable collidable) {
                 collisionEngine.unregister(collidable);
             }
             return true; // rimuovi tutto il resto
@@ -146,7 +139,7 @@ public final class EntityControllerImpl implements EntityController {
 
     @Override
     public void removeEntity(final Entity entity) {
-        if (entity instanceof MissileImpl && entity instanceof ICollidable collidable) {
+        if (entity instanceof Missile && entity instanceof ICollidable collidable) {
             collisionEngine.unregister(collidable);
         }
         // PLANE non viene mai rimosso

@@ -27,8 +27,6 @@ public final class ShieldMissile extends MissileImpl {
         }
     }
 
-    public boolean isShielded() { return shielded; }
-
     @Override
     public String getMissileType() { return "shield"; }
 }

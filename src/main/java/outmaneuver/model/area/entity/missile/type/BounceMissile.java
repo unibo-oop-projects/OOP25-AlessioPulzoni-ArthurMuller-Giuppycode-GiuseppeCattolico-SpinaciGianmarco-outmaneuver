@@ -10,12 +10,9 @@ import outmaneuver.util.Vector2;
 
 public final class BounceMissile extends MissileImpl {
 
-    private final int bounceMargin;
-
     public BounceMissile(final Vector2 spawnPos, final MissileData data) {
         super(spawnPos, data.speed(), data.maxTurn(), data.radius(), data.lifetime(),
               data.predictionTime(), (int) data.outOfBoundsMargin());
-        this.bounceMargin = (int) data.bounceMargin();
         setVelocity(Vector2.fromAngle(new Random().nextDouble() * Math.PI * 2).scale(data.speed()));
     }
 
@@ -32,16 +29,20 @@ public final class BounceMissile extends MissileImpl {
         final double relY = pos.getY() - planePos.getY();
         final double halfW = screenSize.width  / 2.0;
         final double halfH = screenSize.height / 2.0;
+        final int margin = getOutOfBoundsMargin();
 
         double vx = getVx();
         double vy = getVy();
+        double clampedX = pos.getX();
+        double clampedY = pos.getY();
 
-        if (relX < -halfW + bounceMargin) vx =  Math.abs(vx);
-        else if (relX >  halfW - bounceMargin) vx = -Math.abs(vx);
+        if (relX < -halfW + margin) { vx = Math.abs(vx); clampedX = planePos.getX() - halfW + margin; }
+        else if (relX > halfW - margin) { vx = -Math.abs(vx); clampedX = planePos.getX() + halfW - margin; }
 
-        if (relY < -halfH + bounceMargin) vy =  Math.abs(vy);
-        else if (relY >  halfH - bounceMargin) vy = -Math.abs(vy);
+        if (relY < -halfH + margin) { vy = Math.abs(vy); clampedY = planePos.getY() - halfH + margin; }
+        else if (relY > halfH - margin) { vy = -Math.abs(vy); clampedY = planePos.getY() + halfH - margin; }
 
+        setPosition(new Vector2(clampedX, clampedY));
         setVelocity(vx, vy);
     }
 

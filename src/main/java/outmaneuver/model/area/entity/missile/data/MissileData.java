@@ -13,26 +13,9 @@ public record MissileData(
         double radius,
         double lifetime,
 
-        // GhostMissile
-        double visibleDuration,
-        double invisibleDuration,
-
-        // FreezeMissile
-        double freezeRadius,
-        double freezeDuration,
-
         // ClockMissile
         double slowFactor,
         double slowDuration,
-
-        // ShieldMissile
-        double shieldRadius,
-
-        // TwinsMissile
-        double spread,
-
-        // BounceMissile
-        double bounceMargin,
 
         // Predizione redirect
         double predictionTime,

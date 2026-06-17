@@ -36,7 +36,7 @@ public final class MasterControllerImpl implements MasterController, InternalEve
     private final HudController hudController;
     private ScoreController scoreController;
     private EntityController entityController;
-    private MissileControllerImpl missileController;
+    private MissileController missileController;
     private CollisionEngine collisionEngine;
     private CollectibleSpawner collectibleSpawner;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -83,7 +83,7 @@ public final class MasterControllerImpl implements MasterController, InternalEve
         this.scoreController = Objects.requireNonNull(scoreController, "scoreController must not be null");
     }
 
-    public void setMissileController(final MissileControllerImpl missileController) {
+    public void setMissileController(final MissileController missileController) {
         this.missileController = Objects.requireNonNull(missileController, "missileController must not be null");
     }
 

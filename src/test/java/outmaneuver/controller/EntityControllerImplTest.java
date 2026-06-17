@@ -193,9 +193,10 @@ class EntityControllerImplTest {
 
     @Test
     void missileUpdateAdvancesPosition() {
+        // I missili sono mossi dal loro contratto update(Plane, dt) (gestito da MissileController),
+        // non da EntityController.
         final TestMissile missile = new TestMissile(Vector2.ZERO, 0, 200);
-        entityCtrl.spawnMissile(missile);
-        entityCtrl.updateEntities(1000);
+        missile.update(plane, 1.0);
         assertTrue(missile.getPosition().getX() > 0, "Missile should move in +X direction");
     }
 

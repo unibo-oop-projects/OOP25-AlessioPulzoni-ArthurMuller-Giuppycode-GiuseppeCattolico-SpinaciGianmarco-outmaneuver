@@ -1,9 +1,7 @@
 package outmaneuver.view.swing;
 
-import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -13,6 +11,8 @@ import java.util.Objects;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+
+import outmaneuver.util.Vector2;
 
 import outmaneuver.view.EntityRenderData;
 import outmaneuver.view.GameView;
@@ -79,25 +79,26 @@ public final class SwingGameView extends JPanel implements GameView {
 
     private void drawCollectible(final Graphics2D g2d, final EntityRenderData data,
             final double cameraX, final double cameraY) {
-        final int screenX = (int) Math.round(data.getX() - cameraX + getWidth() / 2.0);
-        final int screenY = (int) Math.round(data.getY() - cameraY + getHeight() / 2.0);
+        final int screenX = toScreenX(data.getX(), cameraX);
+        final int screenY = toScreenY(data.getY(), cameraY);
         g2d.setColor(Color.YELLOW);
         g2d.fillOval(screenX - 10, screenY - 10, 20, 20);
     }
 
     private void drawPlane(final Graphics2D g2d, final EntityRenderData data,
             final double cameraX, final double cameraY) {
-        final int screenX = (int) Math.round(data.getX() - cameraX + getWidth() / 2.0);
-        final int screenY = (int) Math.round(data.getY() - cameraY + getHeight() / 2.0);
+        final int screenX = toScreenX(data.getX(), cameraX);
+        final int screenY = toScreenY(data.getY(), cameraY);
 
         g2d.setColor(Color.CYAN);
         g2d.fillOval(screenX - PLANE_RADIUS, screenY - PLANE_RADIUS,
                 PLANE_RADIUS * 2, PLANE_RADIUS * 2);
 
         g2d.setColor(Color.WHITE);
-        final int dirEndX = (int) Math.round(screenX + DIR_INDICATOR_LENGTH * Math.cos(data.getDirectionRad()));
-        final int dirEndY = (int) Math.round(screenY + DIR_INDICATOR_LENGTH * Math.sin(data.getDirectionRad()));
-        g2d.drawLine(screenX, screenY, dirEndX, dirEndY);
+        final Vector2 dir = Vector2.fromAngle(data.getDirectionRad()).scale(DIR_INDICATOR_LENGTH);
+        g2d.drawLine(screenX, screenY,
+                (int) Math.round(screenX + dir.getX()),
+                (int) Math.round(screenY + dir.getY()));
     }
 
     private void drawMissiles(final Graphics2D g2d,
@@ -108,27 +109,6 @@ public final class SwingGameView extends JPanel implements GameView {
             final int sy = toScreenY(m.getWorldY(), cameraY);
             final int r  = (int) m.getHitboxRadius();
 
-            // Ghost invisibile — alpha bassissima
-            final float alpha = (!m.isGhostVisible() && "ghost".equals(m.getMissileType()))
-                    ? 0.12f : 1.0f;
-            final Composite saved = g2d.getComposite();
-            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
-
-            // Cerchio freeze tratteggiato — solo per FreezeMissile
-            if ("freeze".equals(m.getMissileType()) && m.getFreezeRadius() > 0) {
-                final int fr = (int) m.getFreezeRadius();
-                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
-                g2d.setColor(new Color(130, 230, 255, 40));
-                g2d.fillOval(sx - fr, sy - fr, fr * 2, fr * 2);
-                g2d.setColor(new Color(130, 230, 255, 150));
-                final float[] dash = { 8.0f, 4.0f };
-                g2d.setStroke(new BasicStroke(1.5f, BasicStroke.CAP_BUTT,
-                        BasicStroke.JOIN_MITER, 10.0f, dash, 0.0f));
-                g2d.drawOval(sx - fr, sy - fr, fr * 2, fr * 2);
-                g2d.setStroke(new BasicStroke(1.5f));
-                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
-            }
-
             // Alone
             g2d.setColor(new Color(220, 60, 60, 60));
             g2d.fillOval(sx - r * 2, sy - r * 2, r * 4, r * 4);
@@ -138,13 +118,14 @@ public final class SwingGameView extends JPanel implements GameView {
             g2d.fillOval(sx - r, sy - r, r * 2, r * 2);
 
             // Linea direzione
-            if (m.getVx() != 0 || m.getVy() != 0) {
-                final double speed = Math.sqrt(m.getVx() * m.getVx() + m.getVy() * m.getVy());
+            final Vector2 vel = new Vector2(m.getVx(), m.getVy());
+            if (vel.magnitude() > 0) {
+                final Vector2 dir = vel.normalize();
                 g2d.setColor(Color.WHITE);
                 g2d.setStroke(new BasicStroke(1.5f));
                 g2d.drawLine(sx, sy,
-                        (int) (sx + (m.getVx() / speed) * r * 1.8),
-                        (int) (sy + (m.getVy() / speed) * r * 1.8));
+                        (int) (sx + dir.getX() * r * 1.8),
+                        (int) (sy + dir.getY() * r * 1.8));
             }
 
             // Barra lifetime
@@ -152,7 +133,6 @@ public final class SwingGameView extends JPanel implements GameView {
                 drawLifetimeBar(g2d, sx, sy, r, m.getLifetimeRatio());
             }
 
-            g2d.setComposite(saved);
         }
     }
 
@@ -175,11 +155,7 @@ public final class SwingGameView extends JPanel implements GameView {
             case "fast"   -> new Color(255, 220, 0);
             case "sniper" -> new Color(220, 0, 220);
             case "bounce" -> new Color(30, 210, 90);
-            case "ghost"  -> new Color(160, 80, 255);
-            case "split"  -> new Color(255, 110, 0);
-            case "freeze" -> new Color(130, 230, 255);
             case "shield" -> new Color(80, 160, 255);
-            case "twins"  -> new Color(255, 220, 0);
             case "clock"  -> new Color(255, 215, 0);
             default       -> new Color(220, 60, 60);
         };

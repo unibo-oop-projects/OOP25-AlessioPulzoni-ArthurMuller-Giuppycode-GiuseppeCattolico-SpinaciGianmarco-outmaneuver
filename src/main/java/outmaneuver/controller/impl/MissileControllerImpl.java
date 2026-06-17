@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.function.IntSupplier;
 
@@ -19,11 +20,8 @@ import outmaneuver.model.area.entity.missile.type.BasicMissile;
 import outmaneuver.model.area.entity.missile.type.BounceMissile;
 import outmaneuver.model.area.entity.missile.type.ClockMissile;
 import outmaneuver.model.area.entity.missile.type.FastMissile;
-import outmaneuver.model.area.entity.missile.type.FreezeMissile;
-import outmaneuver.model.area.entity.missile.type.GhostMissile;
 import outmaneuver.model.area.entity.missile.type.ShieldMissile;
 import outmaneuver.model.area.entity.missile.type.SniperMissile;
-import outmaneuver.model.area.entity.missile.type.TwinsMissile;
 import outmaneuver.view.MissileRenderData;
 
 public final class MissileControllerImpl implements MissileController {
@@ -56,10 +54,10 @@ public final class MissileControllerImpl implements MissileController {
                                  final IntSupplier screenHSupplier,
                                  final CollisionEngine collisionEngine,
                                  final MissileRepository missileRepo) {
-        this.screenWSupplier = screenWSupplier;
-        this.screenHSupplier = screenHSupplier;
-        this.collisionEngine = collisionEngine;
-        this.missileRepo     = missileRepo;
+        this.screenWSupplier = Objects.requireNonNull(screenWSupplier, "screenWSupplier must not be null");
+        this.screenHSupplier = Objects.requireNonNull(screenHSupplier, "screenHSupplier must not be null");
+        this.collisionEngine = Objects.requireNonNull(collisionEngine, "collisionEngine must not be null");
+        this.missileRepo     = Objects.requireNonNull(missileRepo, "missileRepo must not be null");
     }
 
     @Override
@@ -76,38 +74,35 @@ public final class MissileControllerImpl implements MissileController {
             spawnTimer = 0;
         }
 
-        for (final Missile m : activeMissiles) {
-            if (m.isAlive()) m.update(plane, dt);
-        }
-
         final Dimension screen = new Dimension(screenWSupplier.getAsInt(), screenHSupplier.getAsInt());
 
         for (final Missile m : activeMissiles) {
+            if (!m.isAlive()) continue;
+            m.update(plane, dt);
             if (!m.isAlive()) continue;
             m.checkBounce(plane.getPosition(), screen);
             m.redirectIfOutOfBounds(plane, screen);
         }
 
-        // Controlla collisioni ogni frame
-        collisionEngine.tick();
-
+        // Le collisioni vengono valutate dal game loop (MasterController) tramite collisionEngine.tick()
         processRemovals();
     }
 
     // Chiamato da MasterControllerImpl quando arriva MISSILE_MISSILE_COLLISION
+    @Override
     public void onMissileMissileCollision(final ICollidable a, final ICollidable b) {
         handleCollisionSide(a);
         handleCollisionSide(b);
     }
 
-    // Chiamato da MasterControllerImpl quando arriva PLANE_HIT
+    // Chiamato da MasterControllerImpl quando arriva PLANE_MISSILE_COLLISION.
+    // Il game over è gestito da MasterControllerImpl: qui distruggiamo solo il missile.
+    @Override
     public void onPlaneHit(final ICollidable a, final ICollidable b) {
-        // Il game over viene gestito da MasterControllerImpl
-        // Qui distruggiamo solo il missile
-        if (a instanceof Missile m) {
+        if (a instanceof final Missile m) {
             m.destroy();
         }
-        if (b instanceof Missile m) {
+        if (b instanceof final Missile m) {
             m.destroy();
         }
     }
@@ -123,7 +118,6 @@ public final class MissileControllerImpl implements MissileController {
         final Missile m = createRandom(spawnPos);
         m.setInitialDirection(planePos);
         addMissile(m);
-        m.getSpawnOnInit().forEach(this::addMissile);
     }
 
     private void addMissile(final Missile m) {
@@ -140,11 +134,8 @@ public final class MissileControllerImpl implements MissileController {
             case "fast"   -> new FastMissile(spawnPos, data);
             case "sniper" -> new SniperMissile(spawnPos, data);
             case "bounce" -> new BounceMissile(spawnPos, data);
-            case "ghost"  -> new GhostMissile(spawnPos, data);
-            case "freeze" -> new FreezeMissile(spawnPos, data);
             case "clock"  -> new ClockMissile(spawnPos, data);
             case "shield" -> new ShieldMissile(spawnPos, data);
-            case "twins"  -> new TwinsMissile(spawnPos, data);
             default -> new BasicMissile(spawnPos, data);
         };
     }
@@ -161,26 +152,22 @@ public final class MissileControllerImpl implements MissileController {
                 default      -> "sniper";
             };
         } else if (elapsedTime < TIER3_TIME) {
-            // Aggiunge bounce, ghost
-            return switch (rng.nextInt(7)) {
+            // Aggiunge bounce
+            return switch (rng.nextInt(6)) {
                 case 0, 1, 2 -> "basic";
                 case 3       -> "fast";
                 case 4       -> "sniper";
-                case 5       -> "bounce";
-                default      -> "ghost";
+                default      -> "bounce";
             };
         } else {
             // Tutti i tipi
-            return switch (rng.nextInt(11)) {
+            return switch (rng.nextInt(8)) {
                 case 0, 1, 2 -> "basic";
                 case 3       -> "sniper";
                 case 4       -> "bounce";
-                case 5       -> "ghost";
-                case 6       -> "freeze";
-                case 7       -> "clock";
-                case 8       -> "shield";
-                case 9       -> "fast";
-                default      -> "twins";
+                case 5       -> "clock";
+                case 6       -> "shield";
+                default      -> "fast";
             };
         }
     }
@@ -199,17 +186,16 @@ public final class MissileControllerImpl implements MissileController {
     }
 
     private void processRemovals() {
-        final List<Missile> toRemove = new ArrayList<>();
-        for (final Missile m : activeMissiles) {
-            if (!m.isAlive()) {
-                collisionEngine.unregister(m);
-                toRemove.add(m);
+        activeMissiles.removeIf(m -> {
+            if (m.isAlive()) {
+                return false;
             }
-        }
-        activeMissiles.removeAll(toRemove);
+            collisionEngine.unregister(m);
+            return true;
+        });
     }
 
-@Override
+    @Override
     public List<MissileRenderData> getRenderData() {
         final List<MissileRenderData> result = new ArrayList<>();
         for (final Missile m : activeMissiles) {

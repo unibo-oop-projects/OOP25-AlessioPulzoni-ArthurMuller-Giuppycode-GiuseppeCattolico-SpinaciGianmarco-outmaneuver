@@ -1,8 +1,7 @@
 package outmaneuver.model.area.entity.missile;
 
-import java.util.List;
-
 import java.awt.Dimension;
+import java.util.List;
 
 import outmaneuver.model.area.entity.Entity;
 import outmaneuver.model.area.entity.plane.Plane;
@@ -13,7 +12,6 @@ public interface Missile extends Entity {
 
     // --- UPDATE E MOVIMENTO ---
     void update(Plane plane, double dt);
-    void update(long deltaMs);
     boolean redirectIfOutOfBounds(Plane plane, Dimension screenSize);
     void setInitialDirection(Vector2 target);
 
@@ -27,17 +25,13 @@ public interface Missile extends Entity {
     void checkBounce(Vector2 planePos, Dimension screenSize);
 
     // --- EFFETTI ---
-    void freeze(double duration);
     void slowDown(double factor, double duration);
-
-    // --- SPAWN ON INIT ---
-    List<Missile> getSpawnOnInit();
 
     // --- RENDER ---
     MissileRenderData getRenderData();
-    boolean isGhostVisible();
 
     // --- GETTERS ---
+    Vector2 getPosition();
     double getHitboxRadius();
     String getMissileType();
 }
