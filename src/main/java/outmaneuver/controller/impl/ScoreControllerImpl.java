@@ -40,7 +40,7 @@ public final class ScoreControllerImpl implements ScoreController {
                 }
             }
             case MISSILE_MISSILE_COLLISION -> {
-                // TODO: aggiungere punteggio per ogni coppia di missili che si scontrano
+                    session.incrementScore(20);
             }
             default -> { }
         }
