@@ -13,7 +13,6 @@ public final class PlaneImpl implements Plane {
     private TurnState turnState;
     private boolean shieldActive;
     private double speedMultiplier;
-    private long multiplierEndTime;
 
     public PlaneImpl(final PlaneStats stats) {
         this.position = Vector2.ZERO;
@@ -22,7 +21,6 @@ public final class PlaneImpl implements Plane {
         this.turnState = TurnState.NONE;
         this.shieldActive = false;
         this.speedMultiplier = 1.0;
-        this.multiplierEndTime = 0;
     }
 
     @Override
@@ -81,17 +79,17 @@ public final class PlaneImpl implements Plane {
     }
 
     @Override
-    public void applySpeedMultiplier(final double factor, final long durationMs) {
+    public void applySpeedMultiplier(final double factor) {
         this.speedMultiplier = factor;
-        this.multiplierEndTime = System.nanoTime() + durationMs * 1_000_000;
+    }
+
+    @Override
+    public void resetSpeedMultiplier() {
+        this.speedMultiplier = 1.0;
     }
 
     @Override
     public double getEffectiveSpeed() {
-        if (speedMultiplier != 1.0 && System.nanoTime() >= multiplierEndTime) {
-            speedMultiplier = 1.0;
-            multiplierEndTime = 0;
-        }
         return stats.getBaseSpeed() * speedMultiplier;
     }
 
