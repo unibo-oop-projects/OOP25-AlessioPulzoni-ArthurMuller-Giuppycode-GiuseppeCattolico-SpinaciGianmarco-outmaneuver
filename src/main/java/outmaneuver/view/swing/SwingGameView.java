@@ -36,6 +36,16 @@ public final class SwingGameView extends JPanel implements GameView {
     }
 
     @Override
+    public int getWidth() {
+        return super.getWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return super.getHeight();
+    }
+
+    @Override
     public void renderFrame(final RenderState state) {
         this.latestState = state;
         SwingUtilities.invokeLater(this::repaint);
