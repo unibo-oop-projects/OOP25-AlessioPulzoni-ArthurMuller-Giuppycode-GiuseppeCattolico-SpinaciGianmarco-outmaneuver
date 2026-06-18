@@ -19,8 +19,6 @@ import outmaneuver.model.session.GameSession;
  */
 public final class ControllerAssembler {
 
-    private static final int GAME_WIDTH = 800;
-    private static final int GAME_HEIGHT = 600;
 
     private ControllerAssembler() { }
 
@@ -45,7 +43,7 @@ public final class ControllerAssembler {
         final List<Entity> sharedEntities = new ArrayList<>();
         final PlaneControllerImpl planeCtrl = new PlaneControllerImpl(input, sharedEntities, collision, session);
         final CollectibleControllerImpl collectibleCtrl = new CollectibleControllerImpl(
-                sharedEntities, collision, session, () -> GAME_WIDTH, () -> GAME_HEIGHT);
+                sharedEntities, collision, session);
         planeCtrl.spawnEntity(plane);
 
         master.addEntityController(planeCtrl);
