@@ -5,6 +5,7 @@ import outmaneuver.model.area.entity.Entity;
 import java.util.List;
 
 import outmaneuver.controller.event.InternalEventListener;
+import outmaneuver.view.GameView;
 
 
 public interface EntityController extends InternalEventListener {
@@ -18,5 +19,7 @@ public interface EntityController extends InternalEventListener {
     void removeEntity(Entity entity);
 
     List<Entity> getEntities();
+
+    default void setView(GameView view) { }
 
 }

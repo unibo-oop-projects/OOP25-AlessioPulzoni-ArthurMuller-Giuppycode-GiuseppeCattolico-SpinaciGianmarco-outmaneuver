@@ -14,12 +14,14 @@ import outmaneuver.model.area.entity.collectibles.Collectible;
 import outmaneuver.model.area.entity.missile.Missile;
 import outmaneuver.model.session.IGameSession;
 import outmaneuver.util.Vector2;
+import outmaneuver.view.GameView;
 
 public abstract class EntityControllerImpl implements EntityController {
 
     private final List<Entity> entities;
     private final CollisionEngine collisionEngine;
     private final IGameSession session;
+    private GameView view;
 
     protected EntityControllerImpl(final List<Entity> entities,
                                 final CollisionEngine collisionEngine,
@@ -27,6 +29,14 @@ public abstract class EntityControllerImpl implements EntityController {
         this.entities = Objects.requireNonNull(entities, "entities must not be null");
         this.collisionEngine = Objects.requireNonNull(collisionEngine, "collisionEngine must not be null");
         this.session = Objects.requireNonNull(session, "session must not be null");
+    }
+
+    public void setView(final GameView view) {
+        this.view = view;
+    }
+
+    protected GameView getView() {
+        return view;
     }
 
     @Override
