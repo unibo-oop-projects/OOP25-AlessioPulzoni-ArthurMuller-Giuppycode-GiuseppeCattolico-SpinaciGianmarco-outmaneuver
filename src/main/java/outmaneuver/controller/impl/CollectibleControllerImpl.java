@@ -2,9 +2,7 @@ package outmaneuver.controller.impl;
 
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Random;
-import java.util.function.IntSupplier;
 
 import outmaneuver.controller.CollisionEngine;
 import outmaneuver.model.area.entity.Entity;
@@ -12,7 +10,6 @@ import outmaneuver.model.area.entity.collectibles.Collectible;
 import outmaneuver.model.area.entity.collectibles.ShieldPowerUp;
 import outmaneuver.model.area.entity.collectibles.SpeedBoost;
 import outmaneuver.model.area.entity.collectibles.StarCollectible;
-
 import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.model.session.IGameSession;
 import outmaneuver.util.Vector2;
@@ -21,20 +18,14 @@ public final class CollectibleControllerImpl extends EntityControllerImpl {
 
     private static final long SPAWN_INTERVAL_MS = 3000;
 
-    private final IntSupplier viewWidth;
-    private final IntSupplier viewHeight;
     private final Random random = new Random();
     private long accumulatedMs;
 
     public CollectibleControllerImpl(
-                                    final List<Entity> entities,
-                                    final CollisionEngine collisionEngine,
-                                    final IGameSession session,
-                                     final IntSupplier viewWidth,
-                                     final IntSupplier viewHeight) {
+            final List<Entity> entities,
+            final CollisionEngine collisionEngine,
+            final IGameSession session) {
         super(entities, collisionEngine, session);
-        this.viewWidth = Objects.requireNonNull(viewWidth);
-        this.viewHeight = Objects.requireNonNull(viewHeight);
     }
 
     @Override
@@ -61,9 +52,12 @@ public final class CollectibleControllerImpl extends EntityControllerImpl {
                 .map(e -> (Plane) e)
                 .findFirst()
                 .orElse(null);
-        final int w = viewWidth.getAsInt();
-        final int h = viewHeight.getAsInt();
-        if (plane == null || w <= 0 || h <= 0) {
+        if (getView() == null || plane == null) {
+            return null;
+        }
+        final int w = getView().getWidth();
+        final int h = getView().getHeight();
+        if (w <= 0 || h <= 0) {
             return null;
         }
         final double cx = plane.getPosition().getX();
