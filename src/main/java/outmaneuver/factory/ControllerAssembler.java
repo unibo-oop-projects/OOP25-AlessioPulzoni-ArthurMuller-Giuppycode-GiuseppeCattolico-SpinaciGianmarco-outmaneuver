@@ -44,7 +44,7 @@ public final class ControllerAssembler {
         final PlaneControllerImpl planeCtrl = new PlaneControllerImpl(input, sharedEntities, collision, session);
         final CollectibleControllerImpl collectibleCtrl = new CollectibleControllerImpl(
                 sharedEntities, collision, session);
-        planeCtrl.spawnEntity(plane); //TODOO: QUESTO NON VA BENE QUI, IL PLANE VA SPAWNATO ALTROVE
+        planeCtrl.spawnEntity(plane); //TODO: QUESTO NON VA BENE QUI, IL PLANE VA SPAWNATO ALTROVE
 
         master.addEntityController(planeCtrl);
         master.addEntityController(collectibleCtrl);
