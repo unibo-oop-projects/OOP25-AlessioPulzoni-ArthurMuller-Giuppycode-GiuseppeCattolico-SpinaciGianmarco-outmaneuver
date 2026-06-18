@@ -134,6 +134,10 @@ public final class MasterControllerImpl implements MasterController, InternalEve
         if (scoreController != null) {
             scoreController.reset();
         }
+        entityController.clearAll();
+        if (missileController != null) {
+            missileController.reset();
+        }
         tickTask = scheduler.scheduleAtFixedRate(
                 this::tick, 0, TICK_PERIOD_MS, TimeUnit.MILLISECONDS);
     }
@@ -167,6 +171,9 @@ public final class MasterControllerImpl implements MasterController, InternalEve
         if (deltaMs <= 0) return;
 
         entityController.updateEntities(deltaMs);
+        if (missileController != null) {
+            missileController.update(entityController.getPlane(), deltaMs / 1000.0);
+        }
         collectibleSpawner.tick(deltaMs, entityController.getPlane());
         collisionEngine.tick();
         if (scoreController != null) {

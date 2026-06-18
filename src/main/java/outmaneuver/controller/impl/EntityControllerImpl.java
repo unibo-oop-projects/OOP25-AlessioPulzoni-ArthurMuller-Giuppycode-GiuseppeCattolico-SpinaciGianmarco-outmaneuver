@@ -8,7 +8,6 @@ import outmaneuver.controller.CollisionEngine;
 import outmaneuver.controller.EntityController;
 import outmaneuver.controller.InputController;
 import outmaneuver.controller.InternalEvent;
-import outmaneuver.controller.MissileController;
 import outmaneuver.controller.event.InternalEventListener;
 import outmaneuver.model.area.collision.ICollidable;
 import outmaneuver.model.area.entity.Entity;
@@ -26,7 +25,6 @@ public final class EntityControllerImpl implements EntityController {
     private final InternalEventListener eventListener;
     private final CollisionEngine collisionEngine;
     private final IGameSession session;
-    private MissileController missileController;
 
     public EntityControllerImpl(final InputController inputController,
                                 final InternalEventListener eventListener,
@@ -36,10 +34,6 @@ public final class EntityControllerImpl implements EntityController {
         this.eventListener = Objects.requireNonNull(eventListener, "eventListener must not be null");
         this.collisionEngine = Objects.requireNonNull(collisionEngine, "collisionEngine must not be null");
         this.session = Objects.requireNonNull(session, "session must not be null");
-    }
-
-    public void setMissileController(final MissileController missileController) {
-        this.missileController = Objects.requireNonNull(missileController, "missileController must not be null");
     }
 
     @Override
@@ -73,10 +67,6 @@ public final class EntityControllerImpl implements EntityController {
                 .scale(plane.getEffectiveSpeed());
         final Vector2 newPos = plane.getPosition().add(velocity.scale(deltaSec));
         plane.setPosition(newPos);
-
-        if (missileController != null) {
-            missileController.update(plane, deltaSec);
-        }
     }
 
     private void checkCollectible(final Collectible c, final List<Entity> toRemove) {
@@ -126,9 +116,6 @@ public final class EntityControllerImpl implements EntityController {
             }
             return true; // rimuovi tutto il resto
         });
-        if (missileController != null) {
-            missileController.reset();
-        }
     }
 
     private void planeReset(final Plane plane) {

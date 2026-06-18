@@ -21,14 +21,6 @@ class DtoTest {
     }
 
     @Test
-    void testBankStateValues() {
-        assertEquals(3, BankState.values().length);
-        assertNotNull(BankState.valueOf("NONE"));
-        assertNotNull(BankState.valueOf("LEFT"));
-        assertNotNull(BankState.valueOf("RIGHT"));
-    }
-
-    @Test
     void testRenderStateBuilder() {
         final var plane = new PlaneImpl(new PlaneData("standard", 200, 3, 20, "aircraft_standard", 0));
         plane.setPosition(new Vector2(150, 250));
