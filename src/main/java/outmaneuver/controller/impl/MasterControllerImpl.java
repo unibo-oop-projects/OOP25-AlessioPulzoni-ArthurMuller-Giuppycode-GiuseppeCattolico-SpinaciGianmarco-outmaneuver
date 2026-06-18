@@ -113,6 +113,7 @@ public final class MasterControllerImpl implements MasterController {
     @Override
     public void attachView(final GameView view) {
         views.add(Objects.requireNonNull(view, "view must not be null"));
+        entityControllers.forEach(ec -> ec.setView(view));
     }
 
     @Override
