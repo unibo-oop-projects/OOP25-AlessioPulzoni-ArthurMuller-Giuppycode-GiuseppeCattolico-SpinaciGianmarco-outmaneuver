@@ -77,6 +77,16 @@ class MasterControllerImplTest {
         public void renderFrame(final RenderState state) {
             frames.add(state);
         }
+
+        @Override
+        public int getWidth() {
+            return 0;
+        }
+
+        @Override
+        public int getHeight() {
+            return 0;
+        }
     }
 
     @BeforeEach

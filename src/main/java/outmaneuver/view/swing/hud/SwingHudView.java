@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 
+import outmaneuver.view.GameView;
 import outmaneuver.view.HudSnapshot;
 
 public final class SwingHudView implements IHudView {
@@ -16,7 +17,9 @@ public final class SwingHudView implements IHudView {
 
     @Override
     public void render(final Graphics2D g2d, final HudSnapshot hud,
-                       final int width, final int height) {
+                       final GameView view) {
+        final int width = view.getWidth();
+        final int height = view.getHeight();
         final Font hudFont = new Font(Font.MONOSPACED, Font.BOLD, HUD_FONT_SIZE);
         g2d.setFont(hudFont);
         final FontMetrics fm = g2d.getFontMetrics();

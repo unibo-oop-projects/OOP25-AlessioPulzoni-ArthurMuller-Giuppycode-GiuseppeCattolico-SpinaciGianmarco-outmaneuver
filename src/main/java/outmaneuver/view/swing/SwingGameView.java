@@ -71,7 +71,7 @@ public final class SwingGameView extends JPanel implements GameView {
             }
             drawPlane(g2d, planeData, cameraX, cameraY);
             if (state.getHud() != null) {
-                hudView.render(g2d, state.getHud(), getWidth(), getHeight());
+                hudView.render(g2d, state.getHud(), this);
             }
         }
         g2d.dispose();
