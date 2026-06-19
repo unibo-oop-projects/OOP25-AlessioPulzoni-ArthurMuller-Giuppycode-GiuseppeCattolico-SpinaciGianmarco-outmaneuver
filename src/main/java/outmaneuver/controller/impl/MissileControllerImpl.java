@@ -28,23 +28,29 @@ import outmaneuver.util.Vector2;
  */
 public final class MissileControllerImpl extends EntityControllerImpl implements MissileController {
 
-    // --- COSTANTI SPAWN ---
+    // --- COSTANTI SPAWN (la "leva quantita'") ---
     // L'intervallo tra due spawn parte da INITIAL_INTERVAL e cala nel tempo
     // (INITIAL_INTERVAL - elapsedTime * INTERVAL_SCALE) fino a MIN_INTERVAL.
-    // Curva tarata per una partita di ~5 minuti a chi gioca bene: inizio morbido,
-    // rampa lenta, ritmo massimo raggiunto solo verso i 5 minuti.
-    private static final double START_DELAY      = 3.0;
+    // Tarato (via simulazione) per una partita di ~5 minuti a chi gioca bene:
+    // inizio morbido (6.5s), ritmo massimo (0.5s) verso i 5 minuti -> lo schermo
+    // si riempie e si diventa ingiocabili.
+    private static final double START_DELAY      = 4.0;
     private static final double INITIAL_INTERVAL = 6.5;
-    private static final double MIN_INTERVAL     = 0.4;
+    private static final double MIN_INTERVAL     = 0.5;
     private static final double INTERVAL_SCALE   = 0.020;
     private static final int    BORDER_MARGIN    = 60;
+    // Quota di spawn dal LATO CORTO dello schermo. Di solito il player si muove lungo il
+    // lato lungo (piu' pista); i missili dal lato corto gli arrivano lungo quell'asse, quindi
+    // ha poco campo per schivare ed e' costretto a cambiare direzione.
+    private static final double SHORT_SIDE_BIAS  = 0.6;
 
     private final MissileRepository missileRepo;
     private final MissileSpawnDirector spawnDirector;
     private final Random rng = new Random();
 
     private double startDelay    = START_DELAY;
-    private double spawnTimer     = 0;
+    // timer "gia' pieno": il primo missile esce subito dopo START_DELAY (~4s), non dopo un intervallo intero
+    private double spawnTimer     = INITIAL_INTERVAL;
     private double spawnInterval  = INITIAL_INTERVAL;
     private double elapsedTime    = 0;
 
@@ -73,7 +79,7 @@ public final class MissileControllerImpl extends EntityControllerImpl implements
         final Dimension screen = new Dimension(getView().getWidth(), getView().getHeight());
 
         elapsedTime += dt;
-        maybeSpawn(dt, plane.getPosition(), screen);
+        maybeSpawn(dt, plane, screen);
         moveMissiles(plane, screen, dt);
     }
 
@@ -101,12 +107,12 @@ public final class MissileControllerImpl extends EntityControllerImpl implements
     public void clearAll() {
         super.clearAll();
         startDelay    = START_DELAY;
-        spawnTimer    = 0;
+        spawnTimer    = INITIAL_INTERVAL;  // primo missile subito dopo la tregua anche a ogni nuova partita
         elapsedTime   = 0;
         spawnInterval = INITIAL_INTERVAL;
     }
 
-    private void maybeSpawn(final double dt, final Vector2 planePos, final Dimension screen) {
+    private void maybeSpawn(final double dt, final Plane plane, final Dimension screen) {
         spawnTimer += dt;
         if (spawnTimer < spawnInterval) {
             return;
@@ -114,7 +120,12 @@ public final class MissileControllerImpl extends EntityControllerImpl implements
         spawnTimer = 0;
         spawnInterval = Math.max(MIN_INTERVAL, INITIAL_INTERVAL - elapsedTime * INTERVAL_SCALE);
 
-        final Missile m = createMissile(randomBorderPosition(planePos, screen));
+        final Vector2 planePos = plane.getPosition();
+        final MissileKind kind = spawnDirector.nextKind(elapsedTime, activeMissiles(), plane.isShieldActive());
+        // Il fast e' molto veloce: dal lato lungo, di fronte all'aereo, e' quasi inevitabile.
+        // Lo costringo a nascere SEMPRE dal lato corto (piu' equo da schivare).
+        final double shortBias = (kind == MissileKind.FAST) ? 1.0 : SHORT_SIDE_BIAS;
+        final Missile m = createMissile(kind, randomBorderPosition(planePos, screen, shortBias));
         m.setInitialDirection(planePos);
         spawnEntity(m);
     }
@@ -160,24 +171,35 @@ public final class MissileControllerImpl extends EntityControllerImpl implements
                 .findFirst();
     }
 
-    private Missile createMissile(final Vector2 spawnPos) {
-        // Il tipo lo decide il director in base a tempo e missili a schermo; qui si istanzia.
-        final MissileKind kind = spawnDirector.nextKind(elapsedTime, activeMissiles());
+    private Missile createMissile(final MissileKind kind, final Vector2 spawnPos) {
+        // Il tipo l'ha gia' deciso il director; qui si carica il dato e si istanzia.
         final MissileData data = missileRepo.loadByType(kind.id()).orElseThrow(
                 () -> new IllegalStateException("Missile type not found: " + kind.id()));
         return kind.create(spawnPos, data);
     }
 
-    private Vector2 randomBorderPosition(final Vector2 planePos, final Dimension screen) {
+    private Vector2 randomBorderPosition(final Vector2 planePos, final Dimension screen,
+                                         final double shortSideProb) {
         final double cx = planePos.getX();
         final double cy = planePos.getY();
         final double halfW = screen.width  / 2.0;
         final double halfH = screen.height / 2.0;
-        return switch (rng.nextInt(4)) {
-            case 0  -> new Vector2(cx + (rng.nextDouble() * 2 - 1) * halfW, cy - halfH - BORDER_MARGIN);
-            case 1  -> new Vector2(cx + (rng.nextDouble() * 2 - 1) * halfW, cy + halfH + BORDER_MARGIN);
-            case 2  -> new Vector2(cx - halfW - BORDER_MARGIN, cy + (rng.nextDouble() * 2 - 1) * halfH);
-            default -> new Vector2(cx + halfW + BORDER_MARGIN, cy + (rng.nextDouble() * 2 - 1) * halfH);
-        };
+
+        // Scelgo se nascere dal lato corto o lungo (probabilita' passata dal chiamante).
+        final boolean fromShortSide = rng.nextDouble() < shortSideProb;
+        // In landscape il lato corto sono i bordi verticali (sx/dx); in portrait quelli orizzontali (su/giu').
+        final boolean landscape = screen.width >= screen.height;
+        final boolean horizontalEdge = (landscape != fromShortSide);
+
+        if (horizontalEdge) {
+            // bordo sopra o sotto: x casuale lungo la larghezza, y appena fuori
+            final double x = cx + (rng.nextDouble() * 2 - 1) * halfW;
+            final double y = rng.nextBoolean() ? cy - halfH - BORDER_MARGIN : cy + halfH + BORDER_MARGIN;
+            return new Vector2(x, y);
+        }
+        // bordo sinistro o destro: y casuale lungo l'altezza, x appena fuori
+        final double y = cy + (rng.nextDouble() * 2 - 1) * halfH;
+        final double x = rng.nextBoolean() ? cx - halfW - BORDER_MARGIN : cx + halfW + BORDER_MARGIN;
+        return new Vector2(x, y);
     }
 }
