@@ -4,12 +4,11 @@ import java.util.function.BiFunction;
 
 import outmaneuver.model.area.entity.missile.Missile;
 import outmaneuver.model.area.entity.missile.data.MissileData;
-import outmaneuver.model.area.entity.missile.type.BasicMissile;
 import outmaneuver.model.area.entity.missile.type.BounceMissile;
 import outmaneuver.model.area.entity.missile.type.ClockMissile;
-import outmaneuver.model.area.entity.missile.type.FastMissile;
 import outmaneuver.model.area.entity.missile.type.ShieldMissile;
 import outmaneuver.model.area.entity.missile.type.SniperMissile;
+import outmaneuver.model.area.entity.missile.type.StandardMissile;
 import outmaneuver.util.Vector2;
 
 /**
@@ -32,10 +31,10 @@ import outmaneuver.util.Vector2;
 public enum MissileKind {
 
     // id        peso  sblocco(s)  cap  minAttivi  factory
-    BASIC ("basic",  1.0,   0.0,  99,  0, BasicMissile::new),
+    BASIC ("basic",  1.0,   0.0,  99,  0, StandardMissile::new),
     BOUNCE("bounce", 1.5,  12.0,   3,  0, BounceMissile::new),
     SNIPER("sniper", 2.0,  28.0,   4,  0, SniperMissile::new),
-    FAST  ("fast",   3.0,  45.0,   2,  0, FastMissile::new),
+    FAST  ("fast",   3.0,  45.0,   2,  0, StandardMissile::new),
     CLOCK ("clock",  0.8,  55.0,   2,  3, ClockMissile::new),
     SHIELD("shield", 2.5,  55.0,   2,  0, ShieldMissile::new);
 

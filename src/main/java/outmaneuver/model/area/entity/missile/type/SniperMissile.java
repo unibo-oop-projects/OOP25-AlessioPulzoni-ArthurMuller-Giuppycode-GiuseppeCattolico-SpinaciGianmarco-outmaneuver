@@ -7,27 +7,23 @@ import outmaneuver.model.area.entity.missile.data.MissileData;
 import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.util.Vector2;
 
-/*
- * Direzione fissa al momento dello spawn.
- * Se esce dallo schermo viene eliminato, non rediretto.
+/**
+ * Va dritto nella direzione di spawn (non insegue il giocatore). Se esce dallo
+ * schermo viene eliminato, non rediretto verso il giocatore.
  */
 public final class SniperMissile extends MissileImpl {
 
     public SniperMissile(final Vector2 spawnPos, final MissileData data) {
-        super(spawnPos, data.speed(), data.maxTurn(), data.radius(), data.lifetime(), data.predictionTime(), (int) data.outOfBoundsMargin());
+        super(spawnPos, data);
     }
 
     @Override
-    public void update(final Plane plane, final double dt) {
-        if (shouldSkipUpdate(dt)) return;
-        move(dt);
+    protected void steer(final Vector2 target) {
+        // niente sterzata: mantiene la direzione iniziale
     }
 
     @Override
-    public boolean redirectIfOutOfBounds(final Plane plane, final Dimension screenSize) {
-        return destroyIfOffScreen(plane, screenSize);
+    public void redirectIfOutOfBounds(final Plane plane, final Dimension screenSize) {
+        destroyIfOffScreen(plane, screenSize);
     }
-
-    @Override
-    public String getMissileType() { return "sniper"; }
 }

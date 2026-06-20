@@ -12,7 +12,7 @@ public interface Missile extends Entity {
 
     // --- UPDATE E MOVIMENTO ---
     void update(Plane plane, double dt);
-    boolean redirectIfOutOfBounds(Plane plane, Dimension screenSize);
+    void redirectIfOutOfBounds(Plane plane, Dimension screenSize);
     void setInitialDirection(Vector2 target);
 
     // --- STATO ---
@@ -20,7 +20,6 @@ public interface Missile extends Entity {
     boolean isAlive();
 
     // --- COLLISIONE ---
-    boolean collidesWith(Plane plane);
     void onCollision(List<Missile> activeMissiles);
     void checkBounce(Vector2 planePos, Dimension screenSize);
 
@@ -29,9 +28,5 @@ public interface Missile extends Entity {
 
     // --- RENDER ---
     EntityRenderData getRenderData();
-
-    // --- GETTERS ---
-    Vector2 getPosition();
-    double getHitboxRadius();
     String getMissileType();
 }

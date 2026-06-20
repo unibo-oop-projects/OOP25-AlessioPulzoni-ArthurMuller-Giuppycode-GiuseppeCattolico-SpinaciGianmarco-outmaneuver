@@ -1,34 +1,33 @@
 package outmaneuver.model.area.entity.missile.type;
 
 import java.util.List;
+import java.util.Objects;
 
 import outmaneuver.model.area.entity.missile.Missile;
 import outmaneuver.model.area.entity.missile.MissileImpl;
 import outmaneuver.model.area.entity.missile.data.MissileData;
+import outmaneuver.model.area.entity.missile.data.MissileData.SlowEffect;
 import outmaneuver.util.Vector2;
 
-/*
- * Quando collide rallenta tutti i missili attivi.
+/**
+ * Quando collide rallenta tutti i missili attivi (aiuta il giocatore).
  */
 public final class ClockMissile extends MissileImpl {
 
-    //  tengo data solo se ti serve dopo il costruttore
-    private final MissileData data;
+    private final SlowEffect slow;
 
     public ClockMissile(final Vector2 spawnPos, final MissileData data) {
-        super(spawnPos, data.speed(), data.maxTurn(), data.radius(), data.lifetime(), data.predictionTime(), (int) data.outOfBoundsMargin());
-        this.data = data;
+        super(spawnPos, data);
+        this.slow = Objects.requireNonNull(
+                data.slow(), "clock missile requires a 'slow' effect in its data");
     }
 
     @Override
     public void onCollision(final List<Missile> activeMissiles) {
         for (final Missile other : activeMissiles) {
-            if (!other.isAlive() || other.equals(this)) continue;
-            other.slowDown(data.slowFactor(), data.slowDuration());
+            if (!other.isAlive() || other == this) continue;
+            other.slowDown(slow.factor(), slow.duration());
         }
         destroy();
     }
-
-    @Override
-    public String getMissileType() { return "clock"; }
 }

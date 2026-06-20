@@ -1,56 +1,61 @@
 package outmaneuver.model.area.entity.missile.type;
 
 import java.awt.Dimension;
-import java.util.Random;
 
 import outmaneuver.model.area.entity.missile.MissileImpl;
 import outmaneuver.model.area.entity.missile.data.MissileData;
 import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.util.Vector2;
 
+/**
+ * Va in linea retta e rimbalza sui bordi dello schermo (non insegue il giocatore,
+ * non viene rediretto ne' distrutto fuori schermo).
+ */
 public final class BounceMissile extends MissileImpl {
 
     public BounceMissile(final Vector2 spawnPos, final MissileData data) {
-        super(spawnPos, data.speed(), data.maxTurn(), data.radius(), data.lifetime(),
-              data.predictionTime(), (int) data.outOfBoundsMargin());
-        setVelocity(Vector2.fromAngle(new Random().nextDouble() * Math.PI * 2).scale(data.speed()));
+        super(spawnPos, data);
     }
 
     @Override
-    public void update(final Plane plane, final double dt) {
-        if (shouldSkipUpdate(dt)) return;
-        move(dt);
+    protected void steer(final Vector2 target) {
+        // niente sterzata: mantiene la direzione iniziale, poi rimbalza (vedi checkBounce)
     }
 
     @Override
     public void checkBounce(final Vector2 planePos, final Dimension screenSize) {
         final Vector2 pos = getPosition();
-        final double relX = pos.getX() - planePos.getX();
-        final double relY = pos.getY() - planePos.getY();
+        final Vector2 rel = pos.subtract(planePos);   // posizione rispetto al centro (l'aereo)
         final double halfW = screenSize.width  / 2.0;
         final double halfH = screenSize.height / 2.0;
         final int margin = getOutOfBoundsMargin();
 
-        double vx = getVx();
-        double vy = getVy();
+        Vector2 vel = getVelocity();
         double clampedX = pos.getX();
         double clampedY = pos.getY();
 
-        if (relX < -halfW + margin) { vx = Math.abs(vx); clampedX = planePos.getX() - halfW + margin; }
-        else if (relX > halfW - margin) { vx = -Math.abs(vx); clampedX = planePos.getX() + halfW - margin; }
+        if (rel.getX() < -halfW + margin) {
+            if (vel.getX() < 0) vel = vel.reflectX();   // tocca il bordo sinistro -> rimbalza a destra
+            clampedX = planePos.getX() - halfW + margin;
+        } else if (rel.getX() > halfW - margin) {
+            if (vel.getX() > 0) vel = vel.reflectX();   // bordo destro -> rimbalza a sinistra
+            clampedX = planePos.getX() + halfW - margin;
+        }
 
-        if (relY < -halfH + margin) { vy = Math.abs(vy); clampedY = planePos.getY() - halfH + margin; }
-        else if (relY > halfH - margin) { vy = -Math.abs(vy); clampedY = planePos.getY() + halfH - margin; }
+        if (rel.getY() < -halfH + margin) {
+            if (vel.getY() < 0) vel = vel.reflectY();   // bordo superiore -> rimbalza in giu'
+            clampedY = planePos.getY() - halfH + margin;
+        } else if (rel.getY() > halfH - margin) {
+            if (vel.getY() > 0) vel = vel.reflectY();   // bordo inferiore -> rimbalza in su'
+            clampedY = planePos.getY() + halfH - margin;
+        }
 
         setPosition(new Vector2(clampedX, clampedY));
-        setVelocity(vx, vy);
+        setVelocity(vel);
     }
 
     @Override
-    public boolean redirectIfOutOfBounds(final Plane plane, final Dimension screenSize) {
-        return false;
+    public void redirectIfOutOfBounds(final Plane plane, final Dimension screenSize) {
+        // Il bounce rimbalza (vedi checkBounce): niente redirect ne' distruzione fuori schermo.
     }
-
-    @Override
-    public String getMissileType() { return "bounce"; }
 }

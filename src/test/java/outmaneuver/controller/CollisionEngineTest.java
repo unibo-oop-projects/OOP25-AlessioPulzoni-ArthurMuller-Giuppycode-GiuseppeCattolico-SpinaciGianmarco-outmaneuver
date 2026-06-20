@@ -11,15 +11,15 @@ import org.junit.jupiter.api.Test;
 import outmaneuver.controller.event.InternalEventListener;
 import outmaneuver.model.area.collision.CollisionData;
 import outmaneuver.model.area.entity.missile.MissileImpl;
+import outmaneuver.model.area.entity.missile.data.MissileData;
 import outmaneuver.util.Vector2;
 
 class CollisionEngineTest {
 
     private static final class TestMissile extends MissileImpl {
-        TestMissile(final Vector2 pos, final double dir, final double speed) {
-            super(pos, speed, 0, 8.0, -1, 0, 0);
+        TestMissile(final Vector2 pos) {
+            super(pos, new MissileData("test", 1.0, 0.0, 8.0, -1.0, 0.0, 0, null));
         }
-        @Override public String getMissileType() { return "test"; }
     }
 
     private static class RecordingListener implements InternalEventListener {
@@ -44,8 +44,8 @@ class CollisionEngineTest {
 
     @Test
     void overlappingMissilesTriggerCollisionEvent() {
-        final TestMissile a = new TestMissile(new Vector2(0, 0), 0, 0);
-        final TestMissile b = new TestMissile(new Vector2(5, 0), 0, 0);
+        final TestMissile a = new TestMissile(new Vector2(0, 0));
+        final TestMissile b = new TestMissile(new Vector2(5, 0));
 
         engine.register(a);
         engine.register(b);
@@ -61,8 +61,8 @@ class CollisionEngineTest {
 
     @Test
     void distantMissilesDoNotTriggerCollisionEvent() {
-        final TestMissile a = new TestMissile(new Vector2(0, 0), 0, 0);
-        final TestMissile b = new TestMissile(new Vector2(1000, 1000), 0, 0);
+        final TestMissile a = new TestMissile(new Vector2(0, 0));
+        final TestMissile b = new TestMissile(new Vector2(1000, 1000));
 
         engine.register(a);
         engine.register(b);
@@ -73,8 +73,8 @@ class CollisionEngineTest {
 
     @Test
     void unregisteredMissileDoesNotTriggerCollisionEvent() {
-        final TestMissile a = new TestMissile(new Vector2(0, 0), 0, 0);
-        final TestMissile b = new TestMissile(new Vector2(5, 0), 0, 0);
+        final TestMissile a = new TestMissile(new Vector2(0, 0));
+        final TestMissile b = new TestMissile(new Vector2(5, 0));
 
         engine.register(a);
         engine.register(b);
@@ -86,8 +86,8 @@ class CollisionEngineTest {
 
     @Test
     void clearAllRemovesAllEntities() {
-        final TestMissile a = new TestMissile(new Vector2(0, 0), 0, 0);
-        final TestMissile b = new TestMissile(new Vector2(5, 0), 0, 0);
+        final TestMissile a = new TestMissile(new Vector2(0, 0));
+        final TestMissile b = new TestMissile(new Vector2(5, 0));
 
         engine.register(a);
         engine.register(b);
@@ -99,7 +99,7 @@ class CollisionEngineTest {
 
     @Test
     void sameMissileDoesNotCollideWithItself() {
-        final TestMissile a = new TestMissile(new Vector2(0, 0), 0, 0);
+        final TestMissile a = new TestMissile(new Vector2(0, 0));
 
         engine.register(a);
         engine.tick();

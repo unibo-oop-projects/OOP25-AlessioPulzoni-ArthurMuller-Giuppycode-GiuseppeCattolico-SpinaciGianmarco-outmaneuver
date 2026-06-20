@@ -7,15 +7,15 @@ import outmaneuver.model.area.entity.missile.MissileImpl;
 import outmaneuver.model.area.entity.missile.data.MissileData;
 import outmaneuver.util.Vector2;
 
-/*
- * Richiede due collisioni per essere distrutto.
+/**
+ * Richiede due collisioni per essere distrutto (regge il primo colpo).
  */
 public final class ShieldMissile extends MissileImpl {
 
     private boolean shielded = true;
 
     public ShieldMissile(final Vector2 spawnPos, final MissileData data) {
-        super(spawnPos, data.speed(), data.maxTurn(), data.radius(), data.lifetime(), data.predictionTime(), (int) data.outOfBoundsMargin());
+        super(spawnPos, data);
     }
 
     @Override
@@ -26,7 +26,4 @@ public final class ShieldMissile extends MissileImpl {
             destroy();
         }
     }
-
-    @Override
-    public String getMissileType() { return "shield"; }
 }

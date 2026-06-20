@@ -16,11 +16,6 @@ public final class JsonMissileRepository implements MissileRepository {
     }
 
     @Override
-    public List<MissileData> loadAll() {
-        return missiles;
-    }
-
-    @Override
     public Optional<MissileData> loadByType(final String type) {
         Objects.requireNonNull(type, "type must not be null");
         return missiles.stream()

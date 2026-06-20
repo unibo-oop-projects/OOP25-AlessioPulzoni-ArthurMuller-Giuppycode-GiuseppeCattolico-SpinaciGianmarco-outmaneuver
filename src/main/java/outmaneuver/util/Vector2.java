@@ -30,6 +30,11 @@ public final class Vector2 {
         return new Vector2(this.x + other.x, this.y + other.y);
     }
 
+    /** Vettore che va da {@code other} a questo: {@code this - other}. */
+    public Vector2 subtract(final Vector2 other) {
+        return new Vector2(this.x - other.x, this.y - other.y);
+    }
+
     public Vector2 scale(final double factor) {
         return new Vector2(this.x * factor, this.y * factor);
     }
@@ -52,6 +57,16 @@ public final class Vector2 {
 
     public double angle() {
         return Math.atan2(this.y, this.x);
+    }
+
+    /** Inverte la componente orizzontale (rimbalzo su un bordo verticale). */
+    public Vector2 reflectX() {
+        return new Vector2(-this.x, this.y);
+    }
+
+    /** Inverte la componente verticale (rimbalzo su un bordo orizzontale). */
+    public Vector2 reflectY() {
+        return new Vector2(this.x, -this.y);
     }
 
     @Override

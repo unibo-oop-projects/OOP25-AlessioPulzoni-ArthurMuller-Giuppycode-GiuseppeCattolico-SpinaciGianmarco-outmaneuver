@@ -52,7 +52,7 @@ public final class MissileControllerImpl extends EntityControllerImpl implements
     // timer "gia' pieno": il primo missile esce subito dopo START_DELAY (~4s), non dopo un intervallo intero
     private double spawnTimer     = INITIAL_INTERVAL;
     private double spawnInterval  = INITIAL_INTERVAL;
-    private double elapsedTime    = 0;
+    private double elapsedTime;
 
     public MissileControllerImpl(final List<Entity> entities,
                                  final CollisionEngine collisionEngine,
@@ -180,8 +180,6 @@ public final class MissileControllerImpl extends EntityControllerImpl implements
 
     private Vector2 randomBorderPosition(final Vector2 planePos, final Dimension screen,
                                          final double shortSideProb) {
-        final double cx = planePos.getX();
-        final double cy = planePos.getY();
         final double halfW = screen.width  / 2.0;
         final double halfH = screen.height / 2.0;
 
@@ -189,17 +187,18 @@ public final class MissileControllerImpl extends EntityControllerImpl implements
         final boolean fromShortSide = rng.nextDouble() < shortSideProb;
         // In landscape il lato corto sono i bordi verticali (sx/dx); in portrait quelli orizzontali (su/giu').
         final boolean landscape = screen.width >= screen.height;
-        final boolean horizontalEdge = (landscape != fromShortSide);
+        final boolean horizontalEdge = landscape != fromShortSide;
 
+        // Punto di spawn = posizione dell'aereo (centro schermo) + scostamento verso il bordo.
         if (horizontalEdge) {
             // bordo sopra o sotto: x casuale lungo la larghezza, y appena fuori
-            final double x = cx + (rng.nextDouble() * 2 - 1) * halfW;
-            final double y = rng.nextBoolean() ? cy - halfH - BORDER_MARGIN : cy + halfH + BORDER_MARGIN;
-            return new Vector2(x, y);
+            final double offX = (rng.nextDouble() * 2 - 1) * halfW;
+            final double offY = rng.nextBoolean() ? -halfH - BORDER_MARGIN : halfH + BORDER_MARGIN;
+            return planePos.add(new Vector2(offX, offY));
         }
         // bordo sinistro o destro: y casuale lungo l'altezza, x appena fuori
-        final double y = cy + (rng.nextDouble() * 2 - 1) * halfH;
-        final double x = rng.nextBoolean() ? cx - halfW - BORDER_MARGIN : cx + halfW + BORDER_MARGIN;
-        return new Vector2(x, y);
+        final double offY = (rng.nextDouble() * 2 - 1) * halfH;
+        final double offX = rng.nextBoolean() ? -halfW - BORDER_MARGIN : halfW + BORDER_MARGIN;
+        return planePos.add(new Vector2(offX, offY));
     }
 }

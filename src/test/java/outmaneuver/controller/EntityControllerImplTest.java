@@ -16,6 +16,7 @@ import outmaneuver.model.area.collision.CollisionData;
 import outmaneuver.model.area.entity.Entity;
 import outmaneuver.model.area.entity.collectibles.AbstractCollectible;
 import outmaneuver.model.area.entity.missile.MissileImpl;
+import outmaneuver.model.area.entity.missile.data.MissileData;
 import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.model.area.entity.plane.PlaneData;
 import outmaneuver.model.area.entity.plane.PlaneImpl;
@@ -38,9 +39,8 @@ class EntityControllerImplTest {
     /** Missile concreto minimale per i test: raggio 8 così due missili vicini collidono. */
     private static final class TestMissile extends MissileImpl {
         TestMissile(final Vector2 pos) {
-            super(pos, 0, 0, 8.0, -1, 0, 0);
+            super(pos, new MissileData("test", 1.0, 0.0, 8.0, -1.0, 0.0, 0, null));
         }
-        @Override public String getMissileType() { return "test"; }
     }
 
     private static class RecordingListener implements InternalEventListener {
