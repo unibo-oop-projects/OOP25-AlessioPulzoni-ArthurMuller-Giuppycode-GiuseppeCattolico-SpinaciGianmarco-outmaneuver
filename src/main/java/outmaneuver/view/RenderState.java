@@ -1,6 +1,5 @@
 package outmaneuver.view;
 
-import outmaneuver.model.area.entity.plane.Plane;
 import java.util.List;
 
 
@@ -35,15 +34,15 @@ public final class RenderState {
 
     public static final class Builder {
 
-        private Plane plane;
+        private EntityRenderData planeData;
         private HudSnapshot hud;
         private List<EntityRenderData> collectibles = List.of();
 
         private Builder() {
         }
 
-        public Builder plane(final Plane plane) {
-            this.plane = plane;
+        public Builder planeData(final EntityRenderData planeData) {
+            this.planeData = planeData;
             return this;
         }
 
@@ -58,12 +57,6 @@ public final class RenderState {
         }
 
         public RenderState build() {
-            final EntityRenderData planeData = new EntityRenderData(
-                    plane.getPosition().getX(),
-                    plane.getPosition().getY(),
-                    plane.getDirection(),
-                    plane.getStats().getSpriteId()
-            );
             return new RenderState(planeData, hud, collectibles);
         }
     }
