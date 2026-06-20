@@ -1,4 +1,4 @@
-package outmaneuver.controller;
+package outmaneuver.controller.impl.missile;
 
 import java.util.function.BiFunction;
 

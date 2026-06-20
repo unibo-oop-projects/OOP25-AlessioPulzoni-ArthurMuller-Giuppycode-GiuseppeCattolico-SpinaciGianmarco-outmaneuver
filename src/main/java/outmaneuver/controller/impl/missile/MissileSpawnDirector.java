@@ -1,4 +1,4 @@
-package outmaneuver.controller;
+package outmaneuver.controller.impl.missile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import outmaneuver.model.area.entity.missile.Missile;
 /**
  * Decide QUALE tipo di missile spawnare. Si occupa della "qualita'" (quanto tosto
  * e' in media ogni missile); la "quantita'" (quanti) la guida l'intervallo di spawn
- * del MissileController. Insieme danno la difficolta' totale.
+ * del controller dei missili. Insieme danno la difficolta' totale.
  *
  * <p>Il modello e' la composizione di tre funzioni (tarate via simulazione):
  *

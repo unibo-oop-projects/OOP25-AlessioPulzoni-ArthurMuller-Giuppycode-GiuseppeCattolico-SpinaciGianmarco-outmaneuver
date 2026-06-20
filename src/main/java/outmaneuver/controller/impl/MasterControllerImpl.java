@@ -14,7 +14,6 @@ import outmaneuver.controller.EntityController;
 import outmaneuver.controller.HudController;
 import outmaneuver.controller.InternalEvent;
 import outmaneuver.controller.MasterController;
-import outmaneuver.controller.MissileController;
 import outmaneuver.controller.OutmaneuverEvent;
 import outmaneuver.controller.ScoreController;
 
@@ -37,7 +36,8 @@ public final class MasterControllerImpl implements MasterController {
     private final HudController hudController;
     private ScoreController scoreController;
     private EntityController primaryEntityController;
-    private MissileController missileController;
+    // il controller che gestisce i missili: a lui il master instrada gli eventi di collisione dei missili
+    private EntityController missileController;
     private CollisionEngine collisionEngine;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> tickTask;
@@ -83,7 +83,7 @@ public final class MasterControllerImpl implements MasterController {
         this.scoreController = Objects.requireNonNull(scoreController, "scoreController must not be null");
     }
 
-    public void setMissileController(final MissileController missileController) {
+    public void setMissileController(final EntityController missileController) {
         this.missileController = Objects.requireNonNull(missileController, "missileController must not be null");
     }
 

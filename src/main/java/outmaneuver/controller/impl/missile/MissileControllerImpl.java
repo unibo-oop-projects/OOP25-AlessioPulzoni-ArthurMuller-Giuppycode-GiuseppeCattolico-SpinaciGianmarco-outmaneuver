@@ -1,4 +1,4 @@
-package outmaneuver.controller.impl;
+package outmaneuver.controller.impl.missile;
 
 import java.awt.Dimension;
 import java.util.List;
@@ -8,9 +8,7 @@ import java.util.Random;
 
 import outmaneuver.controller.CollisionEngine;
 import outmaneuver.controller.InternalEvent;
-import outmaneuver.controller.MissileController;
-import outmaneuver.controller.MissileKind;
-import outmaneuver.controller.MissileSpawnDirector;
+import outmaneuver.controller.impl.EntityControllerImpl;
 import outmaneuver.model.area.collision.CollisionData;
 import outmaneuver.model.area.collision.ICollidable;
 import outmaneuver.model.area.entity.Entity;
@@ -26,7 +24,7 @@ import outmaneuver.util.Vector2;
  * reagisce alle loro collisioni. Il rilevamento delle collisioni spetta al
  * CollisionEngine; la reazione vera (shield/clock/destroy) ai metodi del missile.
  */
-public final class MissileControllerImpl extends EntityControllerImpl implements MissileController {
+public final class MissileControllerImpl extends EntityControllerImpl {
 
     // --- COSTANTI SPAWN (la "leva quantita'") ---
     // L'intervallo tra due spawn parte da INITIAL_INTERVAL e cala nel tempo
@@ -83,6 +81,7 @@ public final class MissileControllerImpl extends EntityControllerImpl implements
         moveMissiles(plane, screen, dt);
     }
 
+    // TODO: sistemare la logica collisioni non va qui (fatta solo per fare funzionare)
     @Override
     public void onInternalEvent(final InternalEvent evt, final Object data) {
         if (!(data instanceof final CollisionData cd)) {
@@ -145,12 +144,14 @@ public final class MissileControllerImpl extends EntityControllerImpl implements
         }
     }
 
+    // TODO: sistemare la logica collisioni non va qui (fatta solo per fare funzionare)
     private void destroyIfMissile(final ICollidable e) {
         if (e instanceof final Missile m) {
             m.destroy();
         }
     }
 
+    // TODO: sistemare la logica collisioni non va qui (fatta solo per fare funzionare)
     private void reactIfMissile(final ICollidable e) {
         if (e instanceof final Missile m) {
             m.onCollision(activeMissiles());
