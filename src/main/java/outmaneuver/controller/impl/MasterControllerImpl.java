@@ -21,6 +21,7 @@ import outmaneuver.model.area.entity.Entity;
 import outmaneuver.model.area.entity.collectibles.Collectible;
 import outmaneuver.model.area.entity.missile.Missile;
 import outmaneuver.model.area.entity.plane.Plane;
+
 import outmaneuver.view.EntityRenderData;
 import outmaneuver.view.GameView;
 import outmaneuver.view.RenderState;
@@ -202,11 +203,12 @@ public final class MasterControllerImpl implements MasterController {
                 .filter(e -> e instanceof Missile)
                 .map(e -> ((Missile) e).getRenderData())
                 .toList();
+                
         final RenderState state = RenderState.builder()
                 .plane(plane)
                 .hud(hudController.buildSnapshot(plane, isPaused))
-                .missiles(missiles)
                 .collectibles(collectibles)
+                .missiles(missiles)
                 .build();
         notifyViews(v -> v.renderFrame(state));
     }
@@ -220,11 +222,19 @@ public final class MasterControllerImpl implements MasterController {
         if (!(data instanceof final CollisionData collisionData)) {
             return;
         }
+        if (primaryEntityController != null) {
+            primaryEntityController.onInternalEvent(evt, collisionData);
+        }
         switch (evt) {
-            case PLANE_COLLECTIBLE_COLLISION -> {
-                if (primaryEntityController != null) {
-                    primaryEntityController.onInternalEvent(evt, collisionData);
+            case PLANE_MISSILE_COLLISION -> {
+                //notifyViews(v -> v.onPlaneHit(collisionData)); da implementare
+                final Plane plane = (Plane) collisionData.getEntityB();
+                if (!plane.isShieldActive()) {
+                    // Gestisci danno al piano, es. riduci salute o simili
+                    handleEvent(OutmaneuverEvent.GAME_OVER);
                 }
+            }
+            case PLANE_COLLECTIBLE_COLLISION -> {
                 if (collisionData.getEntityB() instanceof final Collectible collectible) {
                     hudController.onInternalEvent(InternalEvent.PLANE_COLLECTIBLE_COLLISION, collectible);
                     if (scoreController != null) {
@@ -232,23 +242,8 @@ public final class MasterControllerImpl implements MasterController {
                     }
                 }
             }
-            // [Alessio - missili] instrada la collisione piano-missile al controller dei missili
-            case PLANE_MISSILE_COLLISION -> {
-                // Il missile reagisce (shield/destroy); il piano va in game over se non ha lo scudo.
-                if (missileController != null) {
-                    missileController.onInternalEvent(evt, collisionData);
-                }
-                final Plane plane = (Plane) collisionData.getEntityB();
-                if (!plane.isShieldActive()) {
-                    handleEvent(OutmaneuverEvent.GAME_OVER);
-                }
-            }
-            // [Alessio - missili] instrada la collisione missile-missile al controller dei missili
             case MISSILE_MISSILE_COLLISION -> {
-                // I missili reagiscono in modo polimorfico (shield/clock/destroy); il master assegna il punteggio.
-                if (missileController != null) {
-                    missileController.onInternalEvent(evt, collisionData);
-                }
+                // notifyViews(v -> v.onMissileCollision(collisionData)); da implementare
                 if (scoreController != null) {
                     scoreController.onInternalEvent(InternalEvent.MISSILE_MISSILE_COLLISION, collisionData);
                 }

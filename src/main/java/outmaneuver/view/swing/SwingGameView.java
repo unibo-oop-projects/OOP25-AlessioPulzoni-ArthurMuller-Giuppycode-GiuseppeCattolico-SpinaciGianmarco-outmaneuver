@@ -21,8 +21,8 @@ import outmaneuver.view.swing.hud.IHudView;
 
 public final class SwingGameView extends JPanel implements GameView {
 
-    private static final int PLANE_RADIUS = 20;
-    private static final int DIR_INDICATOR_LENGTH = 40;
+    private static final int PLANE_RADIUS = 20; // siamo sicuri qui??
+    private static final int DIR_INDICATOR_LENGTH = 40; // siamo sicuri qui???
 
     private final KeyListener keyListener;
     private final IHudView hudView;
@@ -72,12 +72,11 @@ public final class SwingGameView extends JPanel implements GameView {
             final double cameraY = planeData.getY();
 
             drawMissiles(g2d, state.getMissiles(), cameraX, cameraY);
+            drawPlane(g2d, planeData, cameraX, cameraY);
 
             for (final var col : state.getCollectibles()) {
                 drawCollectible(g2d, col, cameraX, cameraY);
             }
-
-            drawPlane(g2d, planeData, cameraX, cameraY);
 
             if (state.getHud() != null) {
                 hudView.render(g2d, state.getHud(), this);
@@ -88,16 +87,16 @@ public final class SwingGameView extends JPanel implements GameView {
 
     private void drawCollectible(final Graphics2D g2d, final EntityRenderData data,
             final double cameraX, final double cameraY) {
-        final int screenX = toScreenX(data.getX(), cameraX);
-        final int screenY = toScreenY(data.getY(), cameraY);
+        final int screenX = (int) Math.round(data.getX() - cameraX + getWidth() / 2.0);
+        final int screenY = (int) Math.round(data.getY() - cameraY + getHeight() / 2.0);
         g2d.setColor(Color.YELLOW);
         g2d.fillOval(screenX - 10, screenY - 10, 20, 20);
     }
 
     private void drawPlane(final Graphics2D g2d, final EntityRenderData data,
             final double cameraX, final double cameraY) {
-        final int screenX = toScreenX(data.getX(), cameraX);
-        final int screenY = toScreenY(data.getY(), cameraY);
+        final int screenX = (int) Math.round(data.getX() - cameraX + getWidth() / 2.0);
+        final int screenY = (int) Math.round(data.getY() - cameraY + getHeight() / 2.0);
 
         g2d.setColor(Color.CYAN);
         g2d.fillOval(screenX - PLANE_RADIUS, screenY - PLANE_RADIUS,
@@ -108,16 +107,22 @@ public final class SwingGameView extends JPanel implements GameView {
         g2d.drawLine(screenX, screenY,
                 (int) Math.round(screenX + dir.getX()),
                 (int) Math.round(screenY + dir.getY()));
+
+        // remove - plane direction line
+        final int dirEndX = (int) Math.round(screenX + DIR_INDICATOR_LENGTH * Math.cos(data.getDirectionRad()));
+        final int dirEndY = (int) Math.round(screenY + DIR_INDICATOR_LENGTH * Math.sin(data.getDirectionRad()));
+        g2d.drawLine(screenX, screenY, dirEndX, dirEndY);
     }
 
-    // [Alessio - missili] disegno dei missili (raggio e colore per tipo: vedi missileRadius / getMissileColor sotto)
+    // [Alessio - missili] disegno dei missili (raggio e colore per tipo: vedi
+    // missileRadius / getMissileColor sotto)
     private void drawMissiles(final Graphics2D g2d,
-                              final List<EntityRenderData> missiles,
-                              final double cameraX, final double cameraY) {
+            final List<EntityRenderData> missiles,
+            final double cameraX, final double cameraY) {
         for (final EntityRenderData m : missiles) {
             final int sx = toScreenX(m.getX(), cameraX);
             final int sy = toScreenY(m.getY(), cameraY);
-            final int r  = missileRadius(m.getSpriteId());
+            final int r = missileRadius(m.getSpriteId());
 
             // Alone
             g2d.setColor(new Color(220, 60, 60, 60));
@@ -139,22 +144,22 @@ public final class SwingGameView extends JPanel implements GameView {
 
     private int missileRadius(final String type) {
         return switch (type) {
-            case "fast"   -> 8;
+            case "fast" -> 8;
             case "sniper" -> 6;
             case "bounce", "shield" -> 11;
-            case "clock"  -> 12;
-            default       -> 10;
+            case "clock" -> 12;
+            default -> 10;
         };
     }
 
     private Color getMissileColor(final String type) {
         return switch (type) {
-            case "fast"   -> new Color(255, 220, 0);
+            case "fast" -> new Color(255, 220, 0);
             case "sniper" -> new Color(220, 0, 220);
             case "bounce" -> new Color(30, 210, 90);
             case "shield" -> new Color(80, 160, 255);
-            case "clock"  -> new Color(255, 215, 0);
-            default       -> new Color(220, 60, 60);
+            case "clock" -> new Color(255, 215, 0);
+            default -> new Color(220, 60, 60);
         };
     }
 

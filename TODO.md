@@ -29,49 +29,24 @@ inoltre ragionare sul fatto se lasciare le chiamate di internaleventlistener per
 capire perche tutti i controller estendono internalEventListener mentre CollisionEngine lo inizializza al suo interno e mastercontrollerimpl lo implementa
 
 
-piano di sitemazione per lo spawn delle entities:
+plane non dovrebbe avere    
 
-Piano di semplificazione
-Analisi attuale
-- SwingGameView usa cameraX = planeData.getX(), cameraY = planeData.getY() come centro camera
-- Conversione mondo→schermo: world - camera + screenCenter
-- Quindi camera center in world coords = plane position
-- Il codice attuale cerca il Plane per ottenere cx, cy = camera center
-Soluzione proposta (Opzione A - Minima)
-1. Aggiungi a GameView interface:
-Vector2 getCameraCenter(); // coordinate mondo del centro schermo
-2. Implementa in SwingGameView:
-@Override
-public Vector2 getCameraCenter() {
-    var state = latestState;
-    if (state == null) return null;
-    var plane = state.getPlane();
-    return new Vector2(plane.getX(), plane.getY());
-}
-3. Semplifica CollectibleControllerImpl.randomEdgePosition():
-private Vector2 randomEdgePosition() {
-    if (getView() == null) return null;
-    var cameraCenter = getView().getCameraCenter();
-    if (cameraCenter == null) return null;
-    
-    final int w = getView().getWidth();
-    final int h = getView().getHeight();
-    if (w <= 0 || h <= 0) return null;
-    
-    final double cx = cameraCenter.getX();
-    final double cy = cameraCenter.getY();
-    final double hw = w / 2.0;
-    final double hh = h / 2.0;
-    
-    return switch (random.nextInt(4)) {
-        case 0 -> new Vector2(cx + (random.nextDouble() * 2 - 1) * hw, cy - hh); // top
-        case 1 -> new Vector2(cx + (random.nextDouble() * 2 - 1) * hw, cy + hh); // bottom
-        case 2 -> new Vector2(cx - hw, cy + (random.nextDouble() * 2 - 1) * hh); // left
-        default -> new Vector2(cx + hw, cy + (random.nextDouble() * 2 - 1) * hh); // right
-    };
-}
-Risultato: Rimossi 7 righe di stream/filter/map/findFirst + dipendenza da entity Plane. Stesso comportamento esatto.
+   boolean isShieldActive();
+
+    void activateShield();
+
+    void deactivateShield();
+
+    void applySpeedMultiplier(double factor, long durationMs);
+
+    double getEffectiveSpeed();
+
+è logica delegata ai collectibles e ai controller che si occupano di applicare il collectible all'aereo, di conseguenza i metodi di apply all'interno del model dei collectibles sono giusti? considerando che si tratta di un azione potrebbero anche essere mesis all'interno di collectibleccontroller? CAPIAMO
 
 
 
-- AGGIUSTARE PROBLEMA CHE QUANDO PREMO PLAY AGAIN MI GIRA DA SOLO L'AEREO
+
+
+
+
+

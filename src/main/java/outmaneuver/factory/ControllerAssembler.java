@@ -63,6 +63,10 @@ public final class ControllerAssembler {
         // [Alessio - missili] registra il controller dei missili nel master
         master.addEntityController(missileCtrl);
         master.setMissileController(missileCtrl);
+        planeCtrl.spawnEntity(plane); //TODO: QUESTO NON VA BENE QUI, IL PLANE VA SPAWNATO ALTROVE
+
+        master.addEntityController(planeCtrl);
+        master.addEntityController(collectibleCtrl);
         master.setCollisionEngine(collision);
         master.setScoreController(new ScoreControllerImpl(session));
         return new Controllers(input, hud, master);

@@ -3,6 +3,7 @@ package outmaneuver.view;
 import outmaneuver.model.area.entity.plane.Plane;
 import java.util.List;
 
+
 public final class RenderState {
 
     private final EntityRenderData plane;
@@ -23,9 +24,11 @@ public final class RenderState {
 
     public EntityRenderData getPlane() { return plane; }
 
-    public HudSnapshot getHud() { return hud; }
-
     public List<EntityRenderData> getMissiles() { return missiles; }
+
+    public HudSnapshot getHud() {
+        return hud;
+    }
 
     public List<EntityRenderData> getCollectibles() {
         return collectibles;
