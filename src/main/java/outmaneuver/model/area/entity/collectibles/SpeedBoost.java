@@ -23,6 +23,15 @@ public final class SpeedBoost extends AbstractCollectible {
 
     @Override
     public void apply(final Plane plane, final IGameSession session) {
-        plane.applySpeedMultiplier(factor, durationMs);
+        plane.applySpeedMultiplier(factor);
+        Thread.ofVirtual().start(() -> {
+            try {
+                Thread.sleep(durationMs);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
+            }
+            plane.resetSpeedMultiplier();
+        });
     }
 }
