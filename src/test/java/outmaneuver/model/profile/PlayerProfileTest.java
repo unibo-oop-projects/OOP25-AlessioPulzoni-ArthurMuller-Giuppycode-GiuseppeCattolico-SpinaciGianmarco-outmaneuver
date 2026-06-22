@@ -1,6 +1,7 @@
 package outmaneuver.model.profile;
 
 import java.nio.file.Path;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -16,7 +17,10 @@ class PlayerProfileTest {
 
     @BeforeEach
     void setUp(@TempDir final Path tmpDir) {
-        profile = new PlayerProfile(JsonPlayerProfileRepository.create(tmpDir.resolve("profile.json")));
+        final Path file = tmpDir.resolve("profile.json");
+        final var repo = JsonPlayerProfileRepository.create(file);
+        repo.persist(new PlayerProfileData("", 0, List.of("standard"), List.of()));
+        profile = new PlayerProfile(repo);
     }
 
     // ── default state ──
@@ -123,7 +127,9 @@ class PlayerProfileTest {
     @Test
     void profilePersistsAcrossInstances(@TempDir final Path tmpDir) {
         final Path file = tmpDir.resolve("profile.json");
-        final PlayerProfile p1 = new PlayerProfile(JsonPlayerProfileRepository.create(file));
+        final var repo = JsonPlayerProfileRepository.create(file);
+        repo.persist(new PlayerProfileData("", 0, List.of("standard"), List.of()));
+        final PlayerProfile p1 = new PlayerProfile(repo);
         p1.addCoins(250);
         p1.addOwnedPlane("heavy");
         p1.saveScore(500, "Bob");
