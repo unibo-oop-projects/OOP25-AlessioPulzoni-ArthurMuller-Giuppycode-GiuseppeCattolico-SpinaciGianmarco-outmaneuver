@@ -26,26 +26,38 @@ class DtoTest {
         plane.setPosition(new Vector2(150, 250));
         plane.setDirection(Math.PI / 3);
 
+        final var planeData = new EntityRenderData(
+                plane.getPosition().getX(),
+                plane.getPosition().getY(),
+                plane.getDirection(),
+                plane.getStats().getSpriteId());
+
         final var state = RenderState.builder()
-                .plane(plane)
+                .planeData(planeData)
                 .build();
 
-        final var planeData = state.getPlane();
-        assertEquals(150, planeData.getX(), EPS);
-        assertEquals(250, planeData.getY(), EPS);
-        assertEquals(Math.PI / 3, planeData.getDirectionRad(), EPS);
-        assertEquals("aircraft_standard", planeData.getSpriteId());
+        final var result = state.getPlane();
+        assertEquals(150, result.getX(), EPS);
+        assertEquals(250, result.getY(), EPS);
+        assertEquals(Math.PI / 3, result.getDirectionRad(), EPS);
+        assertEquals("aircraft_standard", result.getSpriteId());
     }
 
     @Test
     void testRenderStateImmutability() {
         final var plane = new PlaneImpl(new PlaneData("standard", 200, 3, 20, "aircraft_standard", 0));
+        final var planeData = new EntityRenderData(
+                plane.getPosition().getX(),
+                plane.getPosition().getY(),
+                plane.getDirection(),
+                plane.getStats().getSpriteId());
+
         final var state = RenderState.builder()
-                .plane(plane)
+                .planeData(planeData)
                 .build();
 
-        final var planeData = state.getPlane();
-        assertEquals(0, planeData.getX(), EPS);
+        final var result = state.getPlane();
+        assertEquals(0, result.getX(), EPS);
 
         plane.setPosition(new Vector2(999, 999));
         assertEquals(0, state.getPlane().getX(), EPS);

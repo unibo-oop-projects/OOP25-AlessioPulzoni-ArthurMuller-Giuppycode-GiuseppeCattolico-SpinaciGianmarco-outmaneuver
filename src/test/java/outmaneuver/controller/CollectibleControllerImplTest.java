@@ -29,7 +29,7 @@ class CollectibleControllerImplTest {
 
     private static class NoOpListener implements InternalEventListener {
         @Override
-        public void onInternalEvent(final InternalEvent evt, final Object data) {
+        public void onInternalEvent(final CollisionEvent evt, final Object data) {
         }
     }
 
@@ -119,7 +119,7 @@ class CollectibleControllerImplTest {
         collectibleCtrl.spawnEntity(col);
 
         final CollisionData cd = new CollisionData(plane, col, plane.getPosition());
-        collectibleCtrl.onInternalEvent(InternalEvent.PLANE_COLLECTIBLE_COLLISION, cd);
+        collectibleCtrl.onInternalEvent(CollisionEvent.PLANE_COLLECTIBLE_COLLISION, cd);
 
         assertFalse(collectibleCtrl.getEntities().contains(col), "Collectible should be removed on pickup");
         assertTrue(col.applied, "apply() should have been called");
@@ -130,7 +130,7 @@ class CollectibleControllerImplTest {
         final StubCollectible col = new StubCollectible(new Vector2(99999, 99999));
         collectibleCtrl.spawnEntity(col);
 
-        collectibleCtrl.onInternalEvent(InternalEvent.MISSILE_MISSILE_COLLISION, null);
+        collectibleCtrl.onInternalEvent(CollisionEvent.MISSILE_MISSILE_COLLISION, null);
 
         assertTrue(collectibleCtrl.getEntities().contains(col), "Collectible should remain untouched");
         assertFalse(col.applied, "apply() should not have been called");

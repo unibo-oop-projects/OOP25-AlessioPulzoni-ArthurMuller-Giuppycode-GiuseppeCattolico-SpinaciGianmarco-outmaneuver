@@ -49,14 +49,14 @@ public class CollisionEngine {
         final List<ICollidable> collectibles = filterByLayer(CollisionLayer.COLLECTIBLE);
 
         // Missile × Missile
-        checkPairs(missiles, missiles, InternalEvent.MISSILE_MISSILE_COLLISION);
+        checkPairs(missiles, missiles, CollisionEvent.MISSILE_MISSILE_COLLISION);
 
         // Missile × Plane
      
-        checkPairs(missiles, planes, InternalEvent.PLANE_MISSILE_COLLISION);
+        checkPairs(missiles, planes, CollisionEvent.PLANE_MISSILE_COLLISION);
 
         // Plane × Collectible
-        checkPairs(planes, collectibles, InternalEvent.PLANE_COLLECTIBLE_COLLISION);
+        checkPairs(planes, collectibles, CollisionEvent.PLANE_COLLECTIBLE_COLLISION);
     }
      
     private List<ICollidable> filterByLayer(final CollisionLayer layer) {
@@ -71,7 +71,7 @@ public class CollisionEngine {
      */
     private void checkPairs(final List<ICollidable> listA,
                             final List<ICollidable> listB,
-                            final InternalEvent eventType) {
+                            final CollisionEvent eventType) {
 
         final boolean sameLists = listA == listB;
 

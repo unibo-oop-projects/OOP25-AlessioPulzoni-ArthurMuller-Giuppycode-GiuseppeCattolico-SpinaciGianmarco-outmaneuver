@@ -190,4 +190,8 @@ public abstract class MissileImpl implements Missile {
     public String getMissileType() {
         return type;
     }
+
+    public double getDirection() {
+        return this.velocity.angle();
+    }
 }

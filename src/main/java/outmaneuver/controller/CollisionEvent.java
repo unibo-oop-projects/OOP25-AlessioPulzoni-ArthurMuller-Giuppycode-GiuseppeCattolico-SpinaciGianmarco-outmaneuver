@@ -1,6 +1,6 @@
 package outmaneuver.controller;
 
-public enum InternalEvent {
+public enum CollisionEvent {
     MISSILE_MISSILE_COLLISION,
     PLANE_MISSILE_COLLISION,
     PLANE_COLLECTIBLE_COLLISION

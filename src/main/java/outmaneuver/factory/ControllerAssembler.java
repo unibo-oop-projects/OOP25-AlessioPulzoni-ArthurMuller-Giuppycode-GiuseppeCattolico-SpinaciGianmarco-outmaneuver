@@ -5,12 +5,15 @@ import java.util.List;
 
 import outmaneuver.controller.CollisionEngine;
 import outmaneuver.controller.impl.missile.MissileSpawnDirector;
+import outmaneuver.controller.OutmaneuverEvent;
 import outmaneuver.controller.impl.CollectibleControllerImpl;
+import outmaneuver.controller.impl.GameEventControllerImpl;
 import outmaneuver.controller.impl.HudControllerImpl;
 import outmaneuver.controller.impl.InputControllerImpl;
 import outmaneuver.controller.impl.MasterControllerImpl;
 import outmaneuver.controller.impl.missile.MissileControllerImpl;
 import outmaneuver.controller.impl.PlaneControllerImpl;
+import outmaneuver.controller.impl.RenderStateAssemblerImpl;
 import outmaneuver.controller.impl.ScoreControllerImpl;
 import outmaneuver.model.area.entity.Entity;
 import outmaneuver.model.area.entity.missile.data.JsonMissileRepository;
@@ -26,17 +29,17 @@ import outmaneuver.util.json.JsonResourceLoader;
  */
 public final class ControllerAssembler {
 
-
-    private ControllerAssembler() { }
+    private ControllerAssembler() {
+    }
 
     /**
      * Immutable bundle of the assembled controllers.
      */
     public record Controllers(
-        InputControllerImpl input,
-        HudControllerImpl hud,
-        MasterControllerImpl master
-    ) { }
+            InputControllerImpl input,
+            HudControllerImpl hud,
+            MasterControllerImpl master) {
+    }
 
     /**
      * Creates every controller, wires them together, and returns the bundle.
@@ -44,8 +47,9 @@ public final class ControllerAssembler {
     public static Controllers assemble(final Plane plane, final GameSession session) {
         final InputControllerImpl input = new InputControllerImpl();
         final HudControllerImpl hud = new HudControllerImpl();
-        final MasterControllerImpl master = new MasterControllerImpl(hud);
+        final MasterControllerImpl master = new MasterControllerImpl();
         final CollisionEngine collision = new CollisionEngine(master);
+        final ScoreControllerImpl score = new ScoreControllerImpl(session);
 
         final List<Entity> sharedEntities = new ArrayList<>();
         final PlaneControllerImpl planeCtrl = new PlaneControllerImpl(input, sharedEntities, collision, session);
@@ -56,19 +60,20 @@ public final class ControllerAssembler {
                 JsonResourceLoader.forList("missiles.json", MissileData.class, GsonProvider.create()));
         final MissileControllerImpl missileCtrl = new MissileControllerImpl(
                 sharedEntities, collision, session, missileRepo, new MissileSpawnDirector());
-        planeCtrl.spawnEntity(plane); //tetnzione TODO: QUESTO NON VA BENE QUI, IL PLANE VA SPAWNATO ALTROVE
-
-        master.addEntityController(planeCtrl);
-        master.addEntityController(collectibleCtrl);
+                
         // [Alessio - missili] registra il controller dei missili nel master
-        master.addEntityController(missileCtrl);
-        master.setMissileController(missileCtrl);
         planeCtrl.spawnEntity(plane); //TODO: QUESTO NON VA BENE QUI, IL PLANE VA SPAWNATO ALTROVE
-
+        
         master.addEntityController(planeCtrl);
         master.addEntityController(collectibleCtrl);
+        master.addEntityController(missileCtrl);
         master.setCollisionEngine(collision);
-        master.setScoreController(new ScoreControllerImpl(session));
+        master.setScoreController(score); // va qui?
+        master.setSceneEntities(sharedEntities);
+        master.setStateAssembler(new RenderStateAssemblerImpl(hud)); // TODO: prender Hud, fix temporaneo, spostare
+        master.setEventController(new GameEventControllerImpl(
+                planeCtrl, hud, score,
+                () -> master.handleEvent(OutmaneuverEvent.GAME_OVER)));
         return new Controllers(input, hud, master);
     }
 }

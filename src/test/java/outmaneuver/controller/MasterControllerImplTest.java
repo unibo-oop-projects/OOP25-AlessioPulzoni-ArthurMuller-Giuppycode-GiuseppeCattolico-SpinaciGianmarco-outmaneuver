@@ -10,14 +10,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import outmaneuver.controller.impl.HudControllerImpl;
 import outmaneuver.controller.impl.MasterControllerImpl;
 import outmaneuver.model.area.entity.Entity;
 import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.model.area.entity.plane.PlaneData;
 import outmaneuver.model.area.entity.plane.PlaneImpl;
 import outmaneuver.util.Vector2;
+import outmaneuver.view.EntityRenderData;
 import outmaneuver.view.GameView;
+import outmaneuver.view.HudSnapshot;
 import outmaneuver.view.RenderState;
 
 class MasterControllerImplTest {
@@ -30,7 +31,11 @@ class MasterControllerImplTest {
      * without depending on a concrete EntityControllerImpl subclass.
      */
     private static final class FakeEntityController implements EntityController {
-        private final List<Entity> entities = new ArrayList<>();
+        private final List<Entity> entities;
+
+        FakeEntityController(final List<Entity> entities) {
+            this.entities = entities;
+        }
 
         @Override
         public void updateEntities(final long deltaMs) {
@@ -61,7 +66,30 @@ class MasterControllerImplTest {
         }
 
         @Override
-        public void onInternalEvent(final InternalEvent evt, final Object data) {
+        public void onInternalEvent(final CollisionEvent evt, final Object data) {
+        }
+    }
+
+    private static final class StubRenderStateAssembler implements RenderStateAssembler {
+        @Override
+        public RenderState assemble(final List<Entity> entities, final boolean paused) {
+            final Plane plane = entities.stream()
+                    .filter(e -> e instanceof Plane)
+                    .map(e -> (Plane) e)
+                    .findFirst()
+                    .orElse(null);
+            final EntityRenderData planeData = plane != null
+                    ? new EntityRenderData(plane.getPosition().getX(), plane.getPosition().getY(),
+                            plane.getDirection(), plane.getStats().getSpriteId())
+                    : null;
+            return RenderState.builder()
+                    .planeData(planeData)
+                    .hud(new HudSnapshot(0, 0, false, paused, 0))
+                    .build();
+        }
+
+        @Override
+        public void reset() {
         }
     }
 
@@ -69,6 +97,7 @@ class MasterControllerImplTest {
     private FakeEntityController entityCtrl;
     private MasterControllerImpl master;
     private SpyView spyView;
+    private List<Entity> sharedEntities;
 
     private static class SpyView implements GameView {
         final List<RenderState> frames = new ArrayList<>();
@@ -93,11 +122,15 @@ class MasterControllerImplTest {
     void setUp() {
         plane = new PlaneImpl(new PlaneData("standard", 200, 3, 20, "aircraft_standard", 0));
         spyView = new SpyView();
-        master = new MasterControllerImpl(new HudControllerImpl());
-        entityCtrl = new FakeEntityController();
+        master = new MasterControllerImpl();
+        sharedEntities = new ArrayList<>();
+        entityCtrl = new FakeEntityController(sharedEntities);
         entityCtrl.spawnEntity(plane);
         master.addEntityController(entityCtrl);
+        master.setSceneEntities(sharedEntities);
         master.setCollisionEngine(new CollisionEngine(master));
+        master.setStateAssembler(new StubRenderStateAssembler());
+        master.setEventController((evt, data) -> { });
     }
 
     @Test

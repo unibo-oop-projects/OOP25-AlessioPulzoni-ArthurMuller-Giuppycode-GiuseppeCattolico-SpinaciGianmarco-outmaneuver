@@ -5,6 +5,7 @@ import java.nio.file.Path;
 
 import javax.swing.JFrame;
 
+import outmaneuver.controller.RenderStateAssembler;
 import outmaneuver.factory.ControllerAssembler;
 import outmaneuver.factory.ScreenFactory;
 import outmaneuver.model.area.entity.plane.JsonPlaneRepository;
@@ -26,7 +27,8 @@ import outmaneuver.view.swing.UIManager;
 
 public final class AppBootstrapper {
 
-    private AppBootstrapper() { }
+    private AppBootstrapper() {
+    }
 
     public static void launch() {
         final PlaneRepository planeRepo = new JsonPlaneRepository(
@@ -35,6 +37,9 @@ public final class AppBootstrapper {
 
         final GameSession session = new GameSession();
         final ControllerAssembler.Controllers ctrl = ControllerAssembler.assemble(plane, session);
+
+        // TODO: renderstate assembler as abstract factory here instead of
+        // controllerAssembler (remove hud deps)
 
         final Path profilePath = JsonPlayerProfileRepository.defaultProfilePath();
         final boolean isFirstLaunch = !Files.exists(profilePath);

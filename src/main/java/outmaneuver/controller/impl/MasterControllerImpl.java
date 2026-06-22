@@ -3,53 +3,42 @@ package outmaneuver.controller.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import outmaneuver.controller.CollisionEngine;
+import outmaneuver.controller.CollisionEvent;
 import outmaneuver.controller.EntityController;
-import outmaneuver.controller.HudController;
-import outmaneuver.controller.InternalEvent;
+import outmaneuver.controller.GameEventController;
+import outmaneuver.controller.GameState;
 import outmaneuver.controller.MasterController;
 import outmaneuver.controller.OutmaneuverEvent;
+import outmaneuver.controller.RenderStateAssembler;
 import outmaneuver.controller.ScoreController;
-import outmaneuver.model.area.collision.CollisionData;
 import outmaneuver.model.area.entity.Entity;
-import outmaneuver.model.area.entity.collectibles.Collectible;
-import outmaneuver.model.area.entity.missile.Missile;
-import outmaneuver.model.area.entity.plane.Plane;
 
-import outmaneuver.view.EntityRenderData;
 import outmaneuver.view.GameView;
 import outmaneuver.view.RenderState;
 
 public final class MasterControllerImpl implements MasterController {
 
-    private static final long TICK_PERIOD_MS = 16;
-    private static final long MAX_DELTA_MS = 50;
+    private static final long TICK_MS = 16;
 
     private final List<GameView> views = new ArrayList<>();
     private final List<EntityController> entityControllers = new ArrayList<>();
-    private final HudController hudController;
+    private List<Entity> sceneEntities = List.of();
     private ScoreController scoreController;
-    private EntityController primaryEntityController;
-    // [Alessio - missili] il controller che gestisce i missili: a lui il master instrada gli eventi di collisione dei missili
-    private EntityController missileController;
+    private GameEventController eventController;
+    private RenderStateAssembler stateAssembler;
     private CollisionEngine collisionEngine;
-    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    private ScheduledFuture<?> tickTask;
-    private volatile boolean paused;
-    private long lastTickTime;
+    private Thread gameLoopThread;
+    private volatile boolean running;
+    private volatile GameState gameState;
     private Runnable onGameOver;
     private Runnable onPause;
     private Runnable onResume;
 
-    public MasterControllerImpl(final HudController hudController) {
-        this.hudController = Objects.requireNonNull(hudController, "hudController must not be null");
-        this.paused = false;
+    public MasterControllerImpl() {
+        this.gameState = GameState.PAUSED;
     }
 
     public void setOnGameOver(final Runnable onGameOver) {
@@ -64,11 +53,20 @@ public final class MasterControllerImpl implements MasterController {
         this.onResume = Objects.requireNonNull(onResume);
     }
 
+    public void setEventController(final GameEventController eventController) {
+        this.eventController = Objects.requireNonNull(eventController, "eventController must not be null");
+    }
+
+    public void setStateAssembler(final RenderStateAssembler stateAssembler) {
+        this.stateAssembler = Objects.requireNonNull(stateAssembler, "stateAssembler must not be null");
+    }
+
+    public void setSceneEntities(final List<Entity> sceneEntities) {
+        this.sceneEntities = Objects.requireNonNull(sceneEntities, "sceneEntities must not be null");
+    }
+
     public void addEntityController(final EntityController entityController) {
         Objects.requireNonNull(entityController, "entityController must not be null");
-        if (primaryEntityController == null) {
-            primaryEntityController = entityController;
-        }
         entityControllers.add(entityController);
     }
 
@@ -83,24 +81,19 @@ public final class MasterControllerImpl implements MasterController {
         this.scoreController = Objects.requireNonNull(scoreController, "scoreController must not be null");
     }
 
-    public void setMissileController(final EntityController missileController) {
-        this.missileController = Objects.requireNonNull(missileController, "missileController must not be null");
-    }
-
     @Override
     public void handleEvent(final OutmaneuverEvent event) {
         switch (event) {
             case TOGGLE_PAUSE -> {
-                if (paused) {
-                    paused = false;
-                    lastTickTime = System.nanoTime();
-                    if (onResume != null) {
-                        onResume.run();
-                    }
-                } else {
-                    paused = true;
+                if (gameState == GameState.RUNNING) {
+                    gameState = GameState.PAUSED;
                     if (onPause != null) {
                         onPause.run();
+                    }
+                } else if (gameState == GameState.PAUSED) {
+                    gameState = GameState.RUNNING;
+                    if (onResume != null) {
+                        onResume.run();
                     }
                 }
             }
@@ -109,6 +102,7 @@ public final class MasterControllerImpl implements MasterController {
                 System.exit(0);
             }
             case GAME_OVER -> {
+                gameState = GameState.GAME_OVER;
                 stop();
                 if (onGameOver != null) {
                     onGameOver.run();
@@ -129,87 +123,84 @@ public final class MasterControllerImpl implements MasterController {
             throw new IllegalStateException("at least one entityController must be added before start()");
         }
         Objects.requireNonNull(collisionEngine, "collisionEngine must be set before start()");
-        if (tickTask != null && !tickTask.isCancelled()) {
+        Objects.requireNonNull(stateAssembler, "stateAssembler must be set before start()");
+        Objects.requireNonNull(eventController, "eventController must be set before start()");
+        if (running) {
             return;
         }
-        paused = false;
-        lastTickTime = System.nanoTime();
-        hudController.reset();
+        gameState = GameState.RUNNING;
+        stateAssembler.reset();
         if (scoreController != null) {
             scoreController.reset();
         }
-        primaryEntityController.clearAll();
-        if (missileController != null) {
-            missileController.clearAll();
-        }
-        tickTask = scheduler.scheduleAtFixedRate(
-                this::tick, 0, TICK_PERIOD_MS, TimeUnit.MILLISECONDS);
+        entityControllers.forEach(EntityController::clearAll);
+        running = true;
+        gameLoopThread = new Thread(this::gameLoop, "game-loop");
+        gameLoopThread.setDaemon(true);
+        gameLoopThread.start();
     }
 
+    /**
+     * Non-blocking stop. Sets {@code running = false}; the game loop thread
+     * exits after its current iteration completes. The controller can be
+     * restarted via {@link #start()}.
+     */
     @Override
     public void stop() {
-        if (tickTask != null) {
-            tickTask.cancel(false);
-            tickTask = null;
-        }
+        running = false;
     }
 
+    /**
+     * Terminal shutdown. Interrupts the game loop thread and waits for it to
+     * terminate. The controller cannot be restarted after this call.
+     */
     @Override
     public void shutdown() {
         stop();
-        scheduler.shutdown();
+        if (gameLoopThread != null) {
+            gameLoopThread.interrupt();
+            try {
+                gameLoopThread.join(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            gameLoopThread = null;
+        }
     }
 
-    private void tick() {
-        if (paused) {
-            lastTickTime = System.nanoTime();
-            pushRenderFrame(true);
-            return;
-        }
+    private void gameLoop() {
+        while (running && !Thread.currentThread().isInterrupted()) {
+            final long frameStart = System.nanoTime();
 
-        final long now = System.nanoTime();
-        long deltaMs = (now - lastTickTime) / 1_000_000;
-        lastTickTime = now;
+            if (gameState == GameState.RUNNING) {
+                updateFrame();
+            }
 
-        if (deltaMs > MAX_DELTA_MS) {
-            deltaMs = MAX_DELTA_MS;
-        }
-        if (deltaMs <= 0) {
-            return;
-        }
+            renderFrame();
 
-        final long frameDeltaMs = deltaMs;
-        entityControllers.forEach(ec -> ec.updateEntities(frameDeltaMs));
+            final long elapsedMs = (System.nanoTime() - frameStart) / 1_000_000;
+            final long sleepMs = TICK_MS - elapsedMs;
+            if (sleepMs > 0) {
+                try {
+                    Thread.sleep(sleepMs);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        }
+    }
+
+    private void updateFrame() {
+        entityControllers.forEach(ec -> ec.updateEntities(TICK_MS));
         collisionEngine.tick();
         if (scoreController != null) {
-            scoreController.onTick(deltaMs);
+            scoreController.onTick(TICK_MS);
         }
-        pushRenderFrame(false);
     }
 
-    private void pushRenderFrame(final boolean isPaused) {
-        final List<Entity> entities = primaryEntityController.getEntities();
-        final Plane plane = entities.stream()
-                .filter(e -> e instanceof Plane)
-                .map(e -> (Plane) e)
-                .findFirst()
-                .orElse(null);
-        final List<EntityRenderData> collectibles = entities.stream()
-                .filter(e -> e instanceof Collectible)
-                .map(e -> new EntityRenderData(e.getPosition().getX(), e.getPosition().getY(), 0, "collectible"))
-                .toList();
-        // [Alessio - missili] estrae i dati di render dei missili per la view
-        final List<EntityRenderData> missiles = entities.stream()
-                .filter(e -> e instanceof Missile)
-                .map(e -> ((Missile) e).getRenderData())
-                .toList();
-                
-        final RenderState state = RenderState.builder()
-                .plane(plane)
-                .hud(hudController.buildSnapshot(plane, isPaused))
-                .collectibles(collectibles)
-                .missiles(missiles)
-                .build();
+    private void renderFrame() {
+        final RenderState state = stateAssembler.assemble(sceneEntities, gameState == GameState.PAUSED);
         notifyViews(v -> v.renderFrame(state));
     }
 
@@ -218,36 +209,9 @@ public final class MasterControllerImpl implements MasterController {
     }
 
     @Override
-    public void onInternalEvent(final InternalEvent evt, final Object data) {
-        if (!(data instanceof final CollisionData collisionData)) {
-            return;
-        }
-        if (primaryEntityController != null) {
-            primaryEntityController.onInternalEvent(evt, collisionData);
-        }
-        switch (evt) {
-            case PLANE_MISSILE_COLLISION -> {
-                //notifyViews(v -> v.onPlaneHit(collisionData)); da implementare
-                final Plane plane = (Plane) collisionData.getEntityB();
-                if (!plane.isShieldActive()) {
-                    // Gestisci danno al piano, es. riduci salute o simili
-                    handleEvent(OutmaneuverEvent.GAME_OVER);
-                }
-            }
-            case PLANE_COLLECTIBLE_COLLISION -> {
-                if (collisionData.getEntityB() instanceof final Collectible collectible) {
-                    hudController.onInternalEvent(InternalEvent.PLANE_COLLECTIBLE_COLLISION, collectible);
-                    if (scoreController != null) {
-                        scoreController.onInternalEvent(InternalEvent.PLANE_COLLECTIBLE_COLLISION, collectible);
-                    }
-                }
-            }
-            case MISSILE_MISSILE_COLLISION -> {
-                // notifyViews(v -> v.onMissileCollision(collisionData)); da implementare
-                if (scoreController != null) {
-                    scoreController.onInternalEvent(InternalEvent.MISSILE_MISSILE_COLLISION, collisionData);
-                }
-            }
+    public void onInternalEvent(final CollisionEvent evt, final Object data) {
+        if (eventController != null) {
+            eventController.onInternalEvent(evt, data);
         }
     }
 }

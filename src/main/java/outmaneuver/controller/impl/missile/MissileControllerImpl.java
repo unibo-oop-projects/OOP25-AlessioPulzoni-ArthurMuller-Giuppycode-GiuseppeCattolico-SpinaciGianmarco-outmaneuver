@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.Random;
 
 import outmaneuver.controller.CollisionEngine;
-import outmaneuver.controller.InternalEvent;
+import outmaneuver.controller.CollisionEvent;
 import outmaneuver.controller.impl.EntityControllerImpl;
 import outmaneuver.model.area.collision.CollisionData;
 import outmaneuver.model.area.collision.ICollidable;
@@ -83,7 +83,7 @@ public final class MissileControllerImpl extends EntityControllerImpl {
 
     // TODO: sistemare la logica collisioni non va qui (fatta solo per fare funzionare)
     @Override
-    public void onInternalEvent(final InternalEvent evt, final Object data) {
+    public void onInternalEvent(final CollisionEvent evt, final Object data) {
         if (!(data instanceof final CollisionData cd)) {
             return;
         }

@@ -40,14 +40,14 @@ class HudControllerImplTest {
     @Test
     void starsIncrementOnStarCollected() {
         final StarCollectible star = new StarCollectible(Vector2.ZERO, 10);
-        hud.onInternalEvent(InternalEvent.PLANE_COLLECTIBLE_COLLISION, star);
-        hud.onInternalEvent(InternalEvent.PLANE_COLLECTIBLE_COLLISION, star);
+        hud.onInternalEvent(CollisionEvent.PLANE_COLLECTIBLE_COLLISION, star);
+        hud.onInternalEvent(CollisionEvent.PLANE_COLLECTIBLE_COLLISION, star);
         assertEquals(2, hud.buildSnapshot(plane, false).stars());
     }
 
     @Test
     void resetClearsStars() {
-        hud.onInternalEvent(InternalEvent.PLANE_COLLECTIBLE_COLLISION, new StarCollectible(Vector2.ZERO, 10));
+        hud.onInternalEvent(CollisionEvent.PLANE_COLLECTIBLE_COLLISION, new StarCollectible(Vector2.ZERO, 10));
         hud.reset();
         assertEquals(0, hud.buildSnapshot(plane, false).stars());
     }

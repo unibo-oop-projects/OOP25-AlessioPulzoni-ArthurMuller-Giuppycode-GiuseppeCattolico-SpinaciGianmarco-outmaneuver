@@ -99,15 +99,8 @@ class PlaneImplTest {
 
     @Test
     void testEffectiveSpeedWithMultiplier() {
-        plane.applySpeedMultiplier(2.0, 100_000);
+        plane.applySpeedMultiplier(2.0);
         assertEquals(400.0, plane.getEffectiveSpeed(), EPS);
-    }
-
-    @Test
-    void testEffectiveSpeedAfterMultiplierExpiry() throws InterruptedException {
-        plane.applySpeedMultiplier(2.0, 1);
-        Thread.sleep(5);
-        assertEquals(200.0, plane.getEffectiveSpeed(), EPS);
     }
 
     @Test

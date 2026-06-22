@@ -29,4 +29,6 @@ public interface Missile extends Entity {
     // --- RENDER ---
     EntityRenderData getRenderData();
     String getMissileType();
+
+    double getDirection();
 }

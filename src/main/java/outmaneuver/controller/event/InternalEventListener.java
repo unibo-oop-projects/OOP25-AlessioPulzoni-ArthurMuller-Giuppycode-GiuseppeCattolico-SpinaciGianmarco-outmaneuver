@@ -1,8 +1,8 @@
 package outmaneuver.controller.event;
 
-import outmaneuver.controller.InternalEvent;
+import outmaneuver.controller.CollisionEvent;
 
 @FunctionalInterface
 public interface InternalEventListener {
-    void onInternalEvent(InternalEvent evt, Object data);
+    void onInternalEvent(CollisionEvent evt, Object data);
 }

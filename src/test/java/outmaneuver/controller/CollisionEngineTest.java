@@ -16,11 +16,11 @@ import outmaneuver.util.Vector2;
 class CollisionEngineTest {
 
     private static class RecordingListener implements InternalEventListener {
-        final List<InternalEvent> events = new ArrayList<>();
+        final List<CollisionEvent> events = new ArrayList<>();
         final List<Object> payloads = new ArrayList<>();
 
         @Override
-        public void onInternalEvent(final InternalEvent evt, final Object data) {
+        public void onInternalEvent(final CollisionEvent evt, final Object data) {
             events.add(evt);
             payloads.add(data);
         }
@@ -44,10 +44,10 @@ class CollisionEngineTest {
         engine.register(b);
         engine.tick();
 
-        assertTrue(listener.events.contains(InternalEvent.MISSILE_MISSILE_COLLISION),
+        assertTrue(listener.events.contains(CollisionEvent.MISSILE_MISSILE_COLLISION),
                 "Overlapping missiles should trigger a missile-missile collision event");
 
-        final CollisionData data = (CollisionData) payloadFor(InternalEvent.MISSILE_MISSILE_COLLISION);
+        final CollisionData data = (CollisionData) payloadFor(CollisionEvent.MISSILE_MISSILE_COLLISION);
         assertTrue((data.getEntityA() == a && data.getEntityB() == b)
                 || (data.getEntityA() == b && data.getEntityB() == a));
     }
@@ -100,7 +100,7 @@ class CollisionEngineTest {
         assertTrue(listener.events.isEmpty(), "A single entity must not collide with itself");
     }
 
-    private Object payloadFor(final InternalEvent event) {
+    private Object payloadFor(final CollisionEvent event) {
         final int index = listener.events.indexOf(event);
         assertTrue(index >= 0);
         return listener.payloads.get(index);

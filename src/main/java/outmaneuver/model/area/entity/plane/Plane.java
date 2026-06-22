@@ -23,7 +23,9 @@ public interface Plane extends Entity {
 
     void deactivateShield();
 
-    void applySpeedMultiplier(double factor, long durationMs);
+    void applySpeedMultiplier(double factor);
+
+    void resetSpeedMultiplier();
 
     double getEffectiveSpeed();
 }

@@ -23,7 +23,7 @@ class CollectiblesTest {
         final Plane plane = mock(Plane.class);
         final GameSession session = new GameSession();
         new SpeedBoost(Vector2.ZERO, 2.0, 3000L).apply(plane, session);
-        verify(plane).applySpeedMultiplier(2.0, 3000);
+        verify(plane).applySpeedMultiplier(2.0);
     }
 
     @Test
