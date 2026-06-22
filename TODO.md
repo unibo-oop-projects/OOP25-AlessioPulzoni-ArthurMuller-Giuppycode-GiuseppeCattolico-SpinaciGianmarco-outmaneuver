@@ -1,3 +1,7 @@
+- abstract renderframe assember initialize in bootstrapper
+- remove hud dependency
+- standardize time reference in planeImpl
+
 - ! fix shield virtualThread possible race condition
   - reuse SpeedBoost solution if right
 
