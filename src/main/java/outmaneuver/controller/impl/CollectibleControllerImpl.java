@@ -1,10 +1,13 @@
 package outmaneuver.controller.impl;
 
-
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
 import outmaneuver.controller.CollisionEngine;
+import outmaneuver.controller.event.EffectEvent;
+import outmaneuver.model.area.effect.Effect;
 import outmaneuver.model.area.effect.EffectImpl;
 import outmaneuver.model.area.entity.Entity;
 import outmaneuver.model.area.entity.collectibles.Collectible;
@@ -19,6 +22,7 @@ public final class CollectibleControllerImpl extends EntityControllerImpl {
     private static final long SPAWN_INTERVAL_MS = 3000;
 
     private final Random random = new Random();
+    private final List<Effect> activeEffects = new ArrayList<>();
     private long accumulatedMs;
 
     public CollectibleControllerImpl(
@@ -30,6 +34,38 @@ public final class CollectibleControllerImpl extends EntityControllerImpl {
     @Override
     public void updateEntities(final long deltaMs) {
         tickSpawn(deltaMs);
+        tickEffect(deltaMs);
+    }
+
+    public void addEffect(final Effect effect) {
+        activeEffects.add(effect);
+        onInternalEvent(EffectEvent.EFFECT_APPLIED, effect);
+    }
+
+    public boolean hasEffect(final Class<? extends Effect> type) {
+        return activeEffects.stream().anyMatch(e -> type.isInstance(e));
+    }
+
+    public double getEffectMultiplier() {
+        return activeEffects.stream()
+                .mapToDouble(Effect::getMultiplier)
+                .filter(m -> m > 0.0)
+                .findFirst()
+                .orElse(1.0);
+    }
+
+    private void tickEffect(final long deltaMs) {
+        activeEffects.forEach(e -> e.update(deltaMs));
+
+        final Iterator<Effect> it = activeEffects.iterator();
+        while (it.hasNext()) {
+            final Effect effect = it.next();
+            effect.update(deltaMs);
+            if (!effect.isActive()) {
+                onInternalEvent(EffectEvent.EFFECT_EXPIRED, effect.getClass());
+                it.remove();
+            }
+        }
     }
 
     private void tickSpawn(final long deltaMs) {
@@ -73,11 +109,9 @@ public final class CollectibleControllerImpl extends EntityControllerImpl {
 
     private Collectible randomCollectible(final Vector2 pos) {
         return switch (random.nextInt(3)) {
-            case 0  -> new StarCollectible(pos, 10);
-            case 1  -> new SpeedBoost(pos, new EffectImpl( 2.0, 3000L));
+            case 0 -> new StarCollectible(pos, 10);
+            case 1 -> new SpeedBoost(pos, new EffectImpl(2.0, 3000L));
             default -> new ShieldPowerUp(pos, new EffectImpl(5000L));
         };
     }
-
-
 }
