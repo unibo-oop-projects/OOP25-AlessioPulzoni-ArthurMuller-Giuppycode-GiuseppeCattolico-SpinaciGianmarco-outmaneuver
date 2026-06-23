@@ -1,21 +1,17 @@
-package outmaneuver.controller.impl;
+package outmaneuver.controller.event;
 
 import java.util.Objects;
 
 import outmaneuver.controller.EntityController;
-import outmaneuver.controller.GameEventController;
 import outmaneuver.controller.HudController;
 import outmaneuver.controller.ScoreController;
-import outmaneuver.controller.event.CollisionEvent;
-import outmaneuver.controller.event.Event;
-
 import outmaneuver.model.area.collision.CollisionData;
 import outmaneuver.model.area.entity.Entity;
 import outmaneuver.model.area.entity.collectibles.Collectible;
 import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.model.session.IGameSession;
 
-public final class GameEventControllerImpl implements GameEventController {
+public final class EventController implements InternalEventListener {
 
     private final EntityController primaryEntityController;
     private final HudController hudController;
@@ -23,7 +19,7 @@ public final class GameEventControllerImpl implements GameEventController {
     private final IGameSession session;
     private final Runnable onGameOver;
 
-    public GameEventControllerImpl(
+    public EventController(
             final EntityController primaryEntityController,
             final HudController hudController,
             final ScoreController scoreController,

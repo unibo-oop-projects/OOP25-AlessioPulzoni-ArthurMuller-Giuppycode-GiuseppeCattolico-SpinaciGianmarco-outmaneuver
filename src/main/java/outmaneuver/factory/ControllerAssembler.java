@@ -5,8 +5,8 @@ import java.util.List;
 
 import outmaneuver.controller.CollisionEngine;
 import outmaneuver.controller.event.GameEvent;
+import outmaneuver.controller.event.EventController;
 import outmaneuver.controller.impl.CollectibleControllerImpl;
-import outmaneuver.controller.impl.GameEventControllerImpl;
 import outmaneuver.controller.impl.HudControllerImpl;
 import outmaneuver.controller.impl.InputControllerImpl;
 import outmaneuver.controller.impl.MasterControllerImpl;
@@ -71,7 +71,7 @@ public final class ControllerAssembler {
         master.setScoreController(score); // va qui?
         master.setSceneEntities(sharedEntities);
         master.setStateAssembler(new RenderStateAssemblerImpl(hud)); // TODO: prender Hud, fix temporaneo, spostare
-        master.setEventController(new GameEventControllerImpl(
+        master.setEventController(new EventController(
                 planeCtrl, hud, score, session,
                 () -> master.handleEvent(GameEvent.GAME_OVER)));
         return new Controllers(input, hud, master);

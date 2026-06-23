@@ -8,8 +8,8 @@ import java.util.function.Consumer;
 import outmaneuver.controller.CollisionEngine;
 import outmaneuver.controller.event.Event;
 import outmaneuver.controller.EntityController;
-import outmaneuver.controller.GameEventController;
 import outmaneuver.controller.event.GameEvent;
+import outmaneuver.controller.event.InternalEventListener;
 import outmaneuver.controller.MasterController;
 import outmaneuver.controller.RenderStateAssembler;
 import outmaneuver.controller.ScoreController;
@@ -26,7 +26,7 @@ public final class MasterControllerImpl implements MasterController {
     private final List<EntityController> entityControllers = new ArrayList<>();
     private List<Entity> sceneEntities = List.of();
     private ScoreController scoreController;
-    private GameEventController eventController;
+    private InternalEventListener eventController;
     private RenderStateAssembler stateAssembler;
     private CollisionEngine collisionEngine;
     private Thread gameLoopThread;
@@ -52,7 +52,7 @@ public final class MasterControllerImpl implements MasterController {
         this.onResume = Objects.requireNonNull(onResume);
     }
 
-    public void setEventController(final GameEventController eventController) {
+    public void setEventController(final InternalEventListener eventController) {
         this.eventController = Objects.requireNonNull(eventController, "eventController must not be null");
     }
 
