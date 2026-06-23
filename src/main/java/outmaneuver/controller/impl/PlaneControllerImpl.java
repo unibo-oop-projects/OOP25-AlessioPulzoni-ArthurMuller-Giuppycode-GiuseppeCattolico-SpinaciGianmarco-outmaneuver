@@ -14,6 +14,7 @@ import outmaneuver.util.Vector2;
 public final class PlaneControllerImpl extends EntityControllerImpl {
 
     private final InputController inputController;
+    private Plane plane;
 
     public PlaneControllerImpl(final InputController inputController,
                                 final List<Entity> entities,
@@ -21,7 +22,24 @@ public final class PlaneControllerImpl extends EntityControllerImpl {
         super(entities, collisionEngine);
         this.inputController = Objects.requireNonNull(inputController);
     }
-    
+
+    @Override
+    public void spawnEntity(final Entity entity) {
+        if (entity instanceof final Plane p) {
+            plane = p;
+            planeReset(p);
+        }
+        super.spawnEntity(entity);
+    }
+
+    @Override
+    public void clearAll() {
+        inputController.reset();
+        removeAll();
+        if (plane != null) {
+            spawnEntity(plane);
+        }
+    }
 
     @Override
     public void updateEntities(final long deltaMs) {

@@ -7,7 +7,6 @@ import outmaneuver.controller.CollisionEngine;
 import outmaneuver.controller.EntityController;
 import outmaneuver.controller.event.Event;
 import outmaneuver.model.area.entity.Entity;
-import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.view.GameView;
 
 public abstract class EntityControllerImpl implements EntityController {
@@ -43,7 +42,7 @@ public abstract class EntityControllerImpl implements EntityController {
     }
     
 
-    // Rimozione
+    // Rimozione di una singola entity
 
     @Override
     public void removeEntity(final Entity entity) {
@@ -53,14 +52,12 @@ public abstract class EntityControllerImpl implements EntityController {
 
     @Override
     public void clearAll() {
-        entities.removeIf(e -> {
-            if (e instanceof Plane) {
-            
-                return false; // tieni il piano
-            }
-            if (!(e instanceof Plane)) collisionEngine.unregister(e);
-            return true; // rimuovi tutto il resto
-        });
+        // gestito dai controller specifici
+    }
+
+    protected void removeAll() {
+        entities.forEach(collisionEngine::unregister);
+        entities.clear();
     }
 
     @Override
