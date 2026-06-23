@@ -33,7 +33,7 @@ public class CollisionEngine {
     public void unregister(final ICollidable entity) {
         entities.remove(entity);
     }
-    
+
     /**
      * Itera su tutte le coppie rilevanti e verifica l'intersezione delle hitbox.
      * Quando rileva un hit chiama {@code eventListener.onInternalEvent()} con

@@ -110,9 +110,8 @@ public final class MissileControllerImpl extends EntityControllerImpl {
 
     @Override
     public void clearAll() {
-        super.clearAll();
         startDelay    = START_DELAY;
-        spawnTimer    = INITIAL_INTERVAL;  // primo missile subito dopo la tregua anche a ogni nuova partita
+        spawnTimer    = INITIAL_INTERVAL;
         elapsedTime   = 0;
         spawnInterval = INITIAL_INTERVAL;
     }
