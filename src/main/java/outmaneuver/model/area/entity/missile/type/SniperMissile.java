@@ -7,10 +7,6 @@ import outmaneuver.model.area.entity.missile.data.MissileData;
 import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.util.Vector2;
 
-/**
- * Va dritto nella direzione di spawn (non insegue il giocatore). Se esce dallo
- * schermo viene eliminato, non rediretto verso il giocatore.
- */
 public final class SniperMissile extends MissileImpl {
 
     public SniperMissile(final Vector2 spawnPos, final MissileData data) {
@@ -19,7 +15,6 @@ public final class SniperMissile extends MissileImpl {
 
     @Override
     protected void steer(final Vector2 target) {
-        // niente sterzata: mantiene la direzione iniziale
     }
 
     @Override

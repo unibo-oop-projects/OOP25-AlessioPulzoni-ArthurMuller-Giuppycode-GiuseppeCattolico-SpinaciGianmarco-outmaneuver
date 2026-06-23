@@ -8,14 +8,7 @@ import outmaneuver.model.area.collision.Hitbox;
 import outmaneuver.model.area.entity.missile.data.MissileData;
 import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.util.Vector2;
-import outmaneuver.view.EntityRenderData;
 
-/**
- * Base comune dei missili: posizione/movimento, ciclo di vita, effetti (slow) e render.
- * Il comportamento di default e' "insegue il giocatore"; i tipi speciali ridefiniscono
- * solo cio' che serve (update, checkBounce, onCollision, redirectIfOutOfBounds).
- * Tutti i parametri arrivano dal {@link MissileData} (caricato dal JSON).
- */
 public abstract class MissileImpl implements Missile {
 
     // --- POSIZIONE E MOVIMENTO ---
@@ -179,18 +172,11 @@ public abstract class MissileImpl implements Missile {
     }
 
     @Override
-    public EntityRenderData getRenderData() {
-        return new EntityRenderData(
-                position.getX(), position.getY(),
-                velocity.angle(),
-                type);
-    }
-
-    @Override
     public String getMissileType() {
         return type;
     }
 
+    @Override
     public double getDirection() {
         return this.velocity.angle();
     }
