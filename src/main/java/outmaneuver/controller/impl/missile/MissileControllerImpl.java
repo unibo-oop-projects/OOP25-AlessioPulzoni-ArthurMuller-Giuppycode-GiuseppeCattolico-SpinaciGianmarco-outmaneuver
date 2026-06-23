@@ -17,7 +17,6 @@ import outmaneuver.model.area.entity.missile.Missile;
 import outmaneuver.model.area.entity.missile.data.MissileData;
 import outmaneuver.model.area.entity.missile.data.MissileRepository;
 import outmaneuver.model.area.entity.plane.Plane;
-import outmaneuver.model.session.IGameSession;
 import outmaneuver.util.Vector2;
 
 /**
@@ -55,10 +54,9 @@ public final class MissileControllerImpl extends EntityControllerImpl {
 
     public MissileControllerImpl(final List<Entity> entities,
                                  final CollisionEngine collisionEngine,
-                                 final IGameSession session,
                                  final MissileRepository missileRepo,
                                  final MissileSpawnDirector spawnDirector) {
-        super(entities, collisionEngine, session);
+        super(entities, collisionEngine);
         this.missileRepo = Objects.requireNonNull(missileRepo, "missileRepo must not be null");
         this.spawnDirector = Objects.requireNonNull(spawnDirector, "spawnDirector must not be null");
     }

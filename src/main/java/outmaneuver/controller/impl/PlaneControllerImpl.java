@@ -9,7 +9,6 @@ import outmaneuver.controller.InputController;
 import outmaneuver.model.area.entity.Entity;
 import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.model.area.entity.plane.TurnState;
-import outmaneuver.model.session.IGameSession;
 import outmaneuver.util.Vector2;
 
 public final class PlaneControllerImpl extends EntityControllerImpl {
@@ -18,9 +17,8 @@ public final class PlaneControllerImpl extends EntityControllerImpl {
 
     public PlaneControllerImpl(final InputController inputController,
                                 final List<Entity> entities,
-                                final CollisionEngine collisionEngine,
-                                final IGameSession session) {
-        super(entities, collisionEngine, session);
+                                final CollisionEngine collisionEngine) {
+        super(entities, collisionEngine);
         this.inputController = Objects.requireNonNull(inputController);
     }
     
@@ -56,7 +54,6 @@ public final class PlaneControllerImpl extends EntityControllerImpl {
         return normalised;
     }
     
-
       protected void planeReset(final Plane plane) {
         plane.setPosition(Vector2.ZERO);
         plane.setDirection(0);

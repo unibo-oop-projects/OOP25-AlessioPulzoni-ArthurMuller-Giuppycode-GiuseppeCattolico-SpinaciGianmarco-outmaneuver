@@ -11,9 +11,7 @@ import outmaneuver.model.area.entity.collectibles.ShieldPowerUp;
 import outmaneuver.model.area.entity.collectibles.SpeedBoost;
 import outmaneuver.model.area.entity.collectibles.StarCollectible;
 import outmaneuver.model.area.entity.plane.Plane;
-import outmaneuver.model.session.IGameSession;
 import outmaneuver.util.Vector2;
-import outmaneuver.controller.event.Event;
 
 public final class CollectibleControllerImpl extends EntityControllerImpl {
 
@@ -24,19 +22,13 @@ public final class CollectibleControllerImpl extends EntityControllerImpl {
 
     public CollectibleControllerImpl(
             final List<Entity> entities,
-            final CollisionEngine collisionEngine,
-            final IGameSession session) {
-        super(entities, collisionEngine, session);
+            final CollisionEngine collisionEngine) {
+        super(entities, collisionEngine);
     }
 
     @Override
     public void updateEntities(final long deltaMs) {
         tickSpawn(deltaMs);
-    }
-
-    @Override
-    public void onInternalEvent(final Event evt, final Object data) {
-        super.onInternalEvent(evt, data);
     }
 
     private void tickSpawn(final long deltaMs) {

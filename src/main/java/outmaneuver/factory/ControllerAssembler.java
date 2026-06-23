@@ -52,14 +52,14 @@ public final class ControllerAssembler {
         final ScoreControllerImpl score = new ScoreControllerImpl(session);
 
         final List<Entity> sharedEntities = new ArrayList<>();
-        final PlaneControllerImpl planeCtrl = new PlaneControllerImpl(input, sharedEntities, collision, session);
+        final PlaneControllerImpl planeCtrl = new PlaneControllerImpl(input, sharedEntities, collision);
         final CollectibleControllerImpl collectibleCtrl = new CollectibleControllerImpl(
-                sharedEntities, collision, session);
+                sharedEntities, collision);
         // [Alessio - missili] carica i dati dal JSON e crea il controller dei missili (repository + director)
         final MissileRepository missileRepo = new JsonMissileRepository(
                 JsonResourceLoader.forList("missiles.json", MissileData.class, GsonProvider.create()));
         final MissileControllerImpl missileCtrl = new MissileControllerImpl(
-                sharedEntities, collision, session, missileRepo, new MissileSpawnDirector());
+                sharedEntities, collision, missileRepo, new MissileSpawnDirector());
                 
         // [Alessio - missili] registra il controller dei missili nel master
         planeCtrl.spawnEntity(plane); //TODO: QUESTO NON VA BENE QUI, IL PLANE VA SPAWNATO ALTROVE
@@ -72,7 +72,7 @@ public final class ControllerAssembler {
         master.setSceneEntities(sharedEntities);
         master.setStateAssembler(new RenderStateAssemblerImpl(hud)); // TODO: prender Hud, fix temporaneo, spostare
         master.setEventController(new GameEventControllerImpl(
-                planeCtrl, hud, score,
+                planeCtrl, hud, score, session,
                 () -> master.handleEvent(GameEvent.GAME_OVER)));
         return new Controllers(input, hud, master);
     }
