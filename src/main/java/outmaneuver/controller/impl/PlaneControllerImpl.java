@@ -15,10 +15,11 @@ public final class PlaneControllerImpl extends EntityControllerImpl {
 
     private final InputController inputController;
     private Plane plane;
+    private double speedMutltiplier;
 
     public PlaneControllerImpl(final InputController inputController,
-                                final List<Entity> entities,
-                                final CollisionEngine collisionEngine) {
+            final List<Entity> entities,
+            final CollisionEngine collisionEngine) {
         super(entities, collisionEngine);
         this.inputController = Objects.requireNonNull(inputController);
     }
@@ -50,15 +51,20 @@ public final class PlaneControllerImpl extends EntityControllerImpl {
 
                 p.setTurnState(turnDir < 0 ? TurnState.LEFT
                         : turnDir > 0 ? TurnState.RIGHT
-                        : TurnState.NONE);
+                                : TurnState.NONE);
 
                 final double newDir = p.getDirection() + turnDir * p.getStats().getTurnRate() * deltaSec;
                 p.setDirection(normaliseAngle(newDir));
 
-                final Vector2 velocity = Vector2.fromAngle(p.getDirection()).scale(p.getEffectiveSpeed());
+                final double speed = p.getStats().getBaseSpeed() * speedMutltiplier;
+                final Vector2 velocity = Vector2.fromAngle(p.getDirection()).scale(speed);
                 p.setPosition(p.getPosition().add(velocity.scale(deltaSec)));
             }
         }
+    }
+
+    public void setSpeedMultiplier(double multiplier) {
+        this.speedMutltiplier = multiplier;
     }
 
     private static double normaliseAngle(final double angle) {
@@ -71,8 +77,8 @@ public final class PlaneControllerImpl extends EntityControllerImpl {
         }
         return normalised;
     }
-    
-      protected void planeReset(final Plane plane) {
+
+    protected void planeReset(final Plane plane) {
         plane.setPosition(Vector2.ZERO);
         plane.setDirection(0);
         plane.setTurnState(TurnState.NONE);
