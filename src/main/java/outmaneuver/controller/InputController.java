@@ -8,4 +8,5 @@ public interface InputController {
 
     double getTurnDirection();
 
+    void reset();
 }

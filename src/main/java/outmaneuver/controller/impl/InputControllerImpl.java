@@ -24,6 +24,11 @@ public final class InputControllerImpl implements InputController {
     }
 
     @Override
+    public synchronized void reset() {
+        pressedKeys.clear();
+    }
+
+    @Override
     public synchronized double getTurnDirection() {
         final boolean left = pressedKeys.contains(KEY_LEFT_A)
                 || pressedKeys.contains(KEY_LEFT_ARROW);
