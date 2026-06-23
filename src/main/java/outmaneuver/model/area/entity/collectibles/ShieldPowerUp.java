@@ -29,4 +29,9 @@ public final class ShieldPowerUp extends AbstractCollectible {
             plane.deactivateShield();
         });
     }
+
+    @Override
+    public String getCollectibleType() {
+        return "shield";
+    }
 }

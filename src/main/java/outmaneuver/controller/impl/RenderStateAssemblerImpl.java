@@ -1,7 +1,6 @@
 package outmaneuver.controller.impl;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import outmaneuver.controller.HudController;
@@ -9,9 +8,6 @@ import outmaneuver.controller.RenderStateAssembler;
 
 import outmaneuver.model.area.entity.Entity;
 import outmaneuver.model.area.entity.collectibles.Collectible;
-import outmaneuver.model.area.entity.collectibles.ShieldPowerUp;
-import outmaneuver.model.area.entity.collectibles.SpeedBoost;
-import outmaneuver.model.area.entity.collectibles.StarCollectible;
 import outmaneuver.model.area.entity.missile.Missile;
 import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.view.EntityRenderData;
@@ -19,13 +15,6 @@ import outmaneuver.view.HudSnapshot;
 import outmaneuver.view.RenderState;
 
 public final class RenderStateAssemblerImpl implements RenderStateAssembler {
-
-    // Mappa tipo-di-collectible -> id sprite. Sta QUI (lato render), NON nel model: il dominio
-    // non deve conoscere gli sprite. Aggiungere un nuovo collectible = aggiungere una riga qui.
-    private static final Map<Class<? extends Collectible>, String> COLLECTIBLE_SPRITE_IDS = Map.of(
-            StarCollectible.class, "collectible_star",
-            SpeedBoost.class,      "collectible_speed",
-            ShieldPowerUp.class,   "collectible_shield");
 
     private final HudController hudController;
 
@@ -72,8 +61,8 @@ public final class RenderStateAssemblerImpl implements RenderStateAssembler {
                 .map(c -> new EntityRenderData(
                         c.getPosition().getX(),
                         c.getPosition().getY(),
-                        0,                  // i collectible non hanno orientamento
-                        COLLECTIBLE_SPRITE_IDS.getOrDefault(c.getClass(), "collectible_star")))
+                        0,                       // i collectible non hanno orientamento
+                        c.getCollectibleType())) // tipo di dominio, come getMissileType()
                 .toList();
     }
 

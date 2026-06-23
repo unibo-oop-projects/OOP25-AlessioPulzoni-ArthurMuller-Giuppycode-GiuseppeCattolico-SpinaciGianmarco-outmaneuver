@@ -59,7 +59,7 @@ public final class SwingGameView extends JPanel implements GameView {
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
 
-        g2d.setColor(new Color(20, 20, 40));
+        g2d.setColor(new Color(180, 225, 245)); // azzurrino chiaro (cielo)
         g2d.fillRect(0, 0, getWidth(), getHeight());
 
         final var state = latestState;
@@ -86,15 +86,24 @@ public final class SwingGameView extends JPanel implements GameView {
     // del cerchio giallo. Nessuna rotazione: i collectible non hanno un orientamento.
     private void drawCollectible(final Graphics2D g2d, final EntityRenderData data,
             final double cameraX, final double cameraY) {
-        final BufferedImage sprite = assets.getSprite(SpriteId.fromFilename(data.getSpriteId()));
+        final BufferedImage sprite = assets.getSprite(collectibleSprite(data.getSpriteId()));
         final double scale = 2.0 * collectibleRadius(data.getSpriteId()) / sprite.getWidth();
         drawSprite(g2d, sprite, data.getX(), data.getY(), cameraX, cameraY, 0, scale);
     }
 
+    // Mappa tipo di collectible -> sprite (stessa logica di missileSprite per i missili).
+    private SpriteId collectibleSprite(final String type) {
+        return switch (type) {
+            case "speed"  -> SpriteId.COLLECTIBLE_SPEED;
+            case "shield" -> SpriteId.COLLECTIBLE_SHIELD;
+            default       -> SpriteId.COLLECTIBLE_STAR;
+        };
+    }
+
     // Dimensione (raggio in px) per tipo di collectible: lo scudo e' un po' piu' grande.
-    private int collectibleRadius(final String spriteId) {
-        return switch (spriteId) {
-            case "collectible_shield" -> 14;
+    private int collectibleRadius(final String type) {
+        return switch (type) {
+            case "shield" -> 14;
             default -> COLLECTIBLE_RADIUS;
         };
     }
