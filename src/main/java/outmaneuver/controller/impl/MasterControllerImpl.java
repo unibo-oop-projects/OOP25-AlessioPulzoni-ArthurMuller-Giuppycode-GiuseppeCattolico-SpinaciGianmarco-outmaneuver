@@ -3,9 +3,11 @@ package outmaneuver.controller.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import outmaneuver.controller.CollisionEngine;
+import outmaneuver.controller.event.EffectEvent;
 import outmaneuver.controller.event.Event;
 import outmaneuver.controller.EntityController;
 import outmaneuver.controller.GameEventController;
@@ -65,8 +67,14 @@ public final class MasterControllerImpl implements MasterController {
     }
 
     public void addEntityController(final EntityController entityController) {
-        Objects.requireNonNull(entityController, "entityController must not be null");
-        entityControllers.add(entityController);
+        entityControllers.add(Objects.requireNonNull(entityController, "entityController must not be null"));
+    }
+
+    public <T extends EntityController> Optional<T> getEntityController(final Class<T> type) {
+        return entityControllers.stream()
+                .filter(type::isInstance)
+                .map(type::cast)
+                .findFirst();
     }
 
     public void setCollisionEngine(final CollisionEngine collisionEngine) {
@@ -210,6 +218,9 @@ public final class MasterControllerImpl implements MasterController {
 
     @Override
     public void onInternalEvent(final Event evt, final Object data) {
+        if (evt instanceof EffectEvent) {
+            entityControllers.forEach(ec -> ec.onInternalEvent(evt, data));
+        }
         if (eventController != null) {
             eventController.onInternalEvent(evt, data);
         }
