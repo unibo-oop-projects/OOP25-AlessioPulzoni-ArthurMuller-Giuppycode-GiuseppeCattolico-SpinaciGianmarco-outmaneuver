@@ -55,7 +55,8 @@ public abstract class EntityControllerImpl implements EntityController {
         // resettato dal controller specifico
     }
 
-    protected void removeAll() {
+    @Override
+    public void removeAll() {
         entities.forEach(collisionEngine::unregister);
         entities.clear();
     }

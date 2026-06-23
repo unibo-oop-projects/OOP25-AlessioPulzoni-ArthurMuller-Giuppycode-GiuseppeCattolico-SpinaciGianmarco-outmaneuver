@@ -140,7 +140,7 @@ public final class MasterControllerImpl implements MasterController {
             scoreController.reset();
         }
         inputController.reset();
-        sceneEntities.clear();
+        entityControllers.forEach(EntityController::removeAll);
         entityControllers.forEach(EntityController::clearAll);
         running = true;
         gameLoopThread = new Thread(this::gameLoop, "game-loop");

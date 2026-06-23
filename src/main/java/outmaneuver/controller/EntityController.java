@@ -18,6 +18,8 @@ public interface EntityController extends InternalEventListener {
 
     void removeEntity(Entity entity);
 
+    void removeAll();
+
     List<Entity> getEntities();
 
     default void setView(GameView view) { }
