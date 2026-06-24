@@ -1,6 +1,8 @@
 package outmaneuver.factory;
 
 import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
+import java.awt.geom.AffineTransform;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -49,6 +51,17 @@ public final class ScreenFactory {
      * (a one-element array populated by the caller immediately after this method
      * returns), and configures lifecycle hooks on the master controller.
      */
+    private static Dimension scaledGameSize() {
+        final AffineTransform tx = GraphicsEnvironment
+                .getLocalGraphicsEnvironment()
+                .getDefaultScreenDevice()
+                .getDefaultConfiguration()
+                .getDefaultTransform();
+        final double scale = Math.max(tx.getScaleX(), tx.getScaleY());
+        return new Dimension((int) Math.round(GAME_WIDTH * scale),
+                (int) Math.round(GAME_HEIGHT * scale));
+    }
+
     public static Result build(
             final ControllerAssembler.Controllers ctrl,
             final PlayerProfile profile,
@@ -66,7 +79,7 @@ public final class ScreenFactory {
                 new GameKeyListener(ctrl.input(), master),
                 new SwingHudView(),
                 assets);
-        gameView.setPreferredSize(new Dimension(GAME_WIDTH, GAME_HEIGHT));
+        gameView.setPreferredSize(scaledGameSize());
         gameView.init();
         master.attachView(gameView);
 
@@ -74,6 +87,7 @@ public final class ScreenFactory {
         final LeaderboardView[] leaderboardRef = { null };
 
         final ShopView shopView = new ShopView(
+                assets,
                 shop.getCatalog(),
                 profile::getCoins,
                 plane::getStats,
