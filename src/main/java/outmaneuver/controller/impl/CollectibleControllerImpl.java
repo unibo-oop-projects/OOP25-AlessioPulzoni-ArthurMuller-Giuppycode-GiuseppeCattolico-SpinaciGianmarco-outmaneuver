@@ -9,6 +9,7 @@ import outmaneuver.controller.CollisionEngine;
 import outmaneuver.controller.event.EffectEvent;
 import outmaneuver.model.area.effect.Effect;
 import outmaneuver.model.area.effect.EffectImpl;
+import outmaneuver.model.area.effect.EffectType;
 import outmaneuver.model.area.entity.Entity;
 import outmaneuver.model.area.entity.collectibles.Collectible;
 import outmaneuver.model.area.entity.collectibles.ShieldPowerUp;
@@ -110,8 +111,8 @@ public final class CollectibleControllerImpl extends EntityControllerImpl {
     private Collectible randomCollectible(final Vector2 pos) {
         return switch (random.nextInt(3)) {
             case 0 -> new StarCollectible(pos, 10);
-            case 1 -> new SpeedBoost(pos, new EffectImpl(2.0, 3000L));
-            default -> new ShieldPowerUp(pos, new EffectImpl(5000L));
+            case 1 -> new SpeedBoost(pos, new EffectImpl(EffectType.SPEED_BOOST, 2.0, 3000L));
+            default -> new ShieldPowerUp(pos, new EffectImpl(EffectType.SHIELD, 5000L));
         };
     }
 }

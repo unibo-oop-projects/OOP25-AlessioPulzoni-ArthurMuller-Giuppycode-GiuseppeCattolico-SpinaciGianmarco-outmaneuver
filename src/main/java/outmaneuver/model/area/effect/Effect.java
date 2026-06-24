@@ -8,5 +8,5 @@ public interface Effect {
 
     double getMultiplier();
 
-    // void destory();
+    EffectType getType();
 }
