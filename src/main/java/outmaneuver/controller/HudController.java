@@ -1,12 +1,22 @@
 package outmaneuver.controller;
 
 import outmaneuver.controller.event.InternalEventListener;
-import outmaneuver.model.area.entity.plane.Plane;
-import outmaneuver.view.HudSnapshot;
 
 public interface HudController extends InternalEventListener {
 
-    HudSnapshot buildSnapshot(Plane plane, boolean paused);
+    void onTick(long deltaMs);
+
+    void setShieldActive(boolean active);
+
+    void setSpeedMultiplier(double multiplier);
+
+    long getElapsedMs();
+
+    double getSpeedMultiplier();
+
+    boolean isShieldActive();
+
+    int getStars();
 
     void reset();
 }
