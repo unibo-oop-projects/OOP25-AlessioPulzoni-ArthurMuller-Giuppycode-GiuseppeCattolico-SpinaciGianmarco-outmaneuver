@@ -20,6 +20,8 @@ public enum SpriteId {
 
     EXPLOSION,
 
+    SHIELD,
+
     CLOUD_1,
     CLOUD_2,
     CLOUD_3;

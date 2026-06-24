@@ -84,6 +84,10 @@ public final class SwingGameView extends JPanel implements GameView {
             drawMissiles(g2d, state.getMissiles(), cameraX, cameraY);
             drawPlane(g2d, planeData, cameraX, cameraY);
 
+            if (state.getHud().shieldActive()) {
+                drawShield(g2d, planeData, cameraX, cameraY);
+            }
+
             for (final var col : state.getCollectibles()) {
                 drawCollectible(g2d, col, cameraX, cameraY);
             }
@@ -129,6 +133,13 @@ public final class SwingGameView extends JPanel implements GameView {
         final double scale = 2.0 * data.getRadius() / sprite.getWidth();
         drawSprite(g2d, sprite, data.getX(), data.getY(), cameraX, cameraY,
                 data.getDirectionRad() + Math.PI / 2, scale);
+    }
+
+    private void drawShield(final Graphics2D g2d, final EntityRenderData data,
+            final double cameraX, final double cameraY) {
+        final BufferedImage sprite = assets.getSprite(SpriteId.SHIELD);
+        final double scale = 2.5 * data.getRadius() / sprite.getWidth();
+        drawSprite(g2d, sprite, data.getX(), data.getY(), cameraX, cameraY, 0, scale);
     }
 
     // [Alessio - asset loader] Traduce lo spriteId dell'aereo (es. "plane_standard") nell'enum.
