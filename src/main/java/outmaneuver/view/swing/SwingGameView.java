@@ -22,10 +22,7 @@ import outmaneuver.view.swing.hud.IHudView;
 
 public final class SwingGameView extends JPanel implements GameView {
 
-    // Raggio "logico" dell'aereo: usato per scalare lo sprite alla misura dell'hitbox.
-    private static final int PLANE_RADIUS = 20;
-    // Raggio "logico" dei collectible: stessa idea, per scalare il loro sprite.
-    private static final int COLLECTIBLE_RADIUS = 10;
+    private static final Color SKY_COLOR = new Color(180, 225, 245); // azzurrino chiaro (cielo)
 
     private final KeyListener keyListener;
     private final IHudView hudView;
@@ -59,7 +56,7 @@ public final class SwingGameView extends JPanel implements GameView {
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
 
-        g2d.setColor(new Color(180, 225, 245)); // azzurrino chiaro (cielo)
+        g2d.setColor(SKY_COLOR);
         g2d.fillRect(0, 0, getWidth(), getHeight());
 
         final var state = latestState;
@@ -87,7 +84,8 @@ public final class SwingGameView extends JPanel implements GameView {
     private void drawCollectible(final Graphics2D g2d, final EntityRenderData data,
             final double cameraX, final double cameraY) {
         final BufferedImage sprite = assets.getSprite(collectibleSprite(data.getSpriteId()));
-        final double scale = 2.0 * COLLECTIBLE_RADIUS / sprite.getWidth();   // tutti uguali
+        // Scala = misura dell'hitbox (AbstractCollectible.HITBOX_RADIUS, via DTO): come aerei/missili.
+        final double scale = 2.0 * data.getRadius() / sprite.getWidth();
         drawSprite(g2d, sprite, data.getX(), data.getY(), cameraX, cameraY, 0, scale);
     }
 
@@ -105,12 +103,24 @@ public final class SwingGameView extends JPanel implements GameView {
     // viene tradotto nell'enum SpriteId e l'immagine arriva dall'AssetStore.
     private void drawPlane(final Graphics2D g2d, final EntityRenderData data,
             final double cameraX, final double cameraY) {
-        final BufferedImage sprite = assets.getSprite(SpriteId.fromFilename(data.getSpriteId()));
+        final BufferedImage sprite = assets.getSprite(planeSprite(data.getSpriteId()));
         // Lo sprite "guarda in su" mentre l'angolo 0 del gioco punta a destra: +PI/2 li allinea.
-        // Scala = diametro voluto (2*PLANE_RADIUS) diviso la larghezza nativa dello sprite.
-        final double scale = 2.0 * PLANE_RADIUS / sprite.getWidth();
+        // Scala = misura dell'HITBOX (hitboxRadius dal JSON, via DTO): sprite e collisione allineati.
+        final double scale = 2.0 * data.getRadius() / sprite.getWidth();
         drawSprite(g2d, sprite, data.getX(), data.getY(), cameraX, cameraY,
                 data.getDirectionRad() + Math.PI / 2, scale);
+    }
+
+    // [Alessio - asset loader] Traduce lo spriteId dell'aereo (es. "plane_standard") nell'enum.
+    // Se il JSON contenesse un nome senza voce corrispondente, fromFilename lancerebbe
+    // IllegalArgumentException (crash): qui ripieghiamo sull'aereo standard, come lo switch
+    // dei missili ha il suo default. Robusto ai dati sbagliati, niente crash.
+    private SpriteId planeSprite(final String filename) {
+        try {
+            return SpriteId.fromFilename(filename);
+        } catch (final IllegalArgumentException e) {
+            return SpriteId.PLANE_STANDARD;
+        }
     }
 
     /**
