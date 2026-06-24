@@ -67,7 +67,7 @@ public final class ControllerAssembler {
         master.addEntityController(collectibleCtrl);
         master.addEntityController(missileCtrl);
         final GameEventControllerImpl eventController = new GameEventControllerImpl(
-                master, score, () -> master.handleEvent(GameEvent.GAME_OVER));
+                master, score, hud, () -> master.handleEvent(GameEvent.GAME_OVER));
         
         master.setCollisionEngine(collision);
         master.setScoreController(score); // va qui?
