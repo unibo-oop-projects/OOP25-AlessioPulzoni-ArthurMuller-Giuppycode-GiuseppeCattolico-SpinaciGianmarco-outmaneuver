@@ -42,8 +42,6 @@ public final class CollectibleControllerImpl extends EntityControllerImpl {
         for (int i = 0; i < activeEffects.size(); i++) {
             if (activeEffects.get(i).getType() == effect.getType()) {
                 activeEffects.set(i, effect);
-                LOG.info("Effect refreshed: type=" + effect.getType()
-                        + " multiplier=" + effect.getMultiplier());
                 onInternalEvent(EffectEvent.EFFECT_APPLIED, effect);
                 return;
             }

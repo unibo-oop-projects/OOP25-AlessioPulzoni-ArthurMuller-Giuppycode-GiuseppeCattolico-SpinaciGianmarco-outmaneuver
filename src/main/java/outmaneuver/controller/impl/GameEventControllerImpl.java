@@ -3,6 +3,7 @@ package outmaneuver.controller.impl;
 import java.util.Objects;
 
 import outmaneuver.controller.GameEventController;
+import outmaneuver.controller.HudController;
 import outmaneuver.controller.ScoreController;
 import outmaneuver.controller.event.CollisionEvent;
 import outmaneuver.controller.event.EffectEvent;
@@ -21,17 +22,20 @@ public final class GameEventControllerImpl implements GameEventController {
     private final CollectibleControllerImpl collectibleController;
     private final MissileControllerImpl missileController;
     private final ScoreController scoreController;
+    private final HudController hudController;
     private final Runnable onGameOver;
     private boolean shieldActive;
 
     public GameEventControllerImpl(
             final MasterControllerImpl master,
             final ScoreController scoreController,
+            final HudController hudController,
             final Runnable onGameOver) {
         this.planeController = master.getEntityController(PlaneControllerImpl.class).orElseThrow();
         this.collectibleController = master.getEntityController(CollectibleControllerImpl.class).orElseThrow();
         this.missileController = master.getEntityController(MissileControllerImpl.class).orElseThrow();
         this.scoreController = scoreController;
+        this.hudController = hudController;
         this.onGameOver = Objects.requireNonNull(onGameOver, "onGameOver must not be null");
     }
 
@@ -79,21 +83,25 @@ public final class GameEventControllerImpl implements GameEventController {
             case EFFECT_APPLIED -> {
                 if (effect.getType() == EffectType.SHIELD) {
                     shieldActive = true;
+                    hudController.setShieldActive(true);
                     missileController.setShieldActrive(true);
                 }
                 if (effect.getType() == EffectType.SPEED_BOOST) {
                     planeController.setSpeedMultiplier(effect.getMultiplier());
                     missileController.setSpeedMultiplier(effect.getMultiplier());
+                    hudController.setSpeedMultiplier(effect.getMultiplier());
                 }
             }
             case EFFECT_EXPIRED -> {
                 if (effect.getType() == EffectType.SHIELD) {
                     shieldActive = false;
+                    hudController.setShieldActive(false);
                     missileController.setShieldActrive(false);
                 }
                 if (effect.getType() == EffectType.SPEED_BOOST) {
                     planeController.setSpeedMultiplier(1.0);
                     missileController.setSpeedMultiplier(1.0);
+                    hudController.setSpeedMultiplier(1.0);
                 }
             }
         }

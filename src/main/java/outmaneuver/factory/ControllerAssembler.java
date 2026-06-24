@@ -67,12 +67,13 @@ public final class ControllerAssembler {
         master.addEntityController(collectibleCtrl);
         master.addEntityController(missileCtrl);
         final GameEventControllerImpl eventController = new GameEventControllerImpl(
-                master, score, () -> master.handleEvent(GameEvent.GAME_OVER));
+                master, score, hud, () -> master.handleEvent(GameEvent.GAME_OVER));
         
         master.setCollisionEngine(collision);
         master.setScoreController(score); // va qui?
         master.setSceneEntities(sharedEntities);
-        master.setStateAssembler(new RenderStateAssemblerImpl(hud)); // TODO: prender Hud, fix temporaneo, spostare
+        master.setHudController(hud);
+        master.setStateAssembler(new RenderStateAssemblerImpl());
         master.setEventController(eventController);
 
         planeCtrl.setEventListener(eventController);
