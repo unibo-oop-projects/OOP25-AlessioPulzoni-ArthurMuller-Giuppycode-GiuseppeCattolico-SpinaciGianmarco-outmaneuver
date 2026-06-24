@@ -11,7 +11,6 @@ import outmaneuver.controller.impl.ScoreControllerImpl;
 import outmaneuver.model.area.collision.CollisionData;
 import outmaneuver.model.area.entity.collectibles.StarCollectible;
 import outmaneuver.model.session.GameSession;
-import outmaneuver.model.session.GameState;
 import outmaneuver.util.Vector2;
 
 class ScoreControllerImplTest {
@@ -22,7 +21,6 @@ class ScoreControllerImplTest {
     @BeforeEach
     void setUp() {
         session = new GameSession();
-        session.transitionTo(GameState.PLAYING);
         scoreCtrl = new ScoreControllerImpl(session);
     }
 
