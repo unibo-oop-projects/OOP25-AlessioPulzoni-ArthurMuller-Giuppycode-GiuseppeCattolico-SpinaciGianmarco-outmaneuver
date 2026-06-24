@@ -2,7 +2,7 @@ package outmaneuver.factory;
 
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
-import java.awt.geom.AffineTransform;
+import java.awt.Rectangle;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -35,8 +35,14 @@ import outmaneuver.view.swing.shop.ShopView;
  */
 public final class ScreenFactory {
 
-    private static final int GAME_WIDTH  = 1400;
-    private static final int GAME_HEIGHT = 1000;
+    /** Aspect ratio of the game world (1400 × 1000 = 1.4 : 1). */
+    private static final double ASPECT_RATIO = 1400.0 / 1000.0;
+
+    /**
+     * Maximum fraction of the screen that the game window may occupy on each axis.
+     * 0.9 leaves a small margin so the window fits comfortably inside the desktop.
+     */
+    private static final double SCREEN_FILL_FACTOR = 0.9;
 
     private ScreenFactory() { }
 
@@ -47,19 +53,36 @@ public final class ScreenFactory {
     public record Result(Map<ScreenId, JPanel> screens, SwingGameView gameView) { }
 
     /**
-     * Creates every screen, registers navigation callbacks that use {@code uiRef}
-     * (a one-element array populated by the caller immediately after this method
-     * returns), and configures lifecycle hooks on the master controller.
+     * Computes a game-window size that:
+     * <ol>
+     *   <li>Preserves the original 1.4 : 1 aspect ratio.</li>
+     *   <li>Scales proportionally to the physical screen resolution.</li>
+     *   <li>Never exceeds {@value #SCREEN_FILL_FACTOR} of the screen on either axis.</li>
+     * </ol>
+     * On HiDPI / Retina displays the bounds returned by
+     * {@link java.awt.GraphicsConfiguration#getBounds()} are already in
+     * device-independent pixels, so no extra DPI scaling is needed here.
      */
     private static Dimension scaledGameSize() {
-        final AffineTransform tx = GraphicsEnvironment
+        final Rectangle screenBounds = GraphicsEnvironment
                 .getLocalGraphicsEnvironment()
                 .getDefaultScreenDevice()
                 .getDefaultConfiguration()
-                .getDefaultTransform();
-        final double scale = Math.max(tx.getScaleX(), tx.getScaleY());
-        return new Dimension((int) Math.round(GAME_WIDTH * scale),
-                (int) Math.round(GAME_HEIGHT * scale));
+                .getBounds();
+
+        final int maxWidth  = (int) (screenBounds.width  * SCREEN_FILL_FACTOR);
+        final int maxHeight = (int) (screenBounds.height * SCREEN_FILL_FACTOR);
+
+        // Fit inside maxWidth × maxHeight while keeping the aspect ratio.
+        int width  = maxWidth;
+        int height = (int) Math.round(width / ASPECT_RATIO);
+
+        if (height > maxHeight) {
+            height = maxHeight;
+            width  = (int) Math.round(height * ASPECT_RATIO);
+        }
+
+        return new Dimension(width, height);
     }
 
     public static Result build(
