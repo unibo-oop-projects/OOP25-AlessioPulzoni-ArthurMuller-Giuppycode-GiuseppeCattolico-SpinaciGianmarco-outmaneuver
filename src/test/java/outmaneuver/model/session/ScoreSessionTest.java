@@ -2,32 +2,21 @@ package outmaneuver.model.session;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class GameSessionTest {
+class ScoreSessionTest {
 
-    private GameSession session;
+    private ScoreSession session;
 
     @BeforeEach
     void setUp() {
-        session = new GameSession();
-    }
-
-    @Test
-    void initialStateIsMenu() {
-        assertEquals(GameState.MENU, session.getGameState());
+        session = new ScoreSession();
     }
 
     @Test
     void initialScoreIsZero() {
         assertEquals(0, session.getScore());
-    }
-
-    @Test
-    void elapsedTimeIsZeroBeforePlaying() {
-        assertEquals(0, session.getElapsedTimeMillis());
     }
 
     @Test

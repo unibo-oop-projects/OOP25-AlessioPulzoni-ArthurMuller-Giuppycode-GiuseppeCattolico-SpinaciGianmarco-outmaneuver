@@ -10,17 +10,17 @@ import outmaneuver.controller.event.CollisionEvent;
 import outmaneuver.controller.impl.ScoreControllerImpl;
 import outmaneuver.model.area.collision.CollisionData;
 import outmaneuver.model.area.entity.collectibles.StarCollectible;
-import outmaneuver.model.session.GameSession;
+import outmaneuver.model.session.ScoreSession;
 import outmaneuver.util.Vector2;
 
 class ScoreControllerImplTest {
 
-    private GameSession session;
+    private ScoreSession session;
     private ScoreControllerImpl scoreCtrl;
 
     @BeforeEach
     void setUp() {
-        session = new GameSession();
+        session = new ScoreSession();
         scoreCtrl = new ScoreControllerImpl(session);
     }
 

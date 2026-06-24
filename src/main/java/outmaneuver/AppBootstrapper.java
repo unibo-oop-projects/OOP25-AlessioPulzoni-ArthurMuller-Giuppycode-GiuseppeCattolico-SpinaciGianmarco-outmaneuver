@@ -5,7 +5,6 @@ import java.nio.file.Path;
 
 import javax.swing.JFrame;
 
-import outmaneuver.controller.RenderStateAssembler;
 import outmaneuver.factory.ControllerAssembler;
 import outmaneuver.factory.ScreenFactory;
 import outmaneuver.model.area.entity.plane.JsonPlaneRepository;
@@ -16,7 +15,7 @@ import outmaneuver.model.area.entity.plane.PlaneRepository;
 import outmaneuver.model.profile.IPlayerProfileRepository;
 import outmaneuver.model.profile.JsonPlayerProfileRepository;
 import outmaneuver.model.profile.PlayerProfile;
-import outmaneuver.model.session.GameSession;
+import outmaneuver.model.session.ScoreSession;
 import outmaneuver.model.shop.IShop;
 import outmaneuver.model.shop.Shop;
 import outmaneuver.model.shop.ShopItem;
@@ -35,7 +34,7 @@ public final class AppBootstrapper {
                 JsonResourceLoader.forList("planes.json", PlaneData.class, GsonProvider.create()));
         final Plane plane = new PlaneImpl(planeRepo.loadById("standard").orElseThrow());
 
-        final GameSession session = new GameSession();
+        final ScoreSession session = new ScoreSession();
         final ControllerAssembler.Controllers ctrl = ControllerAssembler.assemble(plane, session);
 
         // TODO: renderstate assembler as abstract factory here instead of

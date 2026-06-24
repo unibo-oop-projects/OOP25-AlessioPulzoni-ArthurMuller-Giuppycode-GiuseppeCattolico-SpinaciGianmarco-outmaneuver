@@ -20,7 +20,7 @@ import outmaneuver.model.area.entity.missile.data.JsonMissileRepository;
 import outmaneuver.model.area.entity.missile.data.MissileData;
 import outmaneuver.model.area.entity.missile.data.MissileRepository;
 import outmaneuver.model.area.entity.plane.Plane;
-import outmaneuver.model.session.GameSession;
+import outmaneuver.model.session.ScoreSession;
 import outmaneuver.util.json.GsonProvider;
 import outmaneuver.util.json.JsonResourceLoader;
 
@@ -44,7 +44,7 @@ public final class ControllerAssembler {
     /**
      * Creates every controller, wires them together, and returns the bundle.
      */
-    public static Controllers assemble(final Plane plane, final GameSession session) {
+    public static Controllers assemble(final Plane plane, final ScoreSession session) {
         final InputControllerImpl input = new InputControllerImpl();
         final HudControllerImpl hud = new HudControllerImpl();
         final MasterControllerImpl master = new MasterControllerImpl();

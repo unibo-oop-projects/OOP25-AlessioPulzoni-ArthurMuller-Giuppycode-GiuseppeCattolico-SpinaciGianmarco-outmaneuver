@@ -1,15 +1,10 @@
 package outmaneuver.model.session;
 
-public interface IGameSession {
-
-    GameState getGameState();
+public interface IScoreSession {
 
     int getScore();
 
-    /** Restituisce i millisecondi trascorsi in stato PLAYING. */
-    long getElapsedTimeMillis();
-
-    /** Azzera score, stato e timer (chiamato ad ogni nuova partita). */
+    /** Azzera score **/
     void reset();
 
     /**
@@ -19,5 +14,5 @@ public interface IGameSession {
      * @throws IllegalArgumentException se delta non è positivo
      */
     void incrementScore(int delta);
-    
+
 }

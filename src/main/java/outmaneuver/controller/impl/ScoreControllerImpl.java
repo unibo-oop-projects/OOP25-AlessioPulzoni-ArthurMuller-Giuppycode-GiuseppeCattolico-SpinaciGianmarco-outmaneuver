@@ -6,14 +6,14 @@ import outmaneuver.controller.ScoreController;
 import outmaneuver.controller.event.CollisionEvent;
 import outmaneuver.controller.event.Event;
 import outmaneuver.model.area.entity.collectibles.StarCollectible;
-import outmaneuver.model.session.IGameSession;
+import outmaneuver.model.session.IScoreSession;
 
 public final class ScoreControllerImpl implements ScoreController {
 
-    private final IGameSession session;
+    private final IScoreSession session;
     private long pendingMs;
 
-    public ScoreControllerImpl(final IGameSession session) {
+    public ScoreControllerImpl(final IScoreSession session) {
         this.session = Objects.requireNonNull(session, "session must not be null");
     }
 

@@ -36,7 +36,7 @@ import outmaneuver.model.area.entity.missile.data.MissileRepository;
 import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.model.area.entity.plane.PlaneData;
 import outmaneuver.model.area.entity.plane.PlaneImpl;
-import outmaneuver.model.session.GameSession;
+import outmaneuver.model.session.ScoreSession;
 import outmaneuver.util.Vector2;
 
 /**
@@ -63,7 +63,7 @@ class EventControllerTest {
     private PlaneControllerImpl planeCtrl;
     private CollectibleControllerImpl collectibleCtrl;
     private MissileControllerImpl missileCtrl;
-    private GameSession session;
+    private ScoreSession session;
     private ScoreController scoreController;
     private HudController hudController;
     private AtomicBoolean gameOverTriggered;
@@ -87,7 +87,7 @@ class EventControllerTest {
         master.addEntityController(collectibleCtrl);
         master.addEntityController(missileCtrl);
 
-        session = new GameSession();
+        session = new ScoreSession();
         scoreController = new ScoreControllerImpl(session);
         hudController = new HudControllerImpl();
         gameOverTriggered = new AtomicBoolean(false);
