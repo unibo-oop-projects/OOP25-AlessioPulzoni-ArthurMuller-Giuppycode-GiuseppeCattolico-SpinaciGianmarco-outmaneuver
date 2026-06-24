@@ -13,7 +13,7 @@ import outmaneuver.controller.event.GameEvent;
 import outmaneuver.controller.impl.MasterControllerImpl;
 import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.model.profile.PlayerProfile;
-import outmaneuver.model.session.IGameSession;
+import outmaneuver.model.session.IScoreSession;
 import outmaneuver.model.shop.IShop;
 import outmaneuver.util.assets.AssetStore;
 import outmaneuver.util.assets.ClasspathAssetStore;
@@ -88,7 +88,7 @@ public final class ScreenFactory {
             final PlayerProfile profile,
             final Plane plane,
             final IShop shop,
-            final IGameSession session,
+            final IScoreSession session,
             final UIManager[] uiRef) {
 
         final MasterControllerImpl master = ctrl.master();
@@ -212,7 +212,7 @@ public final class ScreenFactory {
             final UIManager uiManager,
             final MasterController master,
             final SwingGameView gameView,
-            final IGameSession session) {
+            final IScoreSession session) {
         session.reset();
         uiManager.showScreen(ScreenId.PLAYING);
         gameView.requestFocusInWindow();
