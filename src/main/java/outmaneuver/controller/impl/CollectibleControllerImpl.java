@@ -73,8 +73,6 @@ public final class CollectibleControllerImpl extends EntityControllerImpl {
     }
 
     private void tickEffect(final long deltaMs) {
-        activeEffects.forEach(e -> e.update(deltaMs));
-
         final Iterator<Effect> it = activeEffects.iterator();
         while (it.hasNext()) {
             final Effect effect = it.next();
