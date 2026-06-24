@@ -34,4 +34,9 @@ public final class SpeedBoost extends AbstractCollectible {
             plane.resetSpeedMultiplier();
         });
     }
+
+    @Override
+    public String getCollectibleType() {
+        return "speed";
+    }
 }

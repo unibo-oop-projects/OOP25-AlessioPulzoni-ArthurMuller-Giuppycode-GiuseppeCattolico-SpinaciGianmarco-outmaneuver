@@ -8,7 +8,6 @@ import outmaneuver.model.area.collision.Hitbox;
 import outmaneuver.model.area.entity.missile.data.MissileData;
 import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.util.Vector2;
-import outmaneuver.view.EntityRenderData;
 
 /**
  * Base comune dei missili: posizione/movimento, ciclo di vita, effetti (slow) e render.
@@ -176,14 +175,6 @@ public abstract class MissileImpl implements Missile {
     @Override
     public CollisionLayer getCollisionLayer() {
         return CollisionLayer.MISSILE;
-    }
-
-    @Override
-    public EntityRenderData getRenderData() {
-        return new EntityRenderData(
-                position.getX(), position.getY(),
-                velocity.angle(),
-                type);
     }
 
     @Override

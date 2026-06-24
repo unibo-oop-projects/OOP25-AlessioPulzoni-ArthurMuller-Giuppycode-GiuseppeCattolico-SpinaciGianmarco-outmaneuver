@@ -1,31 +1,28 @@
 package outmaneuver.view.swing.menu;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.util.Objects;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
+import outmaneuver.view.swing.Theme;
+
 public final class MainMenuView extends JPanel {
 
-    private static final int TITLE_FONT_SIZE    = 64;
-    private static final int COINS_FONT_SIZE    = 16;
-    private static final int USERNAME_FONT_SIZE = 14;
-    private static final int BUTTON_FONT_SIZE   = 20;
-    private static final int BUTTON_WIDTH       = 200;
-    private static final int BUTTON_HEIGHT      = 50;
-    private static final int VGAP               = 20;
+    private static final int LOGO_WIDTH        = 600;
+    private static final int VGAP              = 20;
 
     private final JLabel coinsLabel;
     private final JLabel userLabel;
@@ -44,56 +41,48 @@ public final class MainMenuView extends JPanel {
         final Runnable safeLeaderboard = Objects.requireNonNull(onLeaderboard);
         final Runnable safeExit        = Objects.requireNonNull(onExit);
 
-        setBackground(Color.BLACK);
+        setBackground(Theme.BACKGROUND);
         setLayout(new BorderLayout());
 
         // ── username top-right and wallet ──────────────────────────────────────────
-        userLabel = new JLabel("", SwingConstants.LEFT);
-        userLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, USERNAME_FONT_SIZE));
-        userLabel.setForeground(Color.LIGHT_GRAY);
+        userLabel = Theme.outlinedLabel("", new Font(Font.MONOSPACED, Font.PLAIN, Theme.FONT_SMALL), Theme.TEXT_BODY, SwingConstants.LEFT);
 
-        coinsLabel = new JLabel("Coins: 0", SwingConstants.CENTER);
-        coinsLabel.setFont(new Font(Font.MONOSPACED, Font.BOLD, COINS_FONT_SIZE));
-        coinsLabel.setForeground(Color.YELLOW);
+        coinsLabel = Theme.outlinedLabel("Coins: 0", new Font(Font.MONOSPACED, Font.BOLD, Theme.FONT_BODY), Theme.TEXT_ACCENT, SwingConstants.CENTER);
 
         final JPanel topBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 6));
-        topBar.setBackground(Color.BLACK);
+        topBar.setBackground(Theme.BACKGROUND);
         topBar.add(userLabel);
         topBar.add(coinsLabel);
 
-        planeLabel = new JLabel("", SwingConstants.LEFT);
-        planeLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, USERNAME_FONT_SIZE));
-        planeLabel.setForeground(Color.CYAN);
+        planeLabel = Theme.outlinedLabel("", new Font(Font.MONOSPACED, Font.PLAIN, Theme.FONT_SMALL), Theme.TEXT_INFO, SwingConstants.LEFT);
 
         final JPanel topLeft = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 6));
-        topLeft.setBackground(Color.BLACK);
+        topLeft.setBackground(Theme.BACKGROUND);
         topLeft.add(planeLabel);
 
         final JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.setBackground(Color.BLACK);
+        topPanel.setBackground(Theme.BACKGROUND);
         topPanel.add(topLeft, BorderLayout.WEST);
         topPanel.add(topBar,  BorderLayout.EAST);
         add(topPanel, BorderLayout.NORTH);
 
         // ── main content ────────────────────────────────────────────────
         final JPanel center = new JPanel(new GridBagLayout());
-        center.setBackground(Color.BLACK);
+        center.setBackground(Theme.BACKGROUND);
 
-        final JLabel title = new JLabel("OUTMANEUVER", SwingConstants.CENTER);
-        title.setFont(new Font(Font.SANS_SERIF, Font.BOLD, TITLE_FONT_SIZE));
-        title.setForeground(Color.WHITE);
+        final ImageIcon logoIcon = new ImageIcon(
+            new ImageIcon(getClass().getResource("/assets/sprites/logo.png"))
+                .getImage()
+                .getScaledInstance(LOGO_WIDTH, -1, Image.SCALE_SMOOTH)
+        );
+        final JLabel title = new JLabel(logoIcon);
 
 
 
-        final JButton startButton       = new JButton("START");
-        final JButton shopButton        = new JButton("SHOP");
-        final JButton leaderboardButton = new JButton("LEADERBOARD");
-        final JButton exitButton        = new JButton("EXIT");
-        final Dimension btnSize = new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT);
-        for (final JButton btn : new JButton[]{startButton, shopButton, leaderboardButton, exitButton}) {
-            btn.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, BUTTON_FONT_SIZE));
-            btn.setPreferredSize(btnSize);
-        }
+        final JButton startButton       = Theme.styledButton("START",       Theme.FONT_BUTTON, Theme.BUTTON_WIDTH, Theme.BUTTON_HEIGHT);
+        final JButton shopButton        = Theme.styledButton("SHOP",        Theme.FONT_BUTTON, Theme.BUTTON_WIDTH, Theme.BUTTON_HEIGHT);
+        final JButton leaderboardButton = Theme.styledButton("LEADERBOARD", Theme.FONT_BUTTON, Theme.BUTTON_WIDTH, Theme.BUTTON_HEIGHT);
+        final JButton exitButton        = Theme.styledButton("EXIT",        Theme.FONT_BUTTON, Theme.BUTTON_WIDTH, Theme.BUTTON_HEIGHT);
         startButton.addActionListener(e -> safeStart.run());
         shopButton.addActionListener(e -> safeShop.run());
         leaderboardButton.addActionListener(e -> safeLeaderboard.run());

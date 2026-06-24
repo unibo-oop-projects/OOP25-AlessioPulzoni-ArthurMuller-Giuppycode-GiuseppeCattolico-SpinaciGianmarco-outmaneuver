@@ -4,7 +4,7 @@
     "baseSpeed": 200.0,
     "turnRate": 3.0,
     "hitboxRadius": 20.0,
-    "spriteId": "aircraft_standard",
+    "spriteId": "plane_standard",
     "price": 0
   },
   {
@@ -12,7 +12,7 @@
     "baseSpeed": 280.0,
     "turnRate": 2.0,
     "hitboxRadius": 15.0,
-    "spriteId": "aircraft_interceptor",
+    "spriteId": "plane_fast",
     "price": 500
   },
   {
@@ -20,7 +20,7 @@
     "baseSpeed": 150.0,
     "turnRate": 1.5,
     "hitboxRadius": 30.0,
-    "spriteId": "aircraft_tanker",
+    "spriteId": "plane_heavy",
     "price": 300
   }
 ]

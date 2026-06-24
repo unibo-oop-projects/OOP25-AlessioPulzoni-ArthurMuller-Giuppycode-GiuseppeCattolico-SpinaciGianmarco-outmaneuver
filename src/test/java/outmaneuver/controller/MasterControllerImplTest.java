@@ -82,7 +82,8 @@ class MasterControllerImplTest {
                     .orElse(null);
             final EntityRenderData planeData = plane != null
                     ? new EntityRenderData(plane.getPosition().getX(), plane.getPosition().getY(),
-                            plane.getDirection(), plane.getStats().getSpriteId())
+                            plane.getDirection(), plane.getStats().getSpriteId(),
+                            plane.getStats().getHitboxRadius())
                     : null;
             return RenderState.builder()
                     .planeData(planeData)

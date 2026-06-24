@@ -13,6 +13,8 @@ import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.model.profile.PlayerProfile;
 import outmaneuver.model.session.IGameSession;
 import outmaneuver.model.shop.IShop;
+import outmaneuver.util.assets.AssetStore;
+import outmaneuver.util.assets.ClasspathAssetStore;
 import outmaneuver.view.swing.GameKeyListener;
 import outmaneuver.view.swing.ScreenId;
 import outmaneuver.view.swing.SwingGameView;
@@ -31,8 +33,8 @@ import outmaneuver.view.swing.shop.ShopView;
  */
 public final class ScreenFactory {
 
-    private static final int GAME_WIDTH  = 800;
-    private static final int GAME_HEIGHT = 600;
+    private static final int GAME_WIDTH  = 1400;
+    private static final int GAME_HEIGHT = 1000;
 
     private ScreenFactory() { }
 
@@ -57,9 +59,13 @@ public final class ScreenFactory {
 
         final MasterControllerImpl master = ctrl.master();
 
+        // L'asset store carica tutti gli sprite una volta sola (cache eager) e li fornisce
+        // alla view: dipendenza iniettata dall'esterno, la view non sa COME sono caricati.
+        final AssetStore assets = new ClasspathAssetStore();
         final SwingGameView gameView = new SwingGameView(
                 new GameKeyListener(ctrl.input(), master),
-                new SwingHudView());
+                new SwingHudView(),
+                assets);
         gameView.setPreferredSize(new Dimension(GAME_WIDTH, GAME_HEIGHT));
         gameView.init();
         master.attachView(gameView);

@@ -1,7 +1,5 @@
 package outmaneuver.view.swing.gameover;
 
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -12,19 +10,16 @@ import java.util.Objects;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import outmaneuver.model.session.ScoreEntry;
+import outmaneuver.view.swing.Theme;
 import outmaneuver.view.swing.leaderboard.LeaderboardTablePanel;
 
 public final class GameOverView extends JPanel {
 
     private static final int TITLE_FONT_SIZE   = 64;
     private static final int SCORE_FONT_SIZE   = 28;
-    private static final int BUTTON_FONT_SIZE  = 20;
-    private static final int BUTTON_WIDTH      = 200;
-    private static final int BUTTON_HEIGHT     = 50;
     private static final int VGAP              = 14;
 
     private final JLabel scoreLabel;
@@ -34,7 +29,7 @@ public final class GameOverView extends JPanel {
         final Runnable safePlayAgain = Objects.requireNonNull(onPlayAgain);
         final Runnable safeMenu      = Objects.requireNonNull(onMenu);
 
-        setBackground(Color.BLACK);
+        setBackground(Theme.BACKGROUND);
         setLayout(new GridBagLayout());
 
         final GridBagConstraints gbc = new GridBagConstraints();
@@ -42,23 +37,14 @@ public final class GameOverView extends JPanel {
         gbc.fill   = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(VGAP, 0, 0, 0);
 
-        final JLabel title = new JLabel("GAME OVER", SwingConstants.CENTER);
-        title.setFont(new Font(Font.SANS_SERIF, Font.BOLD, TITLE_FONT_SIZE));
-        title.setForeground(Color.RED);
+        final JLabel title = Theme.outlinedLabel("GAME OVER", new Font(Font.SANS_SERIF, Font.BOLD, TITLE_FONT_SIZE), Theme.TEXT_ERROR);
 
-        scoreLabel = new JLabel("Score: 0", SwingConstants.CENTER);
-        scoreLabel.setFont(new Font(Font.MONOSPACED, Font.BOLD, SCORE_FONT_SIZE));
-        scoreLabel.setForeground(Color.WHITE);
+        scoreLabel = Theme.outlinedLabel("Score: 0", new Font(Font.MONOSPACED, Font.BOLD, SCORE_FONT_SIZE), Theme.TEXT_TITLE);
 
         tablePanel = new LeaderboardTablePanel(5);
 
-        final JButton playAgainButton = new JButton("PLAY AGAIN");
-        final JButton menuButton      = new JButton("MENU");
-        final Dimension btnSize = new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT);
-        for (final JButton btn : new JButton[]{playAgainButton, menuButton}) {
-            btn.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, BUTTON_FONT_SIZE));
-            btn.setPreferredSize(btnSize);
-        }
+        final JButton playAgainButton = Theme.styledButton("PLAY AGAIN", Theme.FONT_BUTTON, Theme.BUTTON_WIDTH, Theme.BUTTON_HEIGHT);
+        final JButton menuButton      = Theme.styledButton("MENU",       Theme.FONT_BUTTON, Theme.BUTTON_WIDTH, Theme.BUTTON_HEIGHT);
         playAgainButton.addActionListener(e -> safePlayAgain.run());
         menuButton.addActionListener(e -> safeMenu.run());
 

@@ -1,6 +1,5 @@
 package outmaneuver.view.swing.leaderboard;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -14,17 +13,14 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import outmaneuver.model.session.ScoreEntry;
+import outmaneuver.view.swing.Theme;
 
 public final class LeaderboardView extends JPanel {
 
     private static final int TITLE_FONT_SIZE   = 48;
-    private static final int BUTTON_FONT_SIZE  = 20;
-    private static final int BUTTON_WIDTH      = 200;
-    private static final int BUTTON_HEIGHT     = 50;
     private static final int VGAP              = 14;
     private static final int SCROLL_PANE_WIDTH = 600;
     private static final int SCROLL_PANE_HEIGHT = 220;
@@ -36,7 +32,7 @@ public final class LeaderboardView extends JPanel {
         this.scoresSupplier = Objects.requireNonNull(scoresSupplier, "scoresSupplier must not be null");
         final Runnable safeBack = Objects.requireNonNull(onBack, "onBack must not be null");
 
-        setBackground(Color.BLACK);
+        setBackground(Theme.BACKGROUND);
         setLayout(new GridBagLayout());
 
         final GridBagConstraints gbc = new GridBagConstraints();
@@ -44,9 +40,7 @@ public final class LeaderboardView extends JPanel {
         gbc.fill   = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(VGAP, 0, 0, 0);
 
-        final JLabel title = new JLabel("LEADERBOARD", SwingConstants.CENTER);
-        title.setFont(new Font(Font.SANS_SERIF, Font.BOLD, TITLE_FONT_SIZE));
-        title.setForeground(Color.YELLOW);
+        final JLabel title = Theme.outlinedLabel("LEADERBOARD", new Font(Font.SANS_SERIF, Font.BOLD, TITLE_FONT_SIZE), Theme.TEXT_ACCENT);
 
         tablePanel = new LeaderboardTablePanel(Integer.MAX_VALUE);
 
@@ -54,13 +48,11 @@ public final class LeaderboardView extends JPanel {
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setPreferredSize(new Dimension(SCROLL_PANE_WIDTH, SCROLL_PANE_HEIGHT));
-        scrollPane.getViewport().setBackground(Color.BLACK);
-        scrollPane.setBackground(Color.BLACK);
+        scrollPane.getViewport().setBackground(Theme.BACKGROUND);
+        scrollPane.setBackground(Theme.BACKGROUND);
         scrollPane.setBorder(null);
 
-        final JButton backButton = new JButton("BACK");
-        backButton.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, BUTTON_FONT_SIZE));
-        backButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        final JButton backButton = Theme.styledButton("BACK", Theme.FONT_BUTTON, Theme.BUTTON_WIDTH, Theme.BUTTON_HEIGHT);
         backButton.addActionListener(e -> safeBack.run());
 
         gbc.gridy = 0; add(title,      gbc);

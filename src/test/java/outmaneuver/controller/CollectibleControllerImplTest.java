@@ -46,6 +46,11 @@ class CollectibleControllerImplTest {
         public void apply(final Plane plane, final IGameSession session) {
             applied = true;
         }
+
+        @Override
+        public String getCollectibleType() {
+            return "star";
+        }
     }
 
     private static final IGameSession NO_OP_SESSION = new IGameSession() {

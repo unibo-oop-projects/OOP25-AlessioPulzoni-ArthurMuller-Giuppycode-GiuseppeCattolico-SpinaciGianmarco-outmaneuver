@@ -10,13 +10,11 @@ import java.util.Objects;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 
 import outmaneuver.model.session.ScoreEntry;
+import outmaneuver.view.swing.Theme;
 
 public final class LeaderboardTablePanel extends JPanel {
-
-    private static final int TABLE_FONT_SIZE = 16;
 
     private final int maxEntries;
 
@@ -26,7 +24,7 @@ public final class LeaderboardTablePanel extends JPanel {
         }
         this.maxEntries = maxEntries;
         setLayout(new GridBagLayout());
-        setBackground(Color.BLACK);
+        setBackground(Theme.BACKGROUND);
     }
 
     /** Ricostruisce la tabella con i punteggi forniti. */
@@ -60,14 +58,12 @@ public final class LeaderboardTablePanel extends JPanel {
                         final String score, final String date,
                         final boolean header) {
         final Font font = new Font(Font.MONOSPACED,
-                header ? Font.BOLD : Font.PLAIN, TABLE_FONT_SIZE);
-        final Color color = header ? Color.YELLOW : Color.WHITE;
+                header ? Font.BOLD : Font.PLAIN, Theme.FONT_BODY);
+        final Color color = header ? Theme.TEXT_ACCENT : Theme.TEXT_TITLE;
 
         int col = 0;
         for (final String text : new String[]{rank, name, score, date}) {
-            final JLabel lbl = new JLabel(text, SwingConstants.CENTER);
-            lbl.setFont(font);
-            lbl.setForeground(color);
+            final JLabel lbl = Theme.outlinedLabel(text, font, color);
             gbc.gridx = col++;
             add(lbl, gbc);
         }

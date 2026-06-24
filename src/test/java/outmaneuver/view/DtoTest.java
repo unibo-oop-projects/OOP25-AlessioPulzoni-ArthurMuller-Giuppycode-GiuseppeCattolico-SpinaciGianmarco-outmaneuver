@@ -13,11 +13,12 @@ class DtoTest {
 
     @Test
     void testEntityRenderData() {
-        final var data = new EntityRenderData(100, 200, 1.5, "aircraft_test");
+        final var data = new EntityRenderData(100, 200, 1.5, "aircraft_test", 10);
         assertEquals(100, data.getX());
         assertEquals(200, data.getY());
         assertEquals(1.5, data.getDirectionRad(), EPS);
         assertEquals("aircraft_test", data.getSpriteId());
+        assertEquals(10, data.getRadius(), EPS);
     }
 
     @Test
@@ -30,7 +31,8 @@ class DtoTest {
                 plane.getPosition().getX(),
                 plane.getPosition().getY(),
                 plane.getDirection(),
-                plane.getStats().getSpriteId());
+                plane.getStats().getSpriteId(),
+                plane.getStats().getHitboxRadius());
 
         final var state = RenderState.builder()
                 .planeData(planeData)
@@ -50,7 +52,8 @@ class DtoTest {
                 plane.getPosition().getX(),
                 plane.getPosition().getY(),
                 plane.getDirection(),
-                plane.getStats().getSpriteId());
+                plane.getStats().getSpriteId(),
+                plane.getStats().getHitboxRadius());
 
         final var state = RenderState.builder()
                 .planeData(planeData)

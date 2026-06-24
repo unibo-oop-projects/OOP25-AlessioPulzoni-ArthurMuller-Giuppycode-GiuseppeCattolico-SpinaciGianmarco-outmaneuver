@@ -18,4 +18,9 @@ public final class StarCollectible extends AbstractCollectible {
     public int getScoreValue() {
         return scoreValue;
     }
+
+    @Override
+    public String getCollectibleType() {
+        return "star";
+    }
 }
