@@ -70,11 +70,13 @@ public final class ControllerAssembler {
         master.setCollisionEngine(collision);
         master.setScoreController(score); // va qui?
         master.setSceneEntities(sharedEntities);
-        master.setStateAssembler(new RenderStateAssemblerImpl(hud)); // TODO: prender Hud, fix temporaneo, spostare
+        final var stateAssembler = new RenderStateAssemblerImpl(hud);
+        master.setStateAssembler(stateAssembler);
         master.setInputController(input);
         master.setEventController(new EventController(
                 planeCtrl, hud, score, session,
-                () -> master.handleEvent(GameEvent.GAME_OVER)));
+                () -> master.handleEvent(GameEvent.GAME_OVER),
+                stateAssembler));
         return new Controllers(input, hud, master);
     }
 }

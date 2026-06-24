@@ -10,15 +10,18 @@ public final class RenderState {
     // [Alessio - missili] lista dei dati di render dei missili
     private final List<EntityRenderData> missiles;
     private final List<EntityRenderData> collectibles;
+    private final List<EntityRenderData> collisions;
 
     private RenderState(final EntityRenderData plane,
                         final HudSnapshot hud,
                         final List<EntityRenderData> missiles,
-                        final List<EntityRenderData> collectibles) {
+                        final List<EntityRenderData> collectibles,
+                        final List<EntityRenderData> collisions) {
         this.plane = plane;
         this.hud = hud;
         this.missiles = missiles;
         this.collectibles = collectibles;
+        this.collisions = collisions;
     }
 
     public EntityRenderData getPlane() { return plane; }
@@ -33,6 +36,10 @@ public final class RenderState {
         return collectibles;
     }
 
+    public List<EntityRenderData> getCollisions() {
+        return collisions;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -43,6 +50,7 @@ public final class RenderState {
         private HudSnapshot hud;
         private List<EntityRenderData> missiles = List.of();
         private List<EntityRenderData> collectibles = List.of();
+        private List<EntityRenderData> collisions = List.of();
 
         private Builder() { }
 
@@ -66,8 +74,13 @@ public final class RenderState {
             return this;
         }
 
+        public Builder collisions(final List<EntityRenderData> collisions) {
+            this.collisions = collisions;
+            return this;
+        }
+
         public RenderState build() {
-            return new RenderState(planeData, hud, missiles, collectibles);
+            return new RenderState(planeData, hud, missiles, collectibles, collisions);
         }
     }
 }

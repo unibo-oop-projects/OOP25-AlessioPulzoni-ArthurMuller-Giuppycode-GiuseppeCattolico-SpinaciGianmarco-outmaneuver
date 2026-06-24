@@ -22,6 +22,7 @@ import outmaneuver.view.RenderState;
 public final class MasterControllerImpl implements MasterController {
 
     private static final long TICK_MS = 16;
+    private static final int GAME_OVER_DELAY_TICKS = 80; // ~2 secondi per l'animazione esplosione
 
     private final List<GameView> views = new ArrayList<>();
     private final List<EntityController> entityControllers = new ArrayList<>();
@@ -34,6 +35,7 @@ public final class MasterControllerImpl implements MasterController {
     private Thread gameLoopThread;
     private volatile boolean running;
     private volatile GameEvent gameState;
+    private int gameOverDelayTicks = -1;
     private Runnable onGameOver;
     private Runnable onPause;
     private Runnable onResume;
@@ -107,10 +109,8 @@ public final class MasterControllerImpl implements MasterController {
                 System.exit(0);
             }
             case GAME_OVER -> {
-                gameState = GameEvent.GAME_OVER;
-                stop();
-                if (onGameOver != null) {
-                    onGameOver.run();
+                if (gameOverDelayTicks < 0) {
+                    gameOverDelayTicks = GAME_OVER_DELAY_TICKS;
                 }
             }
             default -> { }
@@ -135,6 +135,7 @@ public final class MasterControllerImpl implements MasterController {
             return;
         }
         gameState = GameEvent.RUNNING;
+        gameOverDelayTicks = -1;
         stateAssembler.reset();
         if (scoreController != null) {
             scoreController.reset();
@@ -180,8 +181,19 @@ public final class MasterControllerImpl implements MasterController {
         while (running && !Thread.currentThread().isInterrupted()) {
             final long frameStart = System.nanoTime();
 
-            if (gameState == GameEvent.RUNNING) {
+            if (gameState == GameEvent.RUNNING && gameOverDelayTicks < 0) {
                 updateFrame();
+            }
+
+            if (gameOverDelayTicks > 0) {
+                gameOverDelayTicks--;
+                if (gameOverDelayTicks == 0) {
+                    gameState = GameEvent.GAME_OVER;
+                    running = false;
+                    if (onGameOver != null) {
+                        onGameOver.run();
+                    }
+                }
             }
 
             renderFrame();

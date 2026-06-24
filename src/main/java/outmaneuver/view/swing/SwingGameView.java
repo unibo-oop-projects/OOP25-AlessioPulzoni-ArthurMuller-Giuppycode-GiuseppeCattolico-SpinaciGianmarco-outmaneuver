@@ -26,6 +26,8 @@ import outmaneuver.view.swing.hud.IHudView;
 public final class SwingGameView extends JPanel implements GameView {
 
     private static final Color SKY_COLOR = new Color(180, 225, 245); // azzurrino chiaro (cielo)
+    private static final int EXPLOSION_FRAMES = 12;
+    private static final double EXPLOSION_SIZE = 80.0;
     private static final SpriteId[] CLOUD_SPRITES = {
         SpriteId.CLOUD_1, SpriteId.CLOUD_2, SpriteId.CLOUD_3
     };
@@ -84,6 +86,10 @@ public final class SwingGameView extends JPanel implements GameView {
 
             for (final var col : state.getCollectibles()) {
                 drawCollectible(g2d, col, cameraX, cameraY);
+            }
+
+            for (final var col : state.getCollisions()) {
+                drawExplosion(g2d, col, cameraX, cameraY);
             }
 
             if (state.getHud() != null) {
@@ -222,6 +228,24 @@ public final class SwingGameView extends JPanel implements GameView {
             }
             clouds.add(new Cloud(worldX, worldY, sprite, scale, alpha));
         }
+    }
+
+    private void drawExplosion(final Graphics2D g2d, final EntityRenderData data,
+            final double cameraX, final double cameraY) {
+        final BufferedImage sheet = assets.getSprite(SpriteId.EXPLOSION);
+        final int frameW = sheet.getWidth() / EXPLOSION_FRAMES;
+        final int frame = (int) Math.round(data.getDirectionRad());
+        final double screenX = data.getX() - cameraX + getWidth() / 2.0;
+        final double screenY = data.getY() - cameraY + getHeight() / 2.0;
+        final double scale = EXPLOSION_SIZE / frameW;
+        final int drawW = (int) (frameW * scale);
+        final int drawH = (int) (sheet.getHeight() * scale);
+        g2d.drawImage(sheet,
+                (int) (screenX - drawW / 2), (int) (screenY - drawH / 2),
+                (int) (screenX + drawW / 2), (int) (screenY + drawH / 2),
+                frame * frameW, 0,
+                (frame + 1) * frameW, sheet.getHeight(),
+                null);
     }
 
     private void drawClouds(final Graphics2D g2d, final double cameraX, final double cameraY) {

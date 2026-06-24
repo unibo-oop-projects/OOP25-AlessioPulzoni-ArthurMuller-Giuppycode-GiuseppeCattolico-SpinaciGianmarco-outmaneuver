@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import outmaneuver.controller.EntityController;
 import outmaneuver.controller.HudController;
+import outmaneuver.controller.RenderStateAssembler;
 import outmaneuver.controller.ScoreController;
 import outmaneuver.model.area.collision.CollisionData;
 import outmaneuver.model.area.entity.Entity;
@@ -18,18 +19,21 @@ public final class EventController implements InternalEventListener {
     private final ScoreController scoreController;
     private final IGameSession session;
     private final Runnable onGameOver;
+    private final RenderStateAssembler stateAssembler;
 
     public EventController(
             final EntityController primaryEntityController,
             final HudController hudController,
             final ScoreController scoreController,
             final IGameSession session,
-            final Runnable onGameOver) {
+            final Runnable onGameOver,
+            final RenderStateAssembler stateAssembler) {
         this.primaryEntityController = Objects.requireNonNull(primaryEntityController, "primaryEntityController must not be null");
         this.hudController = Objects.requireNonNull(hudController, "hudController must not be null");
         this.scoreController = scoreController;
         this.session = Objects.requireNonNull(session, "session must not be null");
         this.onGameOver = Objects.requireNonNull(onGameOver, "onGameOver must not be null");
+        this.stateAssembler = Objects.requireNonNull(stateAssembler, "stateAssembler must not be null");
     }
 
     @Override
@@ -40,6 +44,7 @@ public final class EventController implements InternalEventListener {
 
         switch ((CollisionEvent) evt) {
             case PLANE_MISSILE_COLLISION -> {
+                stateAssembler.feedCollisionPoint(collisionData.getCollisionPoint());
                 primaryEntityController.removeEntity((Entity) collisionData.getEntityA());
                 final Plane plane = (Plane) collisionData.getEntityB();
                 if (!plane.isShieldActive()) {
@@ -57,6 +62,7 @@ public final class EventController implements InternalEventListener {
                 }
             }
             case MISSILE_MISSILE_COLLISION -> {
+                stateAssembler.feedCollisionPoint(collisionData.getCollisionPoint());
                 primaryEntityController.removeEntity((Entity) collisionData.getEntityA());
                 primaryEntityController.removeEntity((Entity) collisionData.getEntityB());
                 if (scoreController != null) {

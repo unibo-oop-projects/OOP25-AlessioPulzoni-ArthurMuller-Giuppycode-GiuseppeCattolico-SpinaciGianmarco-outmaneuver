@@ -18,6 +18,8 @@ public enum SpriteId {
     // UI_BUTTON_HOVER,
     // UI_BUTTON_PRESSED,
 
+    EXPLOSION,
+
     CLOUD_1,
     CLOUD_2,
     CLOUD_3;
