@@ -139,11 +139,12 @@ public final class MasterControllerImpl implements MasterController {
         Objects.requireNonNull(collisionEngine, "collisionEngine must be set before start()");
         Objects.requireNonNull(stateAssembler, "stateAssembler must be set before start()");
         Objects.requireNonNull(eventController, "eventController must be set before start()");
+        Objects.requireNonNull(hudController, "hudController must be set before start()");
         if (running) {
             return;
         }
         gameState = GameEvent.RUNNING;
-        stateAssembler.reset();
+        hudController.reset();
         if (scoreController != null) {
             scoreController.reset();
         }
@@ -210,6 +211,9 @@ public final class MasterControllerImpl implements MasterController {
         collisionEngine.tick();
         if (scoreController != null) {
             scoreController.onTick(TICK_MS);
+        }
+        if (hudController != null) {
+            hudController.onTick(TICK_MS);
         }
     }
 
