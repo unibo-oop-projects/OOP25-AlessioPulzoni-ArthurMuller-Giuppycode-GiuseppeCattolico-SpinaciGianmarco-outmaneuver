@@ -1,17 +1,19 @@
 package outmaneuver.model.collectibles;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.Test;
 
+import outmaneuver.model.area.collision.CollisionLayer;
+import outmaneuver.model.area.effect.Effect;
+import outmaneuver.model.area.effect.EffectImpl;
+import outmaneuver.model.area.effect.EffectType;
 import outmaneuver.model.area.entity.collectibles.ShieldPowerUp;
 import outmaneuver.model.area.entity.collectibles.SpeedBoost;
 import outmaneuver.model.area.entity.collectibles.StarCollectible;
-import outmaneuver.model.area.entity.plane.Plane;
-import outmaneuver.model.session.GameSession;
 import outmaneuver.util.Vector2;
 
 class CollectiblesTest {
@@ -19,39 +21,34 @@ class CollectiblesTest {
     // SpeedBoost
 
     @Test
-    void speedBoostAppliesMultiplierToPlane() {
-        final Plane plane = mock(Plane.class);
-        final GameSession session = new GameSession();
-        new SpeedBoost(Vector2.ZERO, 2.0, 3000L).apply(plane, session);
-        verify(plane).applySpeedMultiplier(2.0);
+    void speedBoostExposesItsEffect() {
+        final Effect effect = new EffectImpl(EffectType.SPEED_BOOST, 2.0, 3000L);
+        final SpeedBoost boost = new SpeedBoost(Vector2.ZERO, effect);
+        assertSame(effect, boost.getEffect());
+        assertEquals("speed", boost.getCollectibleType());
     }
 
     @Test
-    void speedBoostThrowsOnNonPositiveFactor() {
-        assertThrows(IllegalArgumentException.class, () -> new SpeedBoost(Vector2.ZERO, 0, 1000L));
-        assertThrows(IllegalArgumentException.class, () -> new SpeedBoost(Vector2.ZERO, -1, 1000L));
-    }
-
-    @Test
-    void speedBoostThrowsOnNonPositiveDuration() {
-        assertThrows(IllegalArgumentException.class, () -> new SpeedBoost(Vector2.ZERO, 2.0, 0L));
-        assertThrows(IllegalArgumentException.class, () -> new SpeedBoost(Vector2.ZERO, 2.0, -1L));
+    void speedBoostThrowsOnNullEffect() {
+        assertThrows(NullPointerException.class, () -> new SpeedBoost(Vector2.ZERO, null));
     }
 
     // StarCollectible
 
     @Test
-    void starCollectibleApplyDoesNotIncrementSessionScore() {
-        final Plane plane = mock(Plane.class);
-        final GameSession session = new GameSession();
-        new StarCollectible(Vector2.ZERO, 50).apply(plane, session);
-        assertEquals(0, session.getScore());
+    void starCollectibleHasNoEffect() {
+        assertNull(new StarCollectible(Vector2.ZERO, 50).getEffect());
     }
 
     @Test
     void starCollectibleGetScoreValueReturnsConfiguredValue() {
         assertEquals(30, new StarCollectible(Vector2.ZERO, 30).getScoreValue());
         assertEquals(20, new StarCollectible(Vector2.ZERO, 20).getScoreValue());
+    }
+
+    @Test
+    void starCollectibleGetCollectibleTypeIsStar() {
+        assertEquals("star", new StarCollectible(Vector2.ZERO, 10).getCollectibleType());
     }
 
     @Test
@@ -63,25 +60,37 @@ class CollectiblesTest {
     // ShieldPowerUp
 
     @Test
-    void shieldPowerUpActivatesShield() {
-        final Plane plane = mock(Plane.class);
-        final GameSession session = new GameSession();
-        new ShieldPowerUp(Vector2.ZERO, 5000L).apply(plane, session);
-        verify(plane).activateShield();
+    void shieldPowerUpExposesItsEffect() {
+        final Effect effect = new EffectImpl(EffectType.SHIELD, 5000L);
+        final ShieldPowerUp shield = new ShieldPowerUp(Vector2.ZERO, effect);
+        assertSame(effect, shield.getEffect());
+        assertEquals("shield", shield.getCollectibleType());
     }
 
     @Test
-    void shieldPowerUpDeactivatesAfterDuration() throws InterruptedException {
-        final Plane plane = mock(Plane.class);
-        final GameSession session = new GameSession();
-        new ShieldPowerUp(Vector2.ZERO, 80L).apply(plane, session);
-        Thread.sleep(150);
-        verify(plane).deactivateShield();
+    void shieldPowerUpThrowsOnNullEffect() {
+        assertThrows(NullPointerException.class, () -> new ShieldPowerUp(Vector2.ZERO, null));
+    }
+
+    // Shared AbstractCollectible behaviour
+
+    @Test
+    void collectiblesUseTheCollectibleCollisionLayer() {
+        final StarCollectible star = new StarCollectible(Vector2.ZERO, 10);
+        assertEquals(CollisionLayer.COLLECTIBLE, star.getCollisionLayer());
     }
 
     @Test
-    void shieldPowerUpThrowsOnNonPositiveDuration() {
-        assertThrows(IllegalArgumentException.class, () -> new ShieldPowerUp(Vector2.ZERO, 0L));
-        assertThrows(IllegalArgumentException.class, () -> new ShieldPowerUp(Vector2.ZERO, -1L));
+    void collectiblePositionCanBeUpdated() {
+        final StarCollectible star = new StarCollectible(Vector2.ZERO, 10);
+        final Vector2 newPos = new Vector2(100, 200);
+        star.setPosition(newPos);
+        assertEquals(newPos, star.getPosition());
+    }
+
+    @Test
+    void collectibleSetPositionNullThrows() {
+        final StarCollectible star = new StarCollectible(Vector2.ZERO, 10);
+        assertThrows(NullPointerException.class, () -> star.setPosition(null));
     }
 }

@@ -26,7 +26,6 @@ class PlaneImplTest {
         assertEquals(Vector2.ZERO, plane.getPosition());
         assertEquals(0.0, plane.getDirection(), EPS);
         assertEquals(TurnState.NONE, plane.getTurnState());
-        assertFalse(plane.isShieldActive());
         assertEquals("standard", plane.getStats().getId());
     }
 
@@ -81,26 +80,6 @@ class PlaneImplTest {
     @Test
     void testSetTurnStateNullThrows() {
         assertThrows(NullPointerException.class, () -> plane.setTurnState(null));
-    }
-
-    @Test
-    void testShield() {
-        assertFalse(plane.isShieldActive());
-        plane.activateShield();
-        assertTrue(plane.isShieldActive());
-        plane.deactivateShield();
-        assertFalse(plane.isShieldActive());
-    }
-
-    @Test
-    void testEffectiveSpeedDefault() {
-        assertEquals(200.0, plane.getEffectiveSpeed(), EPS);
-    }
-
-    @Test
-    void testEffectiveSpeedWithMultiplier() {
-        plane.applySpeedMultiplier(2.0);
-        assertEquals(400.0, plane.getEffectiveSpeed(), EPS);
     }
 
     @Test

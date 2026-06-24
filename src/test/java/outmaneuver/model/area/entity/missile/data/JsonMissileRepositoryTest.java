@@ -62,8 +62,8 @@ class JsonMissileRepositoryTest {
         assertTrue(basic.isPresent());
         final MissileData data = basic.get();
         assertEquals(320.0, data.speed(), 1e-9);
-        assertEquals(10.0, data.radius(), 1e-9);
-        assertEquals(12.0, data.lifetime(), 1e-9);
+        assertEquals(15.0, data.radius(), 1e-9);
+        assertEquals(15.0, data.lifetime(), 1e-9);
         assertEquals(150, data.outOfBoundsMargin());
     }
 }

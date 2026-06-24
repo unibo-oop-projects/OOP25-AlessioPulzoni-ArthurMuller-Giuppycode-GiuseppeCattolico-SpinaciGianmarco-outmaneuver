@@ -88,16 +88,17 @@ class CollisionEngineTest {
     }
 
     @Test
-    void clearAllRemovesAllEntities() {
+    void unregisteringAllEntitiesStopsCollisions() {
         final MissileImpl a = new TestMissile(new Vector2(0, 0));
         final MissileImpl b = new TestMissile(new Vector2(5, 0));
 
         engine.register(a);
         engine.register(b);
-        engine.clearAll();
+        engine.unregister(a);
+        engine.unregister(b);
         engine.tick();
 
-        assertTrue(listener.events.isEmpty(), "clearAll should remove all registered entities");
+        assertTrue(listener.events.isEmpty(), "Unregistering all entities should remove them from collision checks");
     }
 
     @Test

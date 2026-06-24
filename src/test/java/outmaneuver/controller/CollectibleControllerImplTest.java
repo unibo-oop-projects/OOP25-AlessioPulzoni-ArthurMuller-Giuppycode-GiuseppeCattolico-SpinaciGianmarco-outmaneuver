@@ -5,22 +5,22 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import outmaneuver.controller.event.InternalEventListener;
-import outmaneuver.controller.event.CollisionEvent;
+import outmaneuver.controller.event.EffectEvent;
 import outmaneuver.controller.event.Event;
+import outmaneuver.controller.event.InternalEventListener;
 import outmaneuver.controller.impl.CollectibleControllerImpl;
-import outmaneuver.model.area.collision.CollisionData;
-import outmaneuver.model.area.entity.collectibles.AbstractCollectible;
+import outmaneuver.model.area.effect.Effect;
+import outmaneuver.model.area.effect.EffectImpl;
+import outmaneuver.model.area.effect.EffectType;
 import outmaneuver.model.area.entity.collectibles.Collectible;
-import outmaneuver.model.area.entity.plane.Plane;
+import outmaneuver.model.area.entity.collectibles.StarCollectible;
 import outmaneuver.model.area.entity.plane.PlaneData;
 import outmaneuver.model.area.entity.plane.PlaneImpl;
-import outmaneuver.model.session.GameState;
-import outmaneuver.model.session.IGameSession;
 import outmaneuver.util.Vector2;
 import outmaneuver.view.GameView;
 import outmaneuver.view.RenderState;
@@ -29,38 +29,16 @@ class CollectibleControllerImplTest {
 
     private static final long SPAWN_INTERVAL_MS = 3000;
 
-    private static class NoOpListener implements InternalEventListener {
+    private static class RecordingListener implements InternalEventListener {
+        final List<Event> events = new ArrayList<>();
+        final List<Object> payloads = new ArrayList<>();
+
         @Override
         public void onInternalEvent(final Event evt, final Object data) {
+            events.add(evt);
+            payloads.add(data);
         }
     }
-
-    private static class StubCollectible extends AbstractCollectible {
-        boolean applied = false;
-
-        StubCollectible(final Vector2 position) {
-            super(position);
-        }
-
-        @Override
-        public void apply(final Plane plane, final IGameSession session) {
-            applied = true;
-        }
-
-        @Override
-        public String getCollectibleType() {
-            return "star";
-        }
-    }
-
-    private static final IGameSession NO_OP_SESSION = new IGameSession() {
-        @Override public GameState getGameState() { return null; }
-        @Override public int getScore() { return 0; }
-        @Override public long getElapsedTimeMillis() { return 0; }
-        @Override public void incrementScore(final int delta) { }
-        @Override public void transitionTo(final GameState state) { }
-        @Override public void reset() { }
-    };
 
     private static final class StubGameView implements GameView {
         private final int width;
@@ -74,18 +52,20 @@ class CollectibleControllerImplTest {
         @Override public void renderFrame(final RenderState state) { }
         @Override public int getWidth() { return width; }
         @Override public int getHeight() { return height; }
-    };
+    }
 
     private CollisionEngine collisionEngine;
     private PlaneImpl plane;
+    private RecordingListener listener;
     private CollectibleControllerImpl collectibleCtrl;
 
     @BeforeEach
     void setUp() {
         plane = new PlaneImpl(new PlaneData("standard", 200, 3, 20, "aircraft_standard", 0));
-        collisionEngine = new CollisionEngine(new NoOpListener());
-        collectibleCtrl = new CollectibleControllerImpl(
-                new ArrayList<>(), collisionEngine, NO_OP_SESSION);
+        listener = new RecordingListener();
+        collisionEngine = new CollisionEngine(listener);
+        collectibleCtrl = new CollectibleControllerImpl(new ArrayList<>(), collisionEngine);
+        collectibleCtrl.setEventListener(listener);
         collectibleCtrl.setView(new StubGameView(800, 600));
     }
 
@@ -93,57 +73,104 @@ class CollectibleControllerImplTest {
 
     @Test
     void spawnEntity_addsCollectibleToEntities() {
-        final StubCollectible col = new StubCollectible(new Vector2(500, 500));
+        final Collectible col = star(new Vector2(500, 500));
         collectibleCtrl.spawnEntity(col);
         assertTrue(collectibleCtrl.getEntities().contains(col));
     }
 
     @Test
     void removeEntity_removesCollectible() {
-        final StubCollectible col = new StubCollectible(Vector2.ZERO);
+        final Collectible col = star(Vector2.ZERO);
         collectibleCtrl.spawnEntity(col);
         collectibleCtrl.removeEntity(col);
         assertFalse(collectibleCtrl.getEntities().contains(col));
     }
 
+    // ── addEffect / hasEffect / getEffectMultiplier ───────────────────
+
     @Test
-    void clearAll_removesCollectiblesButKeepsPlane() {
+    void addEffect_activatesEffectAndFiresEffectApplied() {
+        final Effect effect = new EffectImpl(EffectType.SPEED_BOOST, 2.0, 3000L);
+        collectibleCtrl.addEffect(effect);
+
+        assertTrue(collectibleCtrl.hasEffect(EffectImpl.class));
+        assertEquals(2.0, collectibleCtrl.getEffectMultiplier());
+        assertTrue(listener.events.contains(EffectEvent.EFFECT_APPLIED));
+        assertTrue(listener.payloads.contains(effect));
+    }
+
+    @Test
+    void addEffect_sameTypeReplacesPreviousEffect() {
+        collectibleCtrl.addEffect(new EffectImpl(EffectType.SPEED_BOOST, 2.0, 3000L));
+        final Effect replacement = new EffectImpl(EffectType.SPEED_BOOST, 4.0, 1000L);
+        collectibleCtrl.addEffect(replacement);
+
+        assertEquals(4.0, collectibleCtrl.getEffectMultiplier(),
+                "A new effect of the same type should replace the active one rather than stack");
+    }
+
+    @Test
+    void hasEffect_falseWhenNoEffectActive() {
+        assertFalse(collectibleCtrl.hasEffect(EffectImpl.class));
+    }
+
+    @Test
+    void getEffectMultiplier_defaultsToOneWithoutActiveEffect() {
+        assertEquals(1.0, collectibleCtrl.getEffectMultiplier());
+    }
+
+    // ── updateEntities – effect expiry (CollectibleControllerImpl-specific) ──
+
+    @Test
+    void updateEntities_expiresEffectAfterItsDurationAndFiresEffectExpired() {
+        final Effect effect = new EffectImpl(EffectType.SHIELD, 100L);
+        collectibleCtrl.addEffect(effect);
+        listener.events.clear();
+        listener.payloads.clear();
+
+        collectibleCtrl.updateEntities(150L);
+
+        assertFalse(collectibleCtrl.hasEffect(EffectImpl.class), "Expired effect should no longer be active");
+        assertTrue(listener.events.contains(EffectEvent.EFFECT_EXPIRED));
+        assertTrue(listener.payloads.contains(effect));
+    }
+
+    @Test
+    void updateEntities_doesNotExpireEffectBeforeItsDuration() {
+        collectibleCtrl.addEffect(new EffectImpl(EffectType.SHIELD, 1000L));
+        collectibleCtrl.updateEntities(10L);
+        assertTrue(collectibleCtrl.hasEffect(EffectImpl.class));
+    }
+
+    // ── clearAll – clears active effects only, leaves entities untouched ──
+
+    @Test
+    void clearAll_clearsActiveEffectsAndFiresEffectExpired() {
+        final Effect effect = new EffectImpl(EffectType.SHIELD, 5000L);
+        collectibleCtrl.addEffect(effect);
+        listener.events.clear();
+        listener.payloads.clear();
+
+        collectibleCtrl.clearAll();
+
+        assertFalse(collectibleCtrl.hasEffect(EffectImpl.class));
+        assertTrue(listener.events.contains(EffectEvent.EFFECT_EXPIRED));
+    }
+
+    @Test
+    void clearAll_doesNotRemoveSpawnedEntities() {
         collectibleCtrl.spawnEntity(plane);
-        final StubCollectible col = new StubCollectible(new Vector2(200, 200));
+        final Collectible col = star(new Vector2(200, 200));
         collectibleCtrl.spawnEntity(col);
 
         collectibleCtrl.clearAll();
 
-        assertFalse(collectibleCtrl.getEntities().contains(col), "Collectible should be gone after clearAll");
-        assertTrue(collectibleCtrl.getEntities().contains(plane), "Plane should stay after clearAll");
+        assertTrue(collectibleCtrl.getEntities().contains(plane));
+        assertTrue(collectibleCtrl.getEntities().contains(col),
+                "clearAll only resets active effects; entity cleanup is handled elsewhere");
     }
 
-    // ── onInternalEvent (inherited from EntityControllerImpl) ─────────────
-
-    @Test
-    void collisionEvent_appliesEffectAndRemovesCollectible() {
-        final StubCollectible col = new StubCollectible(plane.getPosition());
-        collectibleCtrl.spawnEntity(col);
-
-        final CollisionData cd = new CollisionData(plane, col, plane.getPosition());
-        collectibleCtrl.onInternalEvent(CollisionEvent.PLANE_COLLECTIBLE_COLLISION, cd);
-
-        assertFalse(collectibleCtrl.getEntities().contains(col), "Collectible should be removed on pickup");
-        assertTrue(col.applied, "apply() should have been called");
-    }
-
-    @Test
-    void unrelatedEvent_collectibleRemains() {
-        final StubCollectible col = new StubCollectible(new Vector2(99999, 99999));
-        collectibleCtrl.spawnEntity(col);
-
-        collectibleCtrl.onInternalEvent(CollisionEvent.MISSILE_MISSILE_COLLISION, null);
-
-        assertTrue(collectibleCtrl.getEntities().contains(col), "Collectible should remain untouched");
-        assertFalse(col.applied, "apply() should not have been called");
-    }
-
-    // ── updateEntities – spawn timing (CollectibleControllerImpl-specific) ──
+    // ── updateEntities – spawn timing ─────────────────────────────────
 
     @Test
     void updateEntities_doesNotSpawnBeforeInterval() {
@@ -186,12 +213,16 @@ class CollectibleControllerImplTest {
     @Test
     void updateEntities_doesNotSpawnWithZeroViewSize() {
         final CollectibleControllerImpl zeroViewCtrl =
-                new CollectibleControllerImpl(new ArrayList<>(), collisionEngine, NO_OP_SESSION);
+                new CollectibleControllerImpl(new ArrayList<>(), collisionEngine);
         zeroViewCtrl.setView(new StubGameView(0, 0));
         zeroViewCtrl.spawnEntity(plane);
         zeroViewCtrl.updateEntities(SPAWN_INTERVAL_MS);
 
         assertEquals(1, zeroViewCtrl.getEntities().size(),
                 "Only the plane should remain when the view size is zero");
+    }
+
+    private static Collectible star(final Vector2 position) {
+        return new StarCollectible(position, 10);
     }
 }

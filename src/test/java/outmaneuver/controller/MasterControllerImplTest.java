@@ -10,22 +10,26 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import outmaneuver.controller.impl.HudControllerImpl;
+import outmaneuver.controller.impl.InputControllerImpl;
 import outmaneuver.controller.impl.MasterControllerImpl;
+import outmaneuver.controller.impl.RenderStateAssemblerImpl;
 import outmaneuver.controller.event.Event;
 import outmaneuver.model.area.entity.Entity;
 import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.model.area.entity.plane.PlaneData;
 import outmaneuver.model.area.entity.plane.PlaneImpl;
 import outmaneuver.util.Vector2;
-import outmaneuver.view.EntityRenderData;
 import outmaneuver.view.GameView;
-import outmaneuver.view.HudSnapshot;
 import outmaneuver.view.RenderState;
 import outmaneuver.controller.event.GameEvent;
 
 class MasterControllerImplTest {
 
     private static final long TICK_WAIT_MS = 100;
+    /** Longer than one TICK_MS (16ms), so any tick already in flight when handleEvent() is
+     * called has time to land before the test samples "during pause" state. */
+    private static final long PAUSE_SETTLE_MS = 30;
 
     /**
      * Minimal EntityController double: advances any spawned plane along +X by
@@ -34,6 +38,7 @@ class MasterControllerImplTest {
      */
     private static final class FakeEntityController implements EntityController {
         private final List<Entity> entities;
+        private Plane plane;
 
         FakeEntityController(final List<Entity> entities) {
             this.entities = entities;
@@ -49,11 +54,18 @@ class MasterControllerImplTest {
 
         @Override
         public void clearAll() {
-            entities.removeIf(e -> !(e instanceof Plane));
+            // Mirrors PlaneControllerImpl: removeAll() wipes the shared list, so the
+            // plane has to be re-seeded here, not merely filtered back into existence.
+            if (plane != null) {
+                spawnEntity(plane);
+            }
         }
 
         @Override
         public void spawnEntity(final Entity entity) {
+            if (entity instanceof final Plane p) {
+                plane = p;
+            }
             entities.add(entity);
         }
 
@@ -63,36 +75,17 @@ class MasterControllerImplTest {
         }
 
         @Override
+        public void removeAll() {
+            entities.clear();
+        }
+
+        @Override
         public List<Entity> getEntities() {
             return List.copyOf(entities);
         }
 
         @Override
         public void onInternalEvent(final Event evt, final Object data) {
-        }
-    }
-
-    private static final class StubRenderStateAssembler implements RenderStateAssembler {
-        @Override
-        public RenderState assemble(final List<Entity> entities, final boolean paused) {
-            final Plane plane = entities.stream()
-                    .filter(e -> e instanceof Plane)
-                    .map(e -> (Plane) e)
-                    .findFirst()
-                    .orElse(null);
-            final EntityRenderData planeData = plane != null
-                    ? new EntityRenderData(plane.getPosition().getX(), plane.getPosition().getY(),
-                            plane.getDirection(), plane.getStats().getSpriteId(),
-                            plane.getStats().getHitboxRadius())
-                    : null;
-            return RenderState.builder()
-                    .planeData(planeData)
-                    .hud(new HudSnapshot(0, 0, false, paused, 0))
-                    .build();
-        }
-
-        @Override
-        public void reset() {
         }
     }
 
@@ -132,8 +125,10 @@ class MasterControllerImplTest {
         master.addEntityController(entityCtrl);
         master.setSceneEntities(sharedEntities);
         master.setCollisionEngine(new CollisionEngine(master));
-        master.setStateAssembler(new StubRenderStateAssembler());
+        master.setStateAssembler(new RenderStateAssemblerImpl());
         master.setEventController((evt, data) -> { });
+        master.setHudController(new HudControllerImpl());
+        master.setInputController(new InputControllerImpl());
     }
 
     @Test
@@ -165,6 +160,9 @@ class MasterControllerImplTest {
         spyView.frames.clear();
 
         master.handleEvent(GameEvent.PAUSED);
+        // Let any tick already in flight on the game-loop thread land before sampling,
+        // otherwise it can race with handleEvent() and sneak in one extra move.
+        Thread.sleep(PAUSE_SETTLE_MS);
         final Vector2 posBefore = plane.getPosition();
         Thread.sleep(TICK_WAIT_MS);
         master.stop();
@@ -201,6 +199,7 @@ class MasterControllerImplTest {
 
         spyView.frames.clear();
         master.handleEvent(GameEvent.PAUSED);
+        Thread.sleep(PAUSE_SETTLE_MS);
         final Vector2 posDuringPause1 = plane.getPosition();
         Thread.sleep(TICK_WAIT_MS);
         final Vector2 posDuringPause2 = plane.getPosition();
