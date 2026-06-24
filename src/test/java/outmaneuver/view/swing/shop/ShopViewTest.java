@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import outmaneuver.model.area.entity.plane.PlaneData;
 import outmaneuver.model.area.entity.plane.PlaneStats;
 import outmaneuver.model.shop.ShopItem;
+import outmaneuver.util.assets.AssetStore;
 
 class ShopViewTest {
 
@@ -20,7 +21,7 @@ class ShopViewTest {
     private static final Predicate<String> NOT_OWNED  = id -> false;
 
     private ShopView build() {
-        return new ShopView(List.of(ITEM), () -> 500, EQUIPPED, NOT_OWNED, item -> true, () -> { });
+        return new ShopView(null, List.of(ITEM), () -> 500, EQUIPPED, NOT_OWNED, item -> true, () -> { });
     }
 
     @Test
@@ -29,45 +30,51 @@ class ShopViewTest {
     }
 
     @Test
+    void constructorRejectsNullAssets() {
+        assertThrows(NullPointerException.class, () -> new ShopView(
+                null, List.of(ITEM), () -> 0, EQUIPPED, NOT_OWNED, item -> true, () -> { }));
+    }
+
+    @Test
     void constructorRejectsNullCatalog() {
         assertThrows(NullPointerException.class, () -> new ShopView(
-                null, () -> 0, EQUIPPED, NOT_OWNED, item -> true, () -> { }));
+                null, null, () -> 0, EQUIPPED, NOT_OWNED, item -> true, () -> { }));
     }
 
     @Test
     void constructorRejectsEmptyCatalog() {
         assertThrows(IllegalArgumentException.class, () -> new ShopView(
-                List.of(), () -> 0, EQUIPPED, NOT_OWNED, item -> true, () -> { }));
+                null, List.of(), () -> 0, EQUIPPED, NOT_OWNED, item -> true, () -> { }));
     }
 
     @Test
     void constructorRejectsNullCoinsSupplier() {
         assertThrows(NullPointerException.class, () -> new ShopView(
-                List.of(ITEM), null, EQUIPPED, NOT_OWNED, item -> true, () -> { }));
+                null, List.of(ITEM), null, EQUIPPED, NOT_OWNED, item -> true, () -> { }));
     }
 
     @Test
     void constructorRejectsNullEquippedSupplier() {
         assertThrows(NullPointerException.class, () -> new ShopView(
-                List.of(ITEM), () -> 0, null, NOT_OWNED, item -> true, () -> { }));
+                null, List.of(ITEM), () -> 0, null, NOT_OWNED, item -> true, () -> { }));
     }
 
     @Test
     void constructorRejectsNullIsOwned() {
         assertThrows(NullPointerException.class, () -> new ShopView(
-                List.of(ITEM), () -> 0, EQUIPPED, null, item -> true, () -> { }));
+                null, List.of(ITEM), () -> 0, EQUIPPED, null, item -> true, () -> { }));
     }
 
     @Test
     void constructorRejectsNullOnPurchase() {
         assertThrows(NullPointerException.class, () -> new ShopView(
-                List.of(ITEM), () -> 0, EQUIPPED, NOT_OWNED, null, () -> { }));
+                null, List.of(ITEM), () -> 0, EQUIPPED, NOT_OWNED, null, () -> { }));
     }
 
     @Test
     void constructorRejectsNullOnBack() {
         assertThrows(NullPointerException.class, () -> new ShopView(
-                List.of(ITEM), () -> 0, EQUIPPED, NOT_OWNED, item -> true, null));
+                null, List.of(ITEM), () -> 0, EQUIPPED, NOT_OWNED, item -> true, null));
     }
 
     @Test
