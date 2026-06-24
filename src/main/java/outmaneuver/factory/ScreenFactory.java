@@ -74,6 +74,7 @@ public final class ScreenFactory {
         final LeaderboardView[] leaderboardRef = { null };
 
         final ShopView shopView = new ShopView(
+                assets,
                 shop.getCatalog(),
                 profile::getCoins,
                 plane::getStats,
