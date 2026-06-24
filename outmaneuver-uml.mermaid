@@ -1,0 +1,897 @@
+classDiagram
+
+%% ─────────────────────────────────────────────
+%% UTIL
+%% ─────────────────────────────────────────────
+class Vector2 {
+    +double x
+    +double y
+    +ZERO Vector2
+    +fromAngle(double) Vector2
+    +add(Vector2) Vector2
+    +subtract(Vector2) Vector2
+    +scale(double) Vector2
+    +normalize() Vector2
+    +magnitude() double
+    +dot(Vector2) double
+    +angle() double
+    +reflectX() Vector2
+    +reflectY() Vector2
+}
+
+class GsonProvider {
+    +create() Gson
+    +builder() GsonBuilder
+}
+
+class JsonFileStore~T~ {
+    -Path filePath
+    -Type type
+    -Gson gson
+    +forType(Path, Type, Gson) JsonFileStore~T~
+    +forList(Path, Class~T~, Gson) JsonFileStore~List~T~~
+    +load() T
+    +save(T) void
+}
+
+class JsonResourceLoader~T~ {
+    -String resourcePath
+    -Type type
+    -Gson gson
+    +forType(String, Type, Gson) JsonResourceLoader~T~
+    +forList(String, Class~T~, Gson) JsonResourceLoader~List~T~~
+    +load() T
+}
+
+class AssetStore {
+    <<interface>>
+    +getSprite(SpriteId) BufferedImage
+}
+
+class ClasspathAssetStore {
+    -Map~SpriteId, BufferedImage~ cache
+    +getSprite(SpriteId) BufferedImage
+}
+
+class SpriteId {
+    <<enumeration>>
+    PLANE_STANDARD
+    PLANE_FAST
+    PLANE_HEAVY
+    MISSILE_BASIC
+    MISSILE_FAST
+    MISSILE_SNIPER
+    MISSILE_BOUNCE
+    MISSILE_SHIELD
+    MISSILE_CLOCK
+    COLLECTIBLE_STAR
+    COLLECTIBLE_SPEED
+    COLLECTIBLE_SHIELD
+    UI_BUTTON_NORMAL
+    EXPLOSION
+    SHIELD
+    CLOUD_1
+    CLOUD_2
+    CLOUD_3
+    +getFilename() String
+    +fromFilename(String) SpriteId
+}
+
+ClasspathAssetStore ..|> AssetStore
+
+%% ─────────────────────────────────────────────
+%% MODEL – COLLISION
+%% ─────────────────────────────────────────────
+class ICollidable {
+    <<interface>>
+    +getHitbox() Hitbox
+    +getCollisionLayer() CollisionLayer
+}
+
+class Hitbox {
+    -Vector2 center
+    -double radius
+    +getCenter() Vector2
+    +getRadius() double
+    +intersects(Hitbox) boolean
+    +collisionPoint(Hitbox) Vector2
+}
+
+class CollisionLayer {
+    <<enumeration>>
+    PLANE
+    MISSILE
+    COLLECTIBLE
+}
+
+class CollisionData {
+    -ICollidable entityA
+    -ICollidable entityB
+    -Vector2 collisionPoint
+    +getEntityA() ICollidable
+    +getEntityB() ICollidable
+    +getCollisionPoint() Vector2
+}
+
+Hitbox --> Vector2
+CollisionData --> ICollidable
+CollisionData --> Vector2
+
+%% ─────────────────────────────────────────────
+%% MODEL – EFFECT
+%% ─────────────────────────────────────────────
+class Effect {
+    <<interface>>
+    +update(long) void
+    +isActive() boolean
+    +getMultiplier() double
+    +getType() EffectType
+}
+
+class EffectImpl {
+    -EffectType type
+    -long remainingMs
+    -boolean active
+    -double multiplier
+    +update(long) void
+    +isActive() boolean
+    +getMultiplier() double
+    +getType() EffectType
+}
+
+class EffectType {
+    <<enumeration>>
+    SHIELD
+    SPEED_BOOST
+}
+
+EffectImpl ..|> Effect
+EffectImpl --> EffectType
+Effect --> EffectType
+
+%% ─────────────────────────────────────────────
+%% MODEL – ENTITY
+%% ─────────────────────────────────────────────
+class Entity {
+    <<interface>>
+    +getPosition() Vector2
+    +setPosition(Vector2) void
+}
+
+Entity --|> ICollidable
+
+%% ─────────────────────────────────────────────
+%% MODEL – PLANE
+%% ─────────────────────────────────────────────
+class PlaneStats {
+    <<interface>>
+    +getId() String
+    +getBaseSpeed() double
+    +getTurnRate() double
+    +getHitboxRadius() double
+    +getSpriteId() String
+}
+
+class PlaneData {
+    <<record>>
+    +String id
+    +double baseSpeed
+    +double turnRate
+    +double hitboxRadius
+    +String spriteId
+    +int price
+}
+
+class TurnState {
+    <<enumeration>>
+    NONE
+    LEFT
+    RIGHT
+}
+
+class Plane {
+    <<interface>>
+    +getDirection() double
+    +setDirection(double) void
+    +getStats() PlaneStats
+    +setStats(PlaneStats) void
+    +getTurnState() TurnState
+    +setTurnState(TurnState) void
+}
+
+class PlaneImpl {
+    -Vector2 position
+    -double direction
+    -PlaneStats stats
+    -TurnState turnState
+    +getHitbox() Hitbox
+    +getCollisionLayer() CollisionLayer
+}
+
+class PlaneRepository {
+    <<interface>>
+    +loadAll() List~PlaneData~
+    +loadById(String) Optional~PlaneData~
+}
+
+class JsonPlaneRepository {
+    -List~PlaneData~ planes
+    +loadAll() List~PlaneData~
+    +loadById(String) Optional~PlaneData~
+}
+
+PlaneData ..|> PlaneStats
+Plane --|> Entity
+PlaneImpl ..|> Plane
+PlaneImpl --> PlaneStats
+PlaneImpl --> TurnState
+PlaneImpl --> Hitbox
+JsonPlaneRepository ..|> PlaneRepository
+JsonPlaneRepository --> JsonResourceLoader
+
+%% ─────────────────────────────────────────────
+%% MODEL – MISSILE
+%% ─────────────────────────────────────────────
+class Missile {
+    <<interface>>
+    +update(Plane, double) void
+    +redirectIfOutOfBounds(Plane, Dimension, double) void
+    +setInitialDirection(Vector2) void
+    +isAlive() boolean
+    +onCollision(List~Missile~) void
+    +checkBounce(Vector2, Dimension) void
+    +slowDown(double, double) void
+    +getMissileType() String
+    +getDirection() double
+}
+
+class MissileImpl {
+    <<abstract>>
+    -Vector2 position
+    -Vector2 velocity
+    -String type
+    -double speed
+    -double maxTurnAngle
+    -double hitboxRadius
+    -boolean alive
+    #steer(Vector2) void
+    #destroy() void
+    +getHitbox() Hitbox
+    +getCollisionLayer() CollisionLayer
+}
+
+class MissileData {
+    <<record>>
+    +String type
+    +double speed
+    +double maxTurn
+    +double radius
+    +double lifetime
+    +double predictionTime
+    +int outOfBoundsMargin
+    +SlowEffect slow
+}
+
+class MissileRepository {
+    <<interface>>
+    +loadByType(String) Optional~MissileData~
+}
+
+class JsonMissileRepository {
+    -List~MissileData~ missiles
+    +loadByType(String) Optional~MissileData~
+}
+
+class StandardMissile
+class SniperMissile {
+    #steer(Vector2) void
+}
+class BounceMissile {
+    #steer(Vector2) void
+    +checkBounce(Vector2, Dimension) void
+}
+class ShieldMissile {
+    -boolean shielded
+    +onCollision(List~Missile~) void
+}
+class ClockMissile {
+    -SlowEffect slow
+    +onCollision(List~Missile~) void
+}
+
+Missile --|> Entity
+MissileImpl ..|> Missile
+StandardMissile --|> MissileImpl
+SniperMissile --|> MissileImpl
+BounceMissile --|> MissileImpl
+ShieldMissile --|> MissileImpl
+ClockMissile --|> MissileImpl
+MissileImpl --> MissileData
+JsonMissileRepository ..|> MissileRepository
+JsonMissileRepository --> JsonResourceLoader
+
+%% ─────────────────────────────────────────────
+%% MODEL – COLLECTIBLES
+%% ─────────────────────────────────────────────
+class Collectible {
+    <<interface>>
+    +getEffect() Effect
+    +getCollectibleType() String
+}
+
+class AbstractCollectible {
+    <<abstract>>
+    #Vector2 position
+    #Effect effect
+    +getHitbox() Hitbox
+    +getCollisionLayer() CollisionLayer
+}
+
+class StarCollectible {
+    -int scoreValue
+    +getScoreValue() int
+    +getCollectibleType() String
+}
+
+class ShieldPowerUp {
+    +getCollectibleType() String
+}
+
+class SpeedBoost {
+    +getCollectibleType() String
+}
+
+Collectible --|> Entity
+AbstractCollectible ..|> Collectible
+StarCollectible --|> AbstractCollectible
+ShieldPowerUp --|> AbstractCollectible
+SpeedBoost --|> AbstractCollectible
+AbstractCollectible --> Effect
+
+%% ─────────────────────────────────────────────
+%% MODEL – SESSION
+%% ─────────────────────────────────────────────
+class IGameSession {
+    <<interface>>
+    +getGameState() GameState
+    +getScore() int
+    +getElapsedTimeMillis() long
+    +reset() void
+    +incrementScore(int) void
+    +transitionTo(GameState) void
+}
+
+class GameSession {
+    -int score
+    -GameState currentState
+    -long accumulatedPlayingMs
+    -long playingStartMs
+}
+
+class GameState {
+    <<enumeration>>
+    MENU
+    PLAYING
+    PAUSED
+    GAME_OVER
+}
+
+class ScoreEntry {
+    <<record>>
+    +int score
+    +String playerName
+    +LocalDate date
+}
+
+GameSession ..|> IGameSession
+GameSession --> GameState
+IGameSession --> GameState
+
+%% ─────────────────────────────────────────────
+%% MODEL – WALLET / SHOP
+%% ─────────────────────────────────────────────
+class IWallet {
+    <<interface>>
+    +getCoins() int
+    +addCoins(int) void
+    +spend(int) boolean
+}
+
+class IShop {
+    <<interface>>
+    +getCatalog() List~ShopItem~
+    +purchase(ShopItem, Plane, IWallet) boolean
+}
+
+class Shop {
+    -List~ShopItem~ catalog
+    +getCatalog() List~ShopItem~
+    +purchase(ShopItem, Plane, IWallet) boolean
+}
+
+class ShopItem {
+    <<record>>
+    +PlaneStats stats
+    +int price
+}
+
+Shop ..|> IShop
+Shop --> ShopItem
+Shop --> IWallet
+Shop --> Plane
+ShopItem --> PlaneStats
+
+%% ─────────────────────────────────────────────
+%% MODEL – PROFILE
+%% ─────────────────────────────────────────────
+class IPlayerProfileRepository {
+    <<interface>>
+    +load() PlayerProfileData
+    +persist(PlayerProfileData) void
+}
+
+class JsonPlayerProfileRepository {
+    -JsonFileStore~PlayerProfileData~ store
+    +load() PlayerProfileData
+    +persist(PlayerProfileData) void
+    +defaultProfilePath() Path
+    +create() JsonPlayerProfileRepository
+}
+
+class PlayerProfile {
+    -IPlayerProfileRepository repository
+    -String playerName
+    -int coins
+    -Set~String~ ownedPlaneIds
+    -List~ScoreEntry~ scores
+    +getPlayerName() String
+    +setPlayerName(String) void
+    +ownsPlane(String) boolean
+    +addOwnedPlane(String) void
+    +saveScore(int, String) void
+    +getTopScores() List~ScoreEntry~
+    +getCoins() int
+    +addCoins(int) void
+    +spend(int) boolean
+}
+
+class PlayerProfileData {
+    <<record>>
+    +String playerName
+    +int coins
+    +List~String~ ownedPlaneIds
+    +List~ScoreEntry~ scores
+    +defaultProfile() PlayerProfileData
+}
+
+class DifficultyConfig {
+    <<record>>
+    +double initialSpawnRate
+    +double spawnRateIncrement
+    +int maxMissilesOnScreen
+    +defaultConfig() DifficultyConfig
+}
+
+PlayerProfile ..|> IWallet
+PlayerProfile --> IPlayerProfileRepository
+PlayerProfile --> PlayerProfileData
+PlayerProfile --> ScoreEntry
+JsonPlayerProfileRepository ..|> IPlayerProfileRepository
+JsonPlayerProfileRepository --> JsonFileStore
+PlayerProfileData --> ScoreEntry
+
+%% ─────────────────────────────────────────────
+%% CONTROLLER – INTERFACES
+%% ─────────────────────────────────────────────
+class Event {
+    <<interface>>
+}
+
+class InternalEventListener {
+    <<interface>>
+    +onInternalEvent(Event, Object) void
+}
+
+class CollisionEvent {
+    <<enumeration>>
+    MISSILE_MISSILE_COLLISION
+    PLANE_MISSILE_COLLISION
+    PLANE_COLLECTIBLE_COLLISION
+}
+
+class EffectEvent {
+    <<enumeration>>
+    EFFECT_APPLIED
+    EFFECT_EXPIRED
+}
+
+class GameEvent {
+    <<enumeration>>
+    RUNNING
+    PAUSED
+    QUIT_APPLICATION
+    GAME_OVER
+}
+
+CollisionEvent ..|> Event
+EffectEvent ..|> Event
+GameEvent ..|> Event
+
+class EntityController {
+    <<interface>>
+    +updateEntities(long) void
+    +clearAll() void
+    +spawnEntity(Entity) void
+    +removeEntity(Entity) void
+    +removeAll() void
+    +getEntities() List~Entity~
+    +setView(GameView) void
+}
+
+class InputController {
+    <<interface>>
+    +onKeyPressed(int) void
+    +onKeyReleased(int) void
+    +getTurnDirection() double
+    +reset() void
+}
+
+class HudController {
+    <<interface>>
+    +onTick(long) void
+    +setShieldActive(boolean) void
+    +setSpeedMultiplier(double) void
+    +getElapsedMs() long
+    +getSpeedMultiplier() double
+    +isShieldActive() boolean
+    +getStars() int
+    +reset() void
+}
+
+class ScoreController {
+    <<interface>>
+    +onTick(long) void
+    +reset() void
+}
+
+class RenderStateAssembler {
+    <<interface>>
+    +assemble(List~Entity~, boolean, long, int, double, boolean, List~Vector2~) RenderState
+    +reset() void
+}
+
+class MasterController {
+    <<interface>>
+    +handleEvent(GameEvent) void
+    +attachView(GameView) void
+    +start() void
+    +stop() void
+    +shutdown() void
+}
+
+EntityController --|> InternalEventListener
+HudController --|> InternalEventListener
+ScoreController --|> InternalEventListener
+MasterController --|> InternalEventListener
+
+%% ─────────────────────────────────────────────
+%% CONTROLLER – IMPLEMENTATIONS
+%% ─────────────────────────────────────────────
+class CollisionEngine {
+    -InternalEventListener eventListener
+    -List~ICollidable~ entities
+    +register(ICollidable) void
+    +unregister(ICollidable) void
+    +tick() void
+}
+
+class EntityControllerImpl {
+    <<abstract>>
+    -List~Entity~ entities
+    -CollisionEngine collisionEngine
+    -InternalEventListener eventListener
+    -GameView view
+    +spawnEntity(Entity) void
+    +removeEntity(Entity) void
+    +removeAll() void
+    +getEntities() List~Entity~
+    #getView() GameView
+}
+
+class PlaneControllerImpl {
+    -InputController inputController
+    -Plane plane
+    -double speedMultiplier
+    +updateEntities(long) void
+    +clearAll() void
+    +setSpeedMultiplier(double) void
+}
+
+class MissileControllerImpl {
+    -MissileRepository missileRepo
+    -MissileSpawnDirector spawnDirector
+    -double elapsedTime
+    -boolean shieldActive
+    +updateEntities(long) void
+    +clearAll() void
+    +setShieldActrive(boolean) void
+    +setSpeedMultiplier(double) void
+}
+
+class CollectibleControllerImpl {
+    -List~Effect~ activeEffects
+    -long accumulatedMs
+    +updateEntities(long) void
+    +addEffect(Effect) void
+    +clearAll() void
+}
+
+class HudControllerImpl {
+    -long elapsedMs
+    -double speedMultiplier
+    -boolean shieldActive
+    -int stars
+    +onTick(long) void
+    +reset() void
+}
+
+class ScoreControllerImpl {
+    -IGameSession session
+    -long pendingMs
+    +onTick(long) void
+    +reset() void
+}
+
+class InputControllerImpl {
+    -Set~Integer~ pressedKeys
+    +onKeyPressed(int) void
+    +onKeyReleased(int) void
+    +getTurnDirection() double
+    +reset() void
+}
+
+class RenderStateAssemblerImpl {
+    -List~ExplosionInstance~ activeExplosions
+    +assemble(...) RenderState
+    +reset() void
+}
+
+class MasterControllerImpl {
+    -List~GameView~ views
+    -List~EntityController~ entityControllers
+    -HudController hudController
+    -ScoreController scoreController
+    -CollisionEngine collisionEngine
+    -RenderStateAssembler stateAssembler
+    -volatile GameEvent gameState
+    +handleEvent(GameEvent) void
+    +attachView(GameView) void
+    +start() void
+    +stop() void
+    +shutdown() void
+    +addEntityController(EntityController) void
+    +getEntityController(Class) Optional~T~
+}
+
+class EventController {
+    -PlaneControllerImpl planeController
+    -CollectibleControllerImpl collectibleController
+    -MissileControllerImpl missileController
+    -ScoreController scoreController
+    -HudController hudController
+    -boolean shieldActive
+    +onInternalEvent(Event, Object) void
+}
+
+class MissileKind {
+    <<enumeration>>
+    BASIC
+    BOUNCE
+    SNIPER
+    FAST
+    CLOCK
+    SHIELD
+    +id() String
+    +isUnlockedAt(double) boolean
+    +create(Vector2, MissileData) Missile
+}
+
+class MissileSpawnDirector {
+    -Random rng
+    +nextKind(double, List~Missile~, boolean) MissileKind
+}
+
+EntityControllerImpl ..|> EntityController
+PlaneControllerImpl --|> EntityControllerImpl
+MissileControllerImpl --|> EntityControllerImpl
+CollectibleControllerImpl --|> EntityControllerImpl
+HudControllerImpl ..|> HudController
+ScoreControllerImpl ..|> ScoreController
+InputControllerImpl ..|> InputController
+RenderStateAssemblerImpl ..|> RenderStateAssembler
+MasterControllerImpl ..|> MasterController
+EventController ..|> InternalEventListener
+
+MasterControllerImpl --> CollisionEngine
+MasterControllerImpl --> HudController
+MasterControllerImpl --> ScoreController
+MasterControllerImpl --> RenderStateAssembler
+MasterControllerImpl --> EntityController
+MasterControllerImpl --> InternalEventListener
+
+CollisionEngine --> InternalEventListener
+CollisionEngine --> ICollidable
+CollisionEngine --> CollisionData
+
+PlaneControllerImpl --> InputController
+PlaneControllerImpl --> Plane
+MissileControllerImpl --> MissileRepository
+MissileControllerImpl --> MissileSpawnDirector
+CollectibleControllerImpl --> Effect
+ScoreControllerImpl --> IGameSession
+EventController --> PlaneControllerImpl
+EventController --> CollectibleControllerImpl
+EventController --> MissileControllerImpl
+EventController --> ScoreController
+EventController --> HudController
+
+MissileSpawnDirector --> MissileKind
+MissileKind --> Missile
+MissileKind --> MissileData
+MissileKind --> Vector2
+
+%% ─────────────────────────────────────────────
+%% VIEW – INTERFACES & DATA
+%% ─────────────────────────────────────────────
+class GameView {
+    <<interface>>
+    +renderFrame(RenderState) void
+    +getWidth() int
+    +getHeight() int
+}
+
+class RenderState {
+    -EntityRenderData plane
+    -HudSnapshot hud
+    -List~EntityRenderData~ missiles
+    -List~EntityRenderData~ collectibles
+    -List~EntityRenderData~ collisions
+    +getPlane() EntityRenderData
+    +getMissiles() List~EntityRenderData~
+    +getHud() HudSnapshot
+    +getCollectibles() List~EntityRenderData~
+    +getCollisions() List~EntityRenderData~
+}
+
+class EntityRenderData {
+    -double x
+    -double y
+    -double directionRad
+    -String spriteId
+    -double radius
+}
+
+class HudSnapshot {
+    <<record>>
+    +long elapsedMs
+    +double speed
+    +boolean shieldActive
+    +boolean paused
+    +int stars
+}
+
+class IHudView {
+    <<interface>>
+    +render(Graphics2D, HudSnapshot, GameView) void
+}
+
+RenderState --> EntityRenderData
+RenderState --> HudSnapshot
+
+%% ─────────────────────────────────────────────
+%% VIEW – SWING
+%% ─────────────────────────────────────────────
+class SwingGameView {
+    -KeyListener keyListener
+    -IHudView hudView
+    -AssetStore assets
+    -volatile RenderState latestState
+    +renderFrame(RenderState) void
+    +init() void
+}
+
+class SwingHudView {
+    +render(Graphics2D, HudSnapshot, GameView) void
+}
+
+class UIManager {
+    -CardLayout cardLayout
+    -Map~ScreenId, String~ cardNames
+    +showScreen(ScreenId) void
+}
+
+class ScreenId {
+    <<enumeration>>
+    SETUP
+    MENU
+    PLAYING
+    PAUSED
+    GAME_OVER
+    SHOP
+    LEADERBOARD
+}
+
+class GameKeyListener {
+    -InputController inputController
+    -MasterController masterController
+    +keyPressed(KeyEvent) void
+    +keyReleased(KeyEvent) void
+}
+
+class Theme {
+    +BACKGROUND Color
+    +TEXT_TITLE Color
+    +styledButton(String, int, int, int) JButton
+    +outlinedLabel(String, Font, Color) JLabel
+}
+
+class MainMenuView
+class ShopView {
+    -AssetStore assets
+    -List~ShopItem~ catalog
+    +refreshCoins() void
+}
+class GameOverView {
+    +show(int, List~ScoreEntry~) void
+}
+class LeaderboardView {
+    +refresh() void
+}
+class LeaderboardTablePanel {
+    +refresh(List~ScoreEntry~) void
+}
+class PauseView
+class UsernameSetupView
+
+SwingGameView ..|> GameView
+SwingHudView ..|> IHudView
+SwingGameView --> IHudView
+SwingGameView --> AssetStore
+SwingGameView --> RenderState
+GameKeyListener --> InputController
+GameKeyListener --> MasterController
+UIManager --> ScreenId
+ShopView --> AssetStore
+ShopView --> ShopItem
+ShopView --> PlaneStats
+GameOverView --> LeaderboardTablePanel
+LeaderboardView --> LeaderboardTablePanel
+LeaderboardTablePanel --> ScoreEntry
+
+%% ─────────────────────────────────────────────
+%% FACTORY / BOOTSTRAP
+%% ─────────────────────────────────────────────
+class ControllerAssembler {
+    +assemble(Plane, IGameSession) Controllers
+}
+
+class ScreenFactory {
+    +build(Controllers, PlayerProfile, Plane, IShop, IGameSession, UIManager[]) Result
+}
+
+class AppBootstrapper {
+    +launch() void
+}
+
+AppBootstrapper --> PlaneRepository
+AppBootstrapper --> PlaneImpl
+AppBootstrapper --> GameSession
+AppBootstrapper --> ControllerAssembler
+AppBootstrapper --> PlayerProfile
+AppBootstrapper --> Shop
+AppBootstrapper --> UIManager
+AppBootstrapper --> ScreenFactory
+ControllerAssembler --> MasterControllerImpl
+ScreenFactory --> SwingGameView
+ScreenFactory --> GameKeyListener
+ScreenFactory --> UIManager
