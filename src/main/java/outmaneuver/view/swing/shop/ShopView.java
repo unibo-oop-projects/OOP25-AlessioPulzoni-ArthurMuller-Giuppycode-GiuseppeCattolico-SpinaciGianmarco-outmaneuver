@@ -28,8 +28,6 @@ import outmaneuver.view.swing.Theme;
 public final class ShopView extends JPanel {
 
     private static final int TITLE_FONT_SIZE   = 48;
-    private static final int COINS_FONT_SIZE   = 20;
-    private static final int INFO_FONT_SIZE    = 16;
     private static final int BUTTON_WIDTH      = 160;
     private static final int BUTTON_HEIGHT     = 48;
     private static final int NAV_SIZE          = 48;

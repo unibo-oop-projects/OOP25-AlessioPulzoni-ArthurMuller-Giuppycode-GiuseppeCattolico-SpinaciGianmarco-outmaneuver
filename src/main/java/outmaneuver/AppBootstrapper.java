@@ -5,7 +5,6 @@ import java.nio.file.Path;
 
 import javax.swing.JFrame;
 
-import outmaneuver.controller.RenderStateAssembler;
 import outmaneuver.factory.ControllerAssembler;
 import outmaneuver.factory.ScreenFactory;
 import outmaneuver.model.area.entity.plane.JsonPlaneRepository;
