@@ -2,11 +2,6 @@ package outmaneuver.model.area.entity.missile.data;
 
 import java.util.Objects;
 
-/*
- * Parametri di un missile, caricati dal JSON.
- * I campi sono comuni a tutti i tipi; l'effetto di rallentamento ({@link SlowEffect})
- * e' opzionale (null) e lo usa solo il clock.
- */
 public record MissileData(
         String type,
         double speed,
@@ -27,11 +22,5 @@ public record MissileData(
         }
     }
 
-    /**
-     * Rallentamento che un missile applica agli altri quando collide (solo il clock).
-     *
-     * @param factor   moltiplicatore di velocita' (0..1) durante l'effetto
-     * @param duration durata in secondi
-     */
     public record SlowEffect(double factor, double duration) { }
 }

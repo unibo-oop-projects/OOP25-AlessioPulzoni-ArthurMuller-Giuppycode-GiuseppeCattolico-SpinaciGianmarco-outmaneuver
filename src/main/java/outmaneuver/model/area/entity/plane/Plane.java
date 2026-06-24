@@ -16,16 +16,4 @@ public interface Plane extends Entity {
     TurnState getTurnState();
 
     void setTurnState(TurnState state);
-
-    boolean isShieldActive();
-
-    void activateShield();
-
-    void deactivateShield();
-
-    void applySpeedMultiplier(double factor);
-
-    void resetSpeedMultiplier();
-
-    double getEffectiveSpeed();
 }

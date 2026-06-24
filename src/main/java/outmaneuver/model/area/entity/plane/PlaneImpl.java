@@ -11,16 +11,12 @@ public final class PlaneImpl implements Plane {
     private double direction;
     private PlaneStats stats;
     private TurnState turnState;
-    private boolean shieldActive;
-    private double speedMultiplier;
 
     public PlaneImpl(final PlaneStats stats) {
         this.position = Vector2.ZERO;
         this.direction = 0;
         this.stats = Objects.requireNonNull(stats, "stats must not be null");
         this.turnState = TurnState.NONE;
-        this.shieldActive = false;
-        this.speedMultiplier = 1.0;
     }
 
     @Override
@@ -61,36 +57,6 @@ public final class PlaneImpl implements Plane {
     @Override
     public void setTurnState(final TurnState state) {
         this.turnState = Objects.requireNonNull(state, "turnState must not be null");
-    }
-
-    @Override
-    public boolean isShieldActive() {
-        return shieldActive;
-    }
-
-    @Override
-    public void activateShield() {
-        this.shieldActive = true;
-    }
-
-    @Override
-    public void deactivateShield() {
-        this.shieldActive = false;
-    }
-
-    @Override
-    public void applySpeedMultiplier(final double factor) {
-        this.speedMultiplier = factor;
-    }
-
-    @Override
-    public void resetSpeedMultiplier() {
-        this.speedMultiplier = 1.0;
-    }
-
-    @Override
-    public double getEffectiveSpeed() {
-        return stats.getBaseSpeed() * speedMultiplier;
     }
 
     @Override

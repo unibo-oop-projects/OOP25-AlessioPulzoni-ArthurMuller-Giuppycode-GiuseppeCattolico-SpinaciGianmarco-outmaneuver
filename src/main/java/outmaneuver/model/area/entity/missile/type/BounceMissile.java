@@ -53,9 +53,4 @@ public final class BounceMissile extends MissileImpl {
         setPosition(new Vector2(clampedX, clampedY));
         setVelocity(vel);
     }
-
-    @Override
-    public void redirectIfOutOfBounds(final Plane plane, final Dimension screenSize) {
-        // Il bounce rimbalza (vedi checkBounce): niente redirect ne' distruzione fuori schermo.
-    }
 }
