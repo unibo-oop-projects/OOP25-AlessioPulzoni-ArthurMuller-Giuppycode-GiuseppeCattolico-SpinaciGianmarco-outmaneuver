@@ -2,7 +2,6 @@ package outmaneuver.controller.event;
 
 import java.util.Objects;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import outmaneuver.controller.ScoreController;
 import outmaneuver.controller.impl.CollectibleControllerImpl;
 import outmaneuver.controller.impl.MasterControllerImpl;
@@ -24,9 +23,6 @@ public final class EventController implements InternalEventListener {
     private final ScoreController scoreController;
     private final Runnable onGameOver;
 
-    @SuppressFBWarnings(
-            value = "EI_EXPOSE_REP2",
-            justification = "session is the single shared game session that this controller must mutate")
     public EventController(
             final MasterControllerImpl master,
             final ScoreController scoreController,

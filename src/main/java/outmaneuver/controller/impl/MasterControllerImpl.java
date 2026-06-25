@@ -191,10 +191,6 @@ public final class MasterControllerImpl implements MasterController {
         }
     }
 
-    @SuppressFBWarnings(
-            value = "AT_UNSAFE_RESOURCE_ACCESS_IN_THREAD",
-            justification = "scoreController is only mutated by the dedicated game-loop thread while running; "
-                    + "external access only happens before start() or after the loop has stopped")
     private void gameLoop() {
         while (running && !Thread.currentThread().isInterrupted()) {
             final long frameStart = System.nanoTime();
@@ -234,10 +230,6 @@ public final class MasterControllerImpl implements MasterController {
         }
     }
 
-    @SuppressFBWarnings(
-            value = "AT_UNSAFE_RESOURCE_ACCESS_IN_THREAD",
-            justification = "scoreController is only mutated by the dedicated game-loop thread while running; "
-                    + "external access only happens before start() or after the loop has stopped")
     private void updateFrame() {
         entityControllers.forEach(ec -> ec.updateEntities(TICK_MS));
         collisionEngine.tick();
