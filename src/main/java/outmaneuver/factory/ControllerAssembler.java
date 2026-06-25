@@ -15,13 +15,9 @@ import outmaneuver.controller.impl.PlaneControllerImpl;
 import outmaneuver.controller.impl.RenderStateAssemblerImpl;
 import outmaneuver.controller.impl.ScoreControllerImpl;
 import outmaneuver.model.area.entity.Entity;
-import outmaneuver.model.area.entity.missile.data.JsonMissileRepository;
-import outmaneuver.model.area.entity.missile.data.MissileData;
 import outmaneuver.model.area.entity.missile.data.MissileRepository;
 import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.model.session.ISession;
-import outmaneuver.util.json.GsonProvider;
-import outmaneuver.util.json.JsonResourceLoader;
 
 /**
  * Assembles and wires all game controllers into a ready-to-use bundle.
@@ -42,7 +38,8 @@ public final class ControllerAssembler {
     /**
      * Creates every controller, wires them together, and returns the bundle.
      */
-    public static Controllers assemble(final Plane plane, final ISession session) {
+    public static Controllers assemble(final Plane plane, final ISession session,
+            final MissileRepository missileRepo) {
         final InputControllerImpl input = new InputControllerImpl();
         final MasterControllerImpl master = new MasterControllerImpl();
         final CollisionEngine collision = new CollisionEngine(master);
@@ -51,9 +48,6 @@ public final class ControllerAssembler {
         final PlaneControllerImpl planeCtrl = new PlaneControllerImpl(input, sharedEntities, collision);
         final CollectibleControllerImpl collectibleCtrl = new CollectibleControllerImpl(
                 sharedEntities, collision);
-        // [Alessio - missili] carica i dati dal JSON e crea il controller dei missili (repository + director)
-        final MissileRepository missileRepo = new JsonMissileRepository(
-                JsonResourceLoader.forList("missiles.json", MissileData.class, GsonProvider.create()));
         final MissileControllerImpl missileCtrl = new MissileControllerImpl(
                 sharedEntities, collision, missileRepo, new MissileSpawnDirector());
                 

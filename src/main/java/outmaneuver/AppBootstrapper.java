@@ -7,6 +7,9 @@ import javax.swing.JFrame;
 
 import outmaneuver.factory.ControllerAssembler;
 import outmaneuver.factory.ScreenFactory;
+import outmaneuver.model.area.entity.missile.data.JsonMissileRepository;
+import outmaneuver.model.area.entity.missile.data.MissileData;
+import outmaneuver.model.area.entity.missile.data.MissileRepository;
 import outmaneuver.model.area.entity.plane.JsonPlaneRepository;
 import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.model.area.entity.plane.PlaneData;
@@ -35,8 +38,11 @@ public final class AppBootstrapper {
                 JsonResourceLoader.forList("planes.json", PlaneData.class, GsonProvider.create()));
         final Plane plane = new PlaneImpl(planeRepo.loadById("standard").orElseThrow());
 
+        final MissileRepository missileRepo = new JsonMissileRepository(
+                JsonResourceLoader.forList("missiles.json", MissileData.class, GsonProvider.create()));
+
         final ISession session = new Session();
-        final ControllerAssembler.Controllers ctrl = ControllerAssembler.assemble(plane, session);
+        final ControllerAssembler.Controllers ctrl = ControllerAssembler.assemble(plane, session, missileRepo);
 
         // TODO: renderstate assembler as abstract factory here instead of
         // controllerAssembler (remove hud deps)
