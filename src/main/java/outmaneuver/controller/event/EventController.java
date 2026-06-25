@@ -51,7 +51,7 @@ public final class EventController implements InternalEventListener {
 
         switch ((CollisionEvent) evt) {
             case PLANE_MISSILE_COLLISION -> {
-                if (!session.isShieldActive()) { //AGGIUNTO: aereo scudato -> niente game over, ma il missile reagisce e viene comunque distrutto
+                if (session.isShieldActive()) { //AGGIUNTO: aereo scudato -> niente game over, ma il missile reagisce e viene comunque distrutto
                     final Missile missile = (Missile) collisionData.getEntityA(); //AGGIUNTO: il missile coinvolto
                     missile.onCollision(missileController.activeMissiles()); //AGGIUNTO: fa scattare la reazione (es. il clock rallenta gli altri missili)
                     missileController.removeEntity((Entity) missile); //AGGIUNTO: il missile e' SEMPRE distrutto contro l'aereo, anche lo shield missile col suo scudo (il "regge due colpi" vale solo tra missili)
