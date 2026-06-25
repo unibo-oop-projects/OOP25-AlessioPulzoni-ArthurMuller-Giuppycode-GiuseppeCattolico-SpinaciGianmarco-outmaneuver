@@ -156,7 +156,7 @@ public final class ScreenFactory {
                 () -> System.exit(0)
         );
 
-        master.setOnGameOver(() -> onGameOver(uiRef[0], gameOverView, profile, session.getScore()));
+        master.setOnGameOver(() -> onGameOver(uiRef[0], gameOverView, profile, session.getScore(), session.getStarsScore(), session.getMissilesScore()));
         master.setOnPause(() -> uiRef[0].showScreen(ScreenId.PAUSED));
         master.setOnResume(() -> {
             uiRef[0].showScreen(ScreenId.PLAYING);
@@ -190,12 +190,14 @@ public final class ScreenFactory {
             final UIManager uiManager,
             final GameOverView gameOverView,
             final PlayerProfile profile,
-            final int finalScore) {
+            final int finalScore,
+            final int starsScore,
+            final int missilesScore) {
         if (finalScore > 0) {
             profile.addCoins(finalScore);
         }
         profile.saveScore(finalScore, profile.getPlayerName());
-        gameOverView.show(finalScore, profile.getTopScores());
+        gameOverView.show(finalScore, profile.getTopScores(), starsScore, missilesScore);
         uiManager.showScreen(ScreenId.GAME_OVER);
     }
 

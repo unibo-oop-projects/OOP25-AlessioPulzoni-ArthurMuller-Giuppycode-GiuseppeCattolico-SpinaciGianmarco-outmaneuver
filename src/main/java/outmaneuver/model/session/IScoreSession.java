@@ -4,7 +4,11 @@ public interface IScoreSession {
 
     int getScore();
 
-    /** Azzera score **/
+    int getStarsScore();
+
+    int getMissilesScore();
+
+    /** Azzera score e contatori **/
     void reset();
 
     /**
@@ -14,5 +18,9 @@ public interface IScoreSession {
      * @throws IllegalArgumentException se delta non è positivo
      */
     void incrementScore(int delta);
+
+    void incrementStarsScore(int delta);
+
+    void incrementMissilesScore(int delta);
 
 }

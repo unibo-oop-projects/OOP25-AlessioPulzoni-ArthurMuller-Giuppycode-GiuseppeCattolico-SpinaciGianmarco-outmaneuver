@@ -20,9 +20,12 @@ public final class GameOverView extends JPanel {
 
     private static final int TITLE_FONT_SIZE   = 64;
     private static final int SCORE_FONT_SIZE   = 28;
+    private static final int RECAP_FONT_SIZE   = 22;
     private static final int VGAP              = 14;
 
     private final JLabel scoreLabel;
+    private final JLabel recapStarsLabel;
+    private final JLabel recapMissilesLabel;
     private final LeaderboardTablePanel tablePanel;
 
     public GameOverView(final Runnable onPlayAgain, final Runnable onMenu) {
@@ -41,6 +44,10 @@ public final class GameOverView extends JPanel {
 
         scoreLabel = Theme.outlinedLabel("Score: 0", new Font(Font.MONOSPACED, Font.BOLD, SCORE_FONT_SIZE), Theme.TEXT_TITLE);
 
+        final var recapFont = new Font(Font.MONOSPACED, Font.BOLD, RECAP_FONT_SIZE);
+        recapStarsLabel    = Theme.outlinedLabel("Stelle collezionate + 0", recapFont, Theme.TEXT_TITLE);
+        recapMissilesLabel = Theme.outlinedLabel("Missili fatti scontrare + 0", recapFont, Theme.TEXT_TITLE);
+
         tablePanel = new LeaderboardTablePanel(5);
 
         final JButton playAgainButton = Theme.styledButton("PLAY AGAIN", Theme.FONT_BUTTON, Theme.BUTTON_WIDTH, Theme.BUTTON_HEIGHT);
@@ -48,21 +55,25 @@ public final class GameOverView extends JPanel {
         playAgainButton.addActionListener(e -> safePlayAgain.run());
         menuButton.addActionListener(e -> safeMenu.run());
 
-        gbc.gridy = 0; add(title,          gbc);
-        gbc.gridy = 1; add(scoreLabel,      gbc);
-        gbc.gridy = 2; add(tablePanel,      gbc);
-        gbc.gridy = 3; add(playAgainButton, gbc);
-        gbc.gridy = 4; add(menuButton,      gbc);
+        gbc.gridy = 0; add(title,              gbc);
+        gbc.gridy = 1; add(scoreLabel,          gbc);
+        gbc.gridy = 2; add(recapStarsLabel,     gbc);
+        gbc.gridy = 3; add(recapMissilesLabel,  gbc);
+        gbc.gridy = 4; add(tablePanel,          gbc);
+        gbc.gridy = 5; add(playAgainButton,     gbc);
+        gbc.gridy = 6; add(menuButton,          gbc);
     }
 
     /**
      * Aggiorna il contenuto della schermata con i dati della partita appena conclusa.
      * Deve essere chiamato sull'EDT, subito prima di mostrare questa schermata.
      */
-    public void show(final int finalScore, final List<ScoreEntry> topScores) {
+    public void show(final int finalScore, final List<ScoreEntry> topScores, final int starsCollected, final int missilesCollided) {
         Objects.requireNonNull(topScores, "topScores must not be null");
         SwingUtilities.invokeLater(() -> {
             scoreLabel.setText("Score: " + finalScore);
+            recapStarsLabel.setText("Stelle collezionate + " + starsCollected + " punti");
+            recapMissilesLabel.setText("Missili scontrati + " + missilesCollided + " punti");
             tablePanel.refresh(topScores);
             revalidate();
             repaint();
