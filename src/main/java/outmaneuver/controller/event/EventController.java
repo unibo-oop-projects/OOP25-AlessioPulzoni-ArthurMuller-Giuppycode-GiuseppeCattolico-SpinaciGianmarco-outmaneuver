@@ -2,21 +2,17 @@ package outmaneuver.controller.event;
 
 import java.util.Objects;
 
-import outmaneuver.controller.HudController;
 import outmaneuver.controller.ScoreController;
-import outmaneuver.controller.event.CollisionEvent;
-import outmaneuver.controller.event.EffectEvent;
-import outmaneuver.controller.event.Event;
 import outmaneuver.controller.impl.CollectibleControllerImpl;
 import outmaneuver.controller.impl.MasterControllerImpl;
 import outmaneuver.controller.impl.PlaneControllerImpl;
 import outmaneuver.controller.impl.missile.MissileControllerImpl;
-import outmaneuver.controller.EntityController;
 import outmaneuver.model.area.collision.CollisionData;
 import outmaneuver.model.area.effect.Effect;
 import outmaneuver.model.area.effect.EffectType;
 import outmaneuver.model.area.entity.Entity;
 import outmaneuver.model.area.entity.collectibles.Collectible;
+import outmaneuver.model.area.entity.collectibles.StarCollectible;
 
 public final class EventController implements InternalEventListener {
 
@@ -24,20 +20,19 @@ public final class EventController implements InternalEventListener {
     private final CollectibleControllerImpl collectibleController;
     private final MissileControllerImpl missileController;
     private final ScoreController scoreController;
-    private final HudController hudController;
     private final Runnable onGameOver;
     private boolean shieldActive;
+    private double speedMultiplier = 1.0;
+    private int stars;
 
     public EventController(
             final MasterControllerImpl master,
             final ScoreController scoreController,
-            final HudController hudController,
             final Runnable onGameOver) {
         this.planeController = master.getEntityController(PlaneControllerImpl.class).orElseThrow();
         this.collectibleController = master.getEntityController(CollectibleControllerImpl.class).orElseThrow();
         this.missileController = master.getEntityController(MissileControllerImpl.class).orElseThrow();
         this.scoreController = scoreController;
-        this.hudController = hudController;
         this.onGameOver = Objects.requireNonNull(onGameOver, "onGameOver must not be null");
     }
 
@@ -68,6 +63,9 @@ public final class EventController implements InternalEventListener {
                 if (scoreController != null) {
                     scoreController.onInternalEvent(CollisionEvent.PLANE_COLLECTIBLE_COLLISION, collectible);
                 }
+                if (collectible instanceof StarCollectible) {
+                    stars++;
+                }
             }
             case MISSILE_MISSILE_COLLISION -> {
                 missileController.removeEntity((Entity) collisionData.getEntityA());
@@ -85,27 +83,43 @@ public final class EventController implements InternalEventListener {
             case EFFECT_APPLIED -> {
                 if (effect.getType() == EffectType.SHIELD) {
                     shieldActive = true;
-                    hudController.setShieldActive(true);
                     missileController.setShieldActrive(true);
                 }
                 if (effect.getType() == EffectType.SPEED_BOOST) {
                     planeController.setSpeedMultiplier(effect.getMultiplier());
                     missileController.setSpeedMultiplier(effect.getMultiplier());
-                    hudController.setSpeedMultiplier(effect.getMultiplier());
+                    this.speedMultiplier = effect.getMultiplier();
                 }
             }
             case EFFECT_EXPIRED -> {
                 if (effect.getType() == EffectType.SHIELD) {
                     shieldActive = false;
-                    hudController.setShieldActive(false);
                     missileController.setShieldActrive(false);
                 }
                 if (effect.getType() == EffectType.SPEED_BOOST) {
                     planeController.setSpeedMultiplier(1.0);
                     missileController.setSpeedMultiplier(1.0);
-                    hudController.setSpeedMultiplier(1.0);
+                    this.speedMultiplier = 1.0;
                 }
             }
         }
+    }
+
+    public int getStars() {
+        return stars;
+    }
+
+    public double getSpeedMultiplier() {
+        return speedMultiplier;
+    }
+
+    public boolean isShieldActive() {
+        return shieldActive;
+    }
+
+    public void reset() {
+        this.stars = 0;
+        this.speedMultiplier = 1.0;
+        this.shieldActive = false;
     }
 }

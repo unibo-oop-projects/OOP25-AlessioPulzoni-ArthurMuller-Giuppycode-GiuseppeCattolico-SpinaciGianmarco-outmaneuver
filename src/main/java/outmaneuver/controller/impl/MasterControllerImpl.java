@@ -12,13 +12,11 @@ import outmaneuver.controller.event.Event;
 import outmaneuver.controller.EntityController;
 import outmaneuver.controller.event.EventController;
 import outmaneuver.controller.event.GameEvent;
-import outmaneuver.controller.HudController;
 import outmaneuver.controller.event.CollisionEvent;
 import outmaneuver.controller.InputController;
 import outmaneuver.controller.MasterController;
 import outmaneuver.controller.RenderStateAssembler;
 import outmaneuver.controller.ScoreController;
-import outmaneuver.controller.event.InternalEventListener;
 import outmaneuver.model.area.collision.CollisionData;
 import outmaneuver.model.area.entity.Entity;
 import outmaneuver.util.Vector2;
@@ -34,16 +32,16 @@ public final class MasterControllerImpl implements MasterController {
     private final List<GameView> views = new ArrayList<>();
     private final List<EntityController> entityControllers = new ArrayList<>();
     private List<Entity> sceneEntities = List.of();
-    private HudController hudController;
     private ScoreController scoreController;
     private InputController inputController;
-    private InternalEventListener eventController;
+    private EventController eventController;
     private RenderStateAssembler stateAssembler;
     private CollisionEngine collisionEngine;
     private Thread gameLoopThread;
     private volatile boolean running;
     private volatile GameEvent gameState;
     private int gameOverDelayTicks = -1;
+    private long elapsedMs;
     private final List<Vector2> pendingCollisionPoints = new ArrayList<>();
     private Runnable onGameOver;
     private Runnable onPause;
@@ -69,12 +67,8 @@ public final class MasterControllerImpl implements MasterController {
         this.inputController = Objects.requireNonNull(inputController, "inputController must not be null");
     }
 
-    public void setEventController(final InternalEventListener eventController) {
+    public void setEventController(final EventController eventController) {
         this.eventController = Objects.requireNonNull(eventController, "eventController must not be null");
-    }
-
-    public void setHudController(final HudController hudController) {
-        this.hudController = Objects.requireNonNull(hudController, "hudController must not be null");
     }
 
     public void setStateAssembler(final RenderStateAssembler stateAssembler) {
@@ -151,13 +145,13 @@ public final class MasterControllerImpl implements MasterController {
         Objects.requireNonNull(collisionEngine, "collisionEngine must be set before start()");
         Objects.requireNonNull(stateAssembler, "stateAssembler must be set before start()");
         Objects.requireNonNull(eventController, "eventController must be set before start()");
-        Objects.requireNonNull(hudController, "hudController must be set before start()");
         if (running) {
             return;
         }
         gameState = GameEvent.RUNNING;
-        hudController.reset();
+        eventController.reset();
         stateAssembler.reset();
+        elapsedMs = 0;
         gameOverDelayTicks = -1;
         pendingCollisionPoints.clear();
         if (scoreController != null) {
@@ -241,9 +235,7 @@ public final class MasterControllerImpl implements MasterController {
         if (scoreController != null) {
             scoreController.onTick(TICK_MS);
         }
-        if (hudController != null) {
-            hudController.onTick(TICK_MS);
-        }
+        elapsedMs += TICK_MS;
     }
 
     private void renderFrame() {
@@ -251,10 +243,7 @@ public final class MasterControllerImpl implements MasterController {
         final RenderState state = stateAssembler.assemble(
                 sceneEntities,
                 paused,
-                hudController.getElapsedMs(),
-                hudController.getStars(),
-                hudController.getSpeedMultiplier(),
-                hudController.isShieldActive(), 
+                elapsedMs,
                 pendingCollisionPoints);
         notifyViews(v -> v.renderFrame(state));
     }
@@ -276,9 +265,6 @@ public final class MasterControllerImpl implements MasterController {
         }
         if (eventController != null) {
             eventController.onInternalEvent(evt, data);
-        }
-        if (hudController != null) {
-            hudController.onInternalEvent(evt, data);
         }
     }
 }

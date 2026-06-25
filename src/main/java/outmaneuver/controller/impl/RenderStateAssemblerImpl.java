@@ -2,10 +2,9 @@ package outmaneuver.controller.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-import outmaneuver.controller.HudController;
 import outmaneuver.controller.RenderStateAssembler;
+import outmaneuver.controller.event.EventController;
 
 import outmaneuver.model.area.entity.Entity;
 import outmaneuver.model.area.entity.collectibles.Collectible;
@@ -18,25 +17,21 @@ import outmaneuver.view.RenderState;
 
 public final class RenderStateAssemblerImpl implements RenderStateAssembler {
 
-    public RenderStateAssemblerImpl() {
+    private final EventController eventController;
+
+    public RenderStateAssemblerImpl(final EventController eventController) {
+        this.eventController = eventController;
     }
 
     @Override
     public RenderState assemble(final List<Entity> entities, final boolean paused,
-            final long elapsedMs, final int stars,
-            final double speedMultiplier, final boolean shieldActive, final List<Vector2> collisionPoints) {
-        final EntityRenderData planeData = buildPlaneData(entities);
-        final List<EntityRenderData> collectibles = buildCollectibleData(entities);
-        final List<EntityRenderData> missiles = buildMissileData(entities);
-        final double speed = computeSpeed(entities, speedMultiplier);
-        final HudSnapshot hud = new HudSnapshot(elapsedMs, speed, shieldActive, paused, stars);
-        final List<EntityRenderData> collisions = buildCollisionData(collisionPoints);
+            final long elapsedMs, final List<Vector2> collisionPoints) {
         return RenderState.builder()
-                .planeData(planeData)
-                .hud(hud)
-                .missiles(missiles)
-                .collectibles(collectibles)
-                .collisions(collisions)
+                .planeData(buildPlaneData(entities))
+                .hud(buildHud(entities, paused, elapsedMs))
+                .missiles(buildMissileData(entities))
+                .collectibles(buildCollectibleData(entities))
+                .collisions(buildCollisionData(collisionPoints))
                 .build();
     }
 
@@ -75,15 +70,6 @@ public final class RenderStateAssemblerImpl implements RenderStateAssembler {
                 .toList();
     }
 
-    private double computeSpeed(final List<Entity> entities, final double speedMultiplier) {
-        return entities.stream()
-                .filter(e -> e instanceof Plane)
-                .map(e -> (Plane) e)
-                .findFirst()
-                .map(p -> p.getStats().getBaseSpeed() * speedMultiplier)
-                .orElse(0.0);
-    }
-
     private List<EntityRenderData> buildMissileData(final List<Entity> entities) {
         return entities.stream()
                 .filter(e -> e instanceof Missile)
@@ -97,15 +83,20 @@ public final class RenderStateAssemblerImpl implements RenderStateAssembler {
                 .toList();
     }
 
-    // private HudSnapshot buildHud(final List<Entity> entities, final boolean
-    // paused) {
-    // final Plane plane = entities.stream()
-    // .filter(e -> e instanceof Plane)
-    // .map(e -> (Plane) e)
-    // .findFirst()
-    // .orElse(null);
-    // return hudController.buildSnapshot(plane, paused);
-    // }
+    private HudSnapshot buildHud(final List<Entity> entities, final boolean paused, final long elapsedMs) {
+        final double speed = entities.stream()
+                .filter(e -> e instanceof Plane)
+                .map(e -> (Plane) e)
+                .findFirst()
+                .map(p -> p.getStats().getBaseSpeed() * eventController.getSpeedMultiplier())
+                .orElse(0.0);
+        return new HudSnapshot(
+                elapsedMs,
+                speed,
+                eventController.isShieldActive(),
+                paused,
+                eventController.getStars());
+    }
 
     private List<EntityRenderData> buildCollisionData(final List<Vector2> collisionPoints) {
         for (final var point : collisionPoints) {
