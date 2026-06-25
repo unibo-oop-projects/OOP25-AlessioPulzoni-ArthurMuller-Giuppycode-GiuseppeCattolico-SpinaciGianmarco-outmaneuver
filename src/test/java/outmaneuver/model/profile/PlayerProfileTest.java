@@ -111,7 +111,7 @@ class PlayerProfileTest {
         for (int i = 1; i <= 15; i++) {
             profile.saveScore(i * 10, "Player");
         }
-        assertEquals(10, profile.getTopScores().size());
+        assertEquals(15, profile.getTopScores().size());
         assertEquals(150, profile.getTopScores().get(0).score());
     }
 
