@@ -90,7 +90,7 @@ public final class MissileControllerImpl extends EntityControllerImpl {
         spawnInterval = INITIAL_INTERVAL;
     }
 
-    private List<Missile> activeMissiles() {
+    public List<Missile> activeMissiles() { //AGGIUNTO: reso public per far reagire i missili nell'EventController (lista passata a onCollision)
         return getEntities().stream().filter(Missile.class::isInstance).map(Missile.class::cast).toList();
     }
 

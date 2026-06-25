@@ -13,6 +13,7 @@ import outmaneuver.model.area.effect.EffectType;
 import outmaneuver.model.area.entity.Entity;
 import outmaneuver.model.area.entity.collectibles.Collectible;
 import outmaneuver.model.area.entity.collectibles.StarCollectible;
+import outmaneuver.model.area.entity.missile.Missile; //AGGIUNTO: serve per far reagire i missili (onCollision)
 
 public final class EventController implements InternalEventListener {
 
@@ -49,8 +50,12 @@ public final class EventController implements InternalEventListener {
 
         switch ((CollisionEvent) evt) {
             case PLANE_MISSILE_COLLISION -> {
-                planeController.removeEntity((Entity) collisionData.getEntityA());
-                if (!shieldActive) {
+                if (shieldActive) { //AGGIUNTO: aereo scudato -> niente game over, ma il missile reagisce e viene comunque distrutto
+                    final Missile missile = (Missile) collisionData.getEntityA(); //AGGIUNTO: il missile coinvolto
+                    missile.onCollision(missileController.activeMissiles()); //AGGIUNTO: fa scattare la reazione (es. il clock rallenta gli altri missili)
+                    missileController.removeEntity((Entity) missile); //AGGIUNTO: il missile e' SEMPRE distrutto contro l'aereo, anche lo shield missile col suo scudo (il "regge due colpi" vale solo tra missili)
+                } else { //AGGIUNTO: senza lo scudo dell'aereo l'impatto e' fatale
+                    planeController.removeEntity((Entity) collisionData.getEntityA());
                     onGameOver.run();
                 }
             }
@@ -68,8 +73,17 @@ public final class EventController implements InternalEventListener {
                 }
             }
             case MISSILE_MISSILE_COLLISION -> {
-                missileController.removeEntity((Entity) collisionData.getEntityA());
-                missileController.removeEntity((Entity) collisionData.getEntityB());
+                final Missile a = (Missile) collisionData.getEntityA(); //AGGIUNTO: i due missili coinvolti nello scontro
+                final Missile b = (Missile) collisionData.getEntityB(); //AGGIUNTO
+                final var active = missileController.activeMissiles(); //AGGIUNTO: lista dei missili attivi, serve alla reazione (es. il clock rallenta questi)
+                a.onCollision(active); //AGGIUNTO: reazione del primo (shield regge / clock rallenta / normale si distrugge)
+                b.onCollision(active); //AGGIUNTO: reazione del secondo
+                if (!a.isAlive()) { //AGGIUNTO: rimuovo il primo solo se la reazione lo ha distrutto (lo shield regge il 1o colpo)
+                    missileController.removeEntity((Entity) a); //AGGIUNTO
+                }
+                if (!b.isAlive()) { //AGGIUNTO: rimuovo il secondo solo se distrutto
+                    missileController.removeEntity((Entity) b); //AGGIUNTO
+                }
                 if (scoreController != null) {
                     scoreController.onInternalEvent(CollisionEvent.MISSILE_MISSILE_COLLISION, collisionData);
                 }
