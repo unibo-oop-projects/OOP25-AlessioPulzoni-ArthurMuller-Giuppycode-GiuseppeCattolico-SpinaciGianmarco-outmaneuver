@@ -18,25 +18,21 @@ import outmaneuver.view.RenderState;
 
 public final class RenderStateAssemblerImpl implements RenderStateAssembler {
 
-    public RenderStateAssemblerImpl() {
+    private final EventController eventController;
+
+    public RenderStateAssemblerImpl(final EventController eventController) {
+        this.eventController = eventController;
     }
 
     @Override
     public RenderState assemble(final List<Entity> entities, final boolean paused,
-            final long elapsedMs, final int stars,
-            final double speedMultiplier, final boolean shieldActive, final List<Vector2> collisionPoints) {
-        final EntityRenderData planeData = buildPlaneData(entities);
-        final List<EntityRenderData> collectibles = buildCollectibleData(entities);
-        final List<EntityRenderData> missiles = buildMissileData(entities);
-        final double speed = computeSpeed(entities, speedMultiplier);
-        final HudSnapshot hud = new HudSnapshot(elapsedMs, speed, shieldActive, paused, stars);
-        final List<EntityRenderData> collisions = buildCollisionData(collisionPoints);
+            final long elapsedMs, final List<Vector2> collisionPoints) {
         return RenderState.builder()
-                .planeData(planeData)
-                .hud(hud)
-                .missiles(missiles)
-                .collectibles(collectibles)
-                .collisions(collisions)
+                .planeData(buildPlaneData(entities))
+                .hud(buildHud(entities, paused, elapsedMs))
+                .missiles(buildMissileData(entities))
+                .collectibles(buildCollectibleData(entities))
+                .collisions(buildCollisionData(collisionPoints))
                 .build();
     }
 
