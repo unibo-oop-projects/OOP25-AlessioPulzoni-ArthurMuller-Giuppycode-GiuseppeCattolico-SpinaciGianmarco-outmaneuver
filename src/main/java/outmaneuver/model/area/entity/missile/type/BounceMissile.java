@@ -4,7 +4,6 @@ import java.awt.Dimension;
 
 import outmaneuver.model.area.entity.missile.MissileImpl;
 import outmaneuver.model.area.entity.missile.data.MissileData;
-import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.util.Vector2;
 
 /**
