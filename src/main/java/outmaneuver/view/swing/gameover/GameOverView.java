@@ -68,12 +68,12 @@ public final class GameOverView extends JPanel {
      * Aggiorna il contenuto della schermata con i dati della partita appena conclusa.
      * Deve essere chiamato sull'EDT, subito prima di mostrare questa schermata.
      */
-    public void show(final int finalScore, final List<ScoreEntry> topScores, final int starsCollected, final int missilesCollided) {
+    public void show(final int finalScore, final List<ScoreEntry> topScores, final int starsScore, final int missilesScore) {
         Objects.requireNonNull(topScores, "topScores must not be null");
         SwingUtilities.invokeLater(() -> {
             scoreLabel.setText("Score: " + finalScore);
-            recapStarsLabel.setText("Stelle collezionate + " + starsCollected + " punti");
-            recapMissilesLabel.setText("Missili scontrati + " + missilesCollided + " punti");
+            recapStarsLabel.setText("Stelle collezionate + " + starsScore + " punti");
+            recapMissilesLabel.setText("Missili scontrati + " + missilesScore + " punti");
             tablePanel.refresh(topScores);
             revalidate();
             repaint();
