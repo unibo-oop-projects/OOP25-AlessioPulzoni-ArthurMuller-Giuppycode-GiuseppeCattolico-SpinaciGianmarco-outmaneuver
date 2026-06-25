@@ -17,6 +17,7 @@ import outmaneuver.controller.InputController;
 import outmaneuver.controller.MasterController;
 import outmaneuver.controller.RenderStateAssembler;
 import outmaneuver.controller.ScoreController;
+import outmaneuver.model.profile.PlayerProfile;
 import outmaneuver.model.session.ISession;
 import outmaneuver.model.area.collision.CollisionData;
 import outmaneuver.model.area.entity.Entity;
@@ -43,6 +44,7 @@ public final class MasterControllerImpl implements MasterController {
     private volatile GameEvent gameState;
     private int gameOverDelayTicks = -1;
     private ISession session;
+    private PlayerProfile playerProfile;
     private final List<Vector2> pendingCollisionPoints = new ArrayList<>();
     private Runnable onGameOver;
     private Runnable onPause;
@@ -104,6 +106,10 @@ public final class MasterControllerImpl implements MasterController {
 
     public void setSession(final ISession session) {
         this.session = Objects.requireNonNull(session, "session must not be null");
+    }
+
+    public void setPlayerProfile(final PlayerProfile playerProfile) {
+        this.playerProfile = Objects.requireNonNull(playerProfile, "playerProfile must not be null");
     }
 
     @Override
@@ -211,6 +217,13 @@ public final class MasterControllerImpl implements MasterController {
                 if (gameOverDelayTicks == 0) {
                     gameState = GameEvent.GAME_OVER;
                     running = false;
+                    final int finalScore = session.getScore();
+                    if (finalScore > 0 && playerProfile != null) {
+                        playerProfile.addCoins(finalScore);
+                    }
+                    if (playerProfile != null) {
+                        playerProfile.saveScore(finalScore, playerProfile.getPlayerName());
+                    }
                     if (onGameOver != null) {
                         onGameOver.run();
                     }

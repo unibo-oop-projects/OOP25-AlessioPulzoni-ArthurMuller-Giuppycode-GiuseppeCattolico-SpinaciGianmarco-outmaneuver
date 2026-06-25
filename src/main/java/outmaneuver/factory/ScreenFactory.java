@@ -8,7 +8,6 @@ import java.util.Map;
 
 import javax.swing.JPanel;
 
-import outmaneuver.controller.MasterController;
 import outmaneuver.controller.event.GameEvent;
 import outmaneuver.controller.impl.MasterControllerImpl;
 import outmaneuver.model.area.entity.plane.Plane;
@@ -124,6 +123,8 @@ public final class ScreenFactory {
         gameView.init();
         master.attachView(gameView);
 
+        master.setPlayerProfile(profile);
+
         // Leaderboard ref needed for the refresh callback in MainMenuView
         final LeaderboardView[] leaderboardRef = { null };
 
@@ -152,10 +153,13 @@ public final class ScreenFactory {
 
         final GameOverView gameOverView = new GameOverView(
                 metrics,
-                () -> onPlayAgain(uiRef[0], master, gameView, session),
+                () -> {
+                    uiRef[0].showScreen(ScreenId.PLAYING);
+                    gameView.requestFocusInWindow();
+                    master.start();
+                },
                 () -> uiRef[0].showScreen(ScreenId.MENU)
         );
-
         final LeaderboardView leaderboardView = new LeaderboardView(
                 metrics,
                 profile::getTopScores,
@@ -168,7 +172,11 @@ public final class ScreenFactory {
                 profile::getPlayerName,
                 profile::getCoins,
                 () -> plane.getStats().getId(),
-                () -> onStart(uiRef[0], master, gameView),
+                () -> {
+                    uiRef[0].showScreen(ScreenId.PLAYING);
+                    gameView.requestFocusInWindow();
+                    master.start();
+                },
                 () -> {
                     shopView.refreshCoins();
                     uiRef[0].showScreen(ScreenId.SHOP);
@@ -180,7 +188,11 @@ public final class ScreenFactory {
                 () -> System.exit(0)
         );
 
-        master.setOnGameOver(() -> onGameOver(uiRef[0], gameOverView, profile, session.getScore(), session.getStarsScore(), session.getMissilesScore()));
+        master.setOnGameOver(() -> {
+            gameOverView.show(session.getScore(), profile.getTopScores(),
+                              session.getStarsScore(), session.getMissilesScore());
+            uiRef[0].showScreen(ScreenId.GAME_OVER);
+        });
         master.setOnPause(() -> uiRef[0].showScreen(ScreenId.PAUSED));
         master.setOnResume(() -> {
             uiRef[0].showScreen(ScreenId.PLAYING);
@@ -213,38 +225,4 @@ public final class ScreenFactory {
         return new Result(screens, gameView);
     }
 
-    private static void onGameOver(
-            final UIManager uiManager,
-            final GameOverView gameOverView,
-            final PlayerProfile profile,
-            final int finalScore,
-            final int starsScore,
-            final int missilesScore) {
-        if (finalScore > 0) {
-            profile.addCoins(finalScore);
-        }
-        profile.saveScore(finalScore, profile.getPlayerName());
-        gameOverView.show(finalScore, profile.getTopScores(), starsScore, missilesScore);
-        uiManager.showScreen(ScreenId.GAME_OVER);
-    }
-
-    private static void onStart(
-            final UIManager uiManager,
-            final MasterController master,
-            final SwingGameView gameView) {
-        uiManager.showScreen(ScreenId.PLAYING);
-        gameView.requestFocusInWindow();
-        master.start();
-    }
-
-    private static void onPlayAgain(
-            final UIManager uiManager,
-            final MasterController master,
-            final SwingGameView gameView,
-            final ISession session) {
-        session.reset();
-        uiManager.showScreen(ScreenId.PLAYING);
-        gameView.requestFocusInWindow();
-        master.start();
-    }
 }
