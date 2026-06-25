@@ -28,6 +28,6 @@ public record PlayerProfileData(
 
     /** Profilo di default per un nuovo giocatore: standard già posseduto. */
     public static PlayerProfileData defaultProfile() {
-        return new PlayerProfileData("DefaultPlayerName", 1000, List.of("standard"), List.of());
+        return new PlayerProfileData("DefaultPlayerName", 0, List.of("standard"), List.of());
     }
 }
