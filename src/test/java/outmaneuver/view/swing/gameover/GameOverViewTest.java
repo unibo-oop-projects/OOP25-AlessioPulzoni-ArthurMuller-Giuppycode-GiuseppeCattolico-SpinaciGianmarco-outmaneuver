@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import outmaneuver.factory.ScreenFactory.ScreenMetrics;
+import outmaneuver.assembler.ScreenAssembler.ScreenMetrics;
 import outmaneuver.model.session.ScoreEntry;
 
 class GameOverViewTest {

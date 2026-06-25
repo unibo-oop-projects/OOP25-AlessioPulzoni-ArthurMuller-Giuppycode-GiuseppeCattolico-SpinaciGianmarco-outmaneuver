@@ -8,10 +8,10 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 
+import outmaneuver.assembler.ScreenAssembler.ScreenMetrics;
 import outmaneuver.model.area.entity.plane.PlaneData;
 import outmaneuver.model.area.entity.plane.PlaneStats;
 import outmaneuver.model.shop.ShopItem;
-import outmaneuver.factory.ScreenFactory.ScreenMetrics;
 import outmaneuver.util.assets.AssetStore;
 import outmaneuver.util.assets.ClasspathAssetStore;
 

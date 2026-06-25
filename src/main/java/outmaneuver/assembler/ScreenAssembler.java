@@ -1,4 +1,4 @@
-package outmaneuver.factory;
+package outmaneuver.assembler;
 
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
@@ -32,7 +32,7 @@ import outmaneuver.view.swing.shop.ShopView;
  * Builds all Swing screens, wires their navigation callbacks, and returns the
  * complete screen map together with the {@link SwingGameView}.
  */
-public final class ScreenFactory {
+public final class ScreenAssembler {
 
     /** Aspect ratio of the game world (1400 × 1000 = 1.4 : 1). */
     private static final double ASPECT_RATIO = 1400.0 / 1000.0;
@@ -43,7 +43,7 @@ public final class ScreenFactory {
      */
     private static final double SCREEN_FILL_FACTOR = 0.9;
 
-    private ScreenFactory() { }
+    private ScreenAssembler() { }
 
     /**
      * Carries the assembled screen map and the game view (needed by the caller to

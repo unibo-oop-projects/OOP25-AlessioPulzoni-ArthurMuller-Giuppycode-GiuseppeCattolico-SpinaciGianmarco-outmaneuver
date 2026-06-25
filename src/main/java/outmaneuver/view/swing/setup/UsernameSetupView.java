@@ -12,7 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import outmaneuver.factory.ScreenFactory.ScreenMetrics;
+import outmaneuver.assembler.ScreenAssembler.ScreenMetrics;
 import outmaneuver.view.swing.Theme;
 
 public final class UsernameSetupView extends JPanel {

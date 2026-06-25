@@ -5,7 +5,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 
-import outmaneuver.factory.ScreenFactory.ScreenMetrics;
+import outmaneuver.assembler.ScreenAssembler.ScreenMetrics;
 import outmaneuver.view.GameView;
 import outmaneuver.view.HudSnapshot;
 

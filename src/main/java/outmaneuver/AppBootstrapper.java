@@ -5,8 +5,8 @@ import java.nio.file.Path;
 
 import javax.swing.JFrame;
 
-import outmaneuver.factory.ControllerAssembler;
-import outmaneuver.factory.ScreenFactory;
+import outmaneuver.assembler.ControllerAssembler;
+import outmaneuver.assembler.ScreenAssembler;
 import outmaneuver.model.area.entity.missile.data.JsonMissileRepository;
 import outmaneuver.model.area.entity.missile.data.MissileData;
 import outmaneuver.model.area.entity.missile.data.MissileRepository;
@@ -54,7 +54,7 @@ public final class AppBootstrapper {
         final IShop shop = new Shop(planeRepo);
 
         final UIManager[] uiRef = { null };
-        final ScreenFactory.Result result = ScreenFactory.build(ctrl, profile, plane, shop, session, uiRef);
+        final ScreenAssembler.Result result = ScreenAssembler.build(ctrl, profile, plane, shop, session, uiRef);
 
         final UIManager uiManager = new UIManager(result.screens());
         uiRef[0] = uiManager;

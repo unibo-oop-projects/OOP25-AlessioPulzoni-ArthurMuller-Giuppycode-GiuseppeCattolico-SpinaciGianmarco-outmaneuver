@@ -11,8 +11,8 @@ import java.util.Objects;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import outmaneuver.assembler.ScreenAssembler.ScreenMetrics;
 import outmaneuver.model.session.ScoreEntry;
-import outmaneuver.factory.ScreenFactory.ScreenMetrics;
 import outmaneuver.view.swing.Theme;
 
 public final class LeaderboardTablePanel extends JPanel {

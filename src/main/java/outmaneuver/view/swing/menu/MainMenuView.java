@@ -17,7 +17,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import outmaneuver.factory.ScreenFactory.ScreenMetrics;
+import outmaneuver.assembler.ScreenAssembler.ScreenMetrics;
 import outmaneuver.view.swing.Theme;
 
 public final class MainMenuView extends JPanel {

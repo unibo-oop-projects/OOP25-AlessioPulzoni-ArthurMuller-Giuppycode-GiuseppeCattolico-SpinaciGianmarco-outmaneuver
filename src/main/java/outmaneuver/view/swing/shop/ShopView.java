@@ -19,11 +19,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import outmaneuver.assembler.ScreenAssembler.ScreenMetrics;
 import outmaneuver.model.area.entity.plane.PlaneStats;
 import outmaneuver.model.shop.ShopItem;
 import outmaneuver.util.assets.AssetStore;
 import outmaneuver.util.assets.SpriteId;
-import outmaneuver.factory.ScreenFactory.ScreenMetrics;
 import outmaneuver.view.swing.Theme;
 
 public final class ShopView extends JPanel {

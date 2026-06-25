@@ -12,8 +12,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import outmaneuver.assembler.ScreenAssembler.ScreenMetrics;
 import outmaneuver.model.session.ScoreEntry;
-import outmaneuver.factory.ScreenFactory.ScreenMetrics;
 import outmaneuver.view.swing.Theme;
 import outmaneuver.view.swing.leaderboard.LeaderboardTablePanel;
 

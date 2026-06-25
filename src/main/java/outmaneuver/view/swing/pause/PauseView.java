@@ -11,7 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import outmaneuver.factory.ScreenFactory.ScreenMetrics;
+import outmaneuver.assembler.ScreenAssembler.ScreenMetrics;
 import outmaneuver.view.swing.Theme;
 
 public final class PauseView extends JPanel {

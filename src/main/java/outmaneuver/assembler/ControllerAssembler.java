@@ -1,4 +1,4 @@
-package outmaneuver.factory;
+package outmaneuver.assembler;
 
 import java.util.ArrayList;
 import java.util.List;

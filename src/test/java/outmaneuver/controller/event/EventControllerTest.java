@@ -42,7 +42,7 @@ import outmaneuver.util.Vector2;
  * EventController owns the actual reaction to collisions and effects (removing
  * entities, scoring, shield/speed-boost bookkeeping) — responsibilities that used
  * to live directly in the entity controllers. This wires up the same real
- * collaborators {@link outmaneuver.factory.ControllerAssembler} uses (one shared
+ * collaborators {@link outmaneuver.assembler.ControllerAssembler} uses (one shared
  * entity list, one CollisionEngine, the three EntityControllers) so the routing
  * logic is exercised end-to-end without mocking it away.
  */

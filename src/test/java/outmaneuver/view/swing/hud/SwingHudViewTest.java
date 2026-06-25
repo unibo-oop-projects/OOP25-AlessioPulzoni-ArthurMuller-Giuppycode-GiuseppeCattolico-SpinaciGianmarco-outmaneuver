@@ -7,8 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import outmaneuver.assembler.ScreenAssembler.ScreenMetrics;
 import outmaneuver.view.GameView;
-import outmaneuver.factory.ScreenFactory.ScreenMetrics;
 import outmaneuver.view.HudSnapshot;
 import outmaneuver.view.RenderState;
 
