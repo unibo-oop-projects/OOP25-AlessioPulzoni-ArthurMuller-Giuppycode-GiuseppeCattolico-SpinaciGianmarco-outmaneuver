@@ -13,14 +13,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import outmaneuver.controller.CollisionEngine;
-import outmaneuver.controller.HudController;
 import outmaneuver.controller.ScoreController;
 import outmaneuver.controller.impl.CollectibleControllerImpl;
-import outmaneuver.controller.impl.HudControllerImpl;
 import outmaneuver.controller.impl.InputControllerImpl;
 import outmaneuver.controller.impl.MasterControllerImpl;
 import outmaneuver.controller.impl.PlaneControllerImpl;
 import outmaneuver.controller.impl.ScoreControllerImpl;
+import outmaneuver.controller.impl.SessionState;
 import outmaneuver.controller.impl.missile.MissileControllerImpl;
 import outmaneuver.controller.impl.missile.MissileSpawnDirector;
 import outmaneuver.model.area.collision.CollisionData;
@@ -58,14 +57,15 @@ class EventControllerTest {
 
     private static final MissileRepository EMPTY_MISSILE_REPO = type -> Optional.empty();
 
+    private MasterControllerImpl master;
+    private SessionState session;
     private List<Entity> sharedEntities;
     private Plane plane;
     private PlaneControllerImpl planeCtrl;
     private CollectibleControllerImpl collectibleCtrl;
     private MissileControllerImpl missileCtrl;
-    private ScoreSession session;
+    private ScoreSession scoreSession;
     private ScoreController scoreController;
-    private HudController hudController;
     private AtomicBoolean gameOverTriggered;
     private EventController eventController;
 
@@ -82,17 +82,18 @@ class EventControllerTest {
         plane = new PlaneImpl(new PlaneData("standard", 200, 3, 20, "plane_standard", 0));
         planeCtrl.spawnEntity(plane);
 
-        final MasterControllerImpl master = new MasterControllerImpl();
+        master = new MasterControllerImpl();
         master.addEntityController(planeCtrl);
         master.addEntityController(collectibleCtrl);
         master.addEntityController(missileCtrl);
 
-        session = new ScoreSession();
-        scoreController = new ScoreControllerImpl(session);
-        hudController = new HudControllerImpl();
+        session = new SessionState();
+        scoreSession = new ScoreSession();
+        master.setSessionState(session);
+        scoreController = new ScoreControllerImpl(scoreSession);
         gameOverTriggered = new AtomicBoolean(false);
 
-        eventController = new EventController(master, scoreController, hudController, () -> gameOverTriggered.set(true));
+        eventController = new EventController(master, session, scoreController, () -> gameOverTriggered.set(true));
 
         // Mirrors ControllerAssembler: the EventController is each EntityController's
         // internal-event sink, so effects raised by CollectibleControllerImpl route back here.
@@ -145,12 +146,12 @@ class EventControllerTest {
         eventController.onInternalEvent(CollisionEvent.PLANE_COLLECTIBLE_COLLISION, data);
 
         assertFalse(sharedEntities.contains(star), "Collected star should be removed");
-        assertEquals(15, session.getScore());
+        assertEquals(15, scoreSession.getScore());
         assertFalse(collectibleCtrl.hasEffect(EffectImpl.class), "A star carries no effect to activate");
     }
 
     @Test
-    void planeCollectibleCollision_speedBoost_activatesEffectAndAppliesMultiplierToHud() {
+    void planeCollectibleCollision_speedBoost_activatesEffectAndAppliesMultiplier() {
         final SpeedBoost boost = new SpeedBoost(plane.getPosition(), new EffectImpl(EffectType.SPEED_BOOST, 2.0, 3000L));
         collectibleCtrl.spawnEntity(boost);
 
@@ -160,18 +161,18 @@ class EventControllerTest {
         assertFalse(sharedEntities.contains(boost), "Collected speed boost should be removed");
         assertTrue(collectibleCtrl.hasEffect(EffectImpl.class));
         assertEquals(2.0, collectibleCtrl.getEffectMultiplier());
-        assertEquals(2.0, hudController.getSpeedMultiplier());
+        assertEquals(2.0, session.getSpeedMultiplier());
     }
 
     @Test
-    void planeCollectibleCollision_shieldPowerUp_activatesShieldOnHud() {
+    void planeCollectibleCollision_shieldPowerUp_activatesShield() {
         final ShieldPowerUp shield = new ShieldPowerUp(plane.getPosition(), new EffectImpl(EffectType.SHIELD, 5000L));
         collectibleCtrl.spawnEntity(shield);
 
         final CollisionData data = new CollisionData(plane, shield, plane.getPosition());
         eventController.onInternalEvent(CollisionEvent.PLANE_COLLECTIBLE_COLLISION, data);
 
-        assertTrue(hudController.isShieldActive());
+        assertTrue(session.isShieldActive());
     }
 
     // ── MISSILE_MISSILE_COLLISION ──────────────────────────────────────
@@ -188,27 +189,27 @@ class EventControllerTest {
 
         assertFalse(sharedEntities.contains(a), "First missile should be removed");
         assertFalse(sharedEntities.contains(b), "Second missile should be removed");
-        assertEquals(20, session.getScore());
+        assertEquals(20, scoreSession.getScore());
     }
 
     // ── EFFECT_EXPIRED ──────────────────────────────────────────────────
 
     @Test
-    void shieldEffectExpired_clearsShieldOnHud() {
+    void shieldEffectExpired_clearsShield() {
         eventController.onInternalEvent(EffectEvent.EFFECT_APPLIED, new EffectImpl(EffectType.SHIELD, 5000L));
-        assertTrue(hudController.isShieldActive());
+        assertTrue(session.isShieldActive());
 
         eventController.onInternalEvent(EffectEvent.EFFECT_EXPIRED, new EffectImpl(EffectType.SHIELD, 0L));
-        assertFalse(hudController.isShieldActive());
+        assertFalse(session.isShieldActive());
     }
 
     @Test
-    void speedBoostEffectExpired_resetsHudMultiplierToOne() {
+    void speedBoostEffectExpired_resetsMultiplierToOne() {
         eventController.onInternalEvent(EffectEvent.EFFECT_APPLIED, new EffectImpl(EffectType.SPEED_BOOST, 3.0, 3000L));
-        assertEquals(3.0, hudController.getSpeedMultiplier());
+        assertEquals(3.0, session.getSpeedMultiplier());
 
         eventController.onInternalEvent(EffectEvent.EFFECT_EXPIRED, new EffectImpl(EffectType.SPEED_BOOST, 1.0, 0L));
-        assertEquals(1.0, hudController.getSpeedMultiplier());
+        assertEquals(1.0, session.getSpeedMultiplier());
     }
 
     @Test

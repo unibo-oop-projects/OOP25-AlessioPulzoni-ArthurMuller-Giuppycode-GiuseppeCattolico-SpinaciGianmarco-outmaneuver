@@ -10,10 +10,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import outmaneuver.controller.impl.HudControllerImpl;
 import outmaneuver.controller.impl.InputControllerImpl;
 import outmaneuver.controller.impl.MasterControllerImpl;
 import outmaneuver.controller.impl.RenderStateAssemblerImpl;
+import outmaneuver.controller.impl.SessionState;
 import outmaneuver.controller.event.Event;
 import outmaneuver.model.area.entity.Entity;
 import outmaneuver.model.area.entity.plane.Plane;
@@ -126,8 +126,8 @@ class MasterControllerImplTest {
         master.setSceneEntities(sharedEntities);
         master.setCollisionEngine(new CollisionEngine(master));
         master.setStateAssembler(new RenderStateAssemblerImpl());
+        master.setSessionState(new SessionState());
         master.setEventController((evt, data) -> { });
-        master.setHudController(new HudControllerImpl());
         master.setInputController(new InputControllerImpl());
     }
 
