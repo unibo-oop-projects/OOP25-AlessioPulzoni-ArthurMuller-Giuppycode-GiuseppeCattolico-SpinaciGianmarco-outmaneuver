@@ -1,10 +1,8 @@
 package outmaneuver.model.area.entity.missile.type;
 
-import java.awt.Dimension;
 
 import outmaneuver.model.area.entity.missile.MissileImpl;
 import outmaneuver.model.area.entity.missile.data.MissileData;
-import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.util.Vector2;
 
 public final class SniperMissile extends MissileImpl {
