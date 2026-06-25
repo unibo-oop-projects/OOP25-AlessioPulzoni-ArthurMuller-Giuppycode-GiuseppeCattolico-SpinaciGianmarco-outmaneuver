@@ -5,6 +5,7 @@ import java.util.Objects;
 import outmaneuver.controller.ScoreController;
 import outmaneuver.controller.impl.CollectibleControllerImpl;
 import outmaneuver.controller.impl.MasterControllerImpl;
+import outmaneuver.controller.impl.SessionState;
 import outmaneuver.controller.impl.PlaneControllerImpl;
 import outmaneuver.controller.impl.missile.MissileControllerImpl;
 import outmaneuver.model.area.collision.CollisionData;
@@ -17,19 +18,19 @@ import outmaneuver.model.area.entity.missile.Missile; //AGGIUNTO: serve per far 
 
 public final class EventController implements InternalEventListener {
 
+    private final SessionState session;
     private final PlaneControllerImpl planeController;
     private final CollectibleControllerImpl collectibleController;
     private final MissileControllerImpl missileController;
     private final ScoreController scoreController;
     private final Runnable onGameOver;
-    private boolean shieldActive;
-    private double speedMultiplier = 1.0;
-    private int stars;
 
     public EventController(
             final MasterControllerImpl master,
+            final SessionState session,
             final ScoreController scoreController,
             final Runnable onGameOver) {
+        this.session = Objects.requireNonNull(session);
         this.planeController = master.getEntityController(PlaneControllerImpl.class).orElseThrow();
         this.collectibleController = master.getEntityController(CollectibleControllerImpl.class).orElseThrow();
         this.missileController = master.getEntityController(MissileControllerImpl.class).orElseThrow();
@@ -50,7 +51,7 @@ public final class EventController implements InternalEventListener {
 
         switch ((CollisionEvent) evt) {
             case PLANE_MISSILE_COLLISION -> {
-                if (shieldActive) { //AGGIUNTO: aereo scudato -> niente game over, ma il missile reagisce e viene comunque distrutto
+                if (!session.isShieldActive()) { //AGGIUNTO: aereo scudato -> niente game over, ma il missile reagisce e viene comunque distrutto
                     final Missile missile = (Missile) collisionData.getEntityA(); //AGGIUNTO: il missile coinvolto
                     missile.onCollision(missileController.activeMissiles()); //AGGIUNTO: fa scattare la reazione (es. il clock rallenta gli altri missili)
                     missileController.removeEntity((Entity) missile); //AGGIUNTO: il missile e' SEMPRE distrutto contro l'aereo, anche lo shield missile col suo scudo (il "regge due colpi" vale solo tra missili)
@@ -69,7 +70,7 @@ public final class EventController implements InternalEventListener {
                     scoreController.onInternalEvent(CollisionEvent.PLANE_COLLECTIBLE_COLLISION, collectible);
                 }
                 if (collectible instanceof StarCollectible) {
-                    stars++;
+                    session.increaseStars();
                 }
             }
             case MISSILE_MISSILE_COLLISION -> {
@@ -96,44 +97,27 @@ public final class EventController implements InternalEventListener {
         switch (evt) {
             case EFFECT_APPLIED -> {
                 if (effect.getType() == EffectType.SHIELD) {
-                    shieldActive = true;
+                    session.setShieldActive(true);
                     missileController.setShieldActrive(true);
                 }
                 if (effect.getType() == EffectType.SPEED_BOOST) {
                     planeController.setSpeedMultiplier(effect.getMultiplier());
                     missileController.setSpeedMultiplier(effect.getMultiplier());
-                    this.speedMultiplier = effect.getMultiplier();
+                    session.setSpeedMultiplier(effect.getMultiplier());
                 }
             }
             case EFFECT_EXPIRED -> {
                 if (effect.getType() == EffectType.SHIELD) {
-                    shieldActive = false;
+                    session.setShieldActive(false);
                     missileController.setShieldActrive(false);
                 }
                 if (effect.getType() == EffectType.SPEED_BOOST) {
                     planeController.setSpeedMultiplier(1.0);
                     missileController.setSpeedMultiplier(1.0);
-                    this.speedMultiplier = 1.0;
+                    session.setSpeedMultiplier(1.0);
                 }
             }
         }
     }
 
-    public int getStars() {
-        return stars;
-    }
-
-    public double getSpeedMultiplier() {
-        return speedMultiplier;
-    }
-
-    public boolean isShieldActive() {
-        return shieldActive;
-    }
-
-    public void reset() {
-        this.stars = 0;
-        this.speedMultiplier = 1.0;
-        this.shieldActive = false;
-    }
 }
