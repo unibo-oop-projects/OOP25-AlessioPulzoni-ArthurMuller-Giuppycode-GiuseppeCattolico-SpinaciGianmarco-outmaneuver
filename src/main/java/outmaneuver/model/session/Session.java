@@ -1,16 +1,17 @@
 package outmaneuver.model.session;
 
-
-public final class ScoreSession implements IScoreSession {
+public final class Session implements ISession {
 
     private int score;
     private int starsScore;
     private int missilesScore;
+    private int stars;
+    private double speedMultiplier;
+    private boolean shieldActive;
+    private long elapsedMs;
 
-    public ScoreSession() {
-        this.score = 0;
-        this.starsScore = 0;
-        this.missilesScore = 0;
+    public Session() {
+        reset();
     }
 
     @Override
@@ -28,11 +29,51 @@ public final class ScoreSession implements IScoreSession {
         return missilesScore;
     }
 
+    public int getStars() {
+        return stars;
+    }
+
+    public void setStars(final int stars) {
+        this.stars = stars;
+    }
+
+    public double getSpeedMultiplier() {
+        return speedMultiplier;
+    }
+
+    public void setSpeedMultiplier(final double speedMultiplier) {
+        this.speedMultiplier = speedMultiplier;
+    }
+
+    public boolean isShieldActive() {
+        return shieldActive;
+    }
+
+    public void setShieldActive(final boolean shieldActive) {
+        this.shieldActive = shieldActive;
+    }
+
+    public long getElapsedMs() {
+        return elapsedMs;
+    }
+
+    public void addElapsed(final long ms) {
+        this.elapsedMs += ms;
+    }
+
+    public void increaseStars() {
+        this.stars += 1;
+    }
+
     @Override
     public void reset() {
         this.score = 0;
         this.starsScore = 0;
         this.missilesScore = 0;
+        this.stars = 0;
+        this.speedMultiplier = 1.0;
+        this.shieldActive = false;
+        this.elapsedMs = 0;
     }
 
     @Override
