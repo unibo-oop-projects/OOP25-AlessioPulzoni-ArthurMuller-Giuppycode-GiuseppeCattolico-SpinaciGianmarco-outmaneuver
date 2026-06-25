@@ -17,18 +17,17 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
+import outmaneuver.factory.ScreenFactory.ScreenMetrics;
 import outmaneuver.view.swing.Theme;
 
 public final class MainMenuView extends JPanel {
-
-    private static final int LOGO_WIDTH        = 600;
-    private static final int VGAP              = 20;
 
     private final JLabel coinsLabel;
     private final JLabel userLabel;
     private final JLabel planeLabel;
 
-    public MainMenuView(final Supplier<String> playerNameSupplier,
+    public MainMenuView(final ScreenMetrics metrics,
+                        final Supplier<String> playerNameSupplier,
                         final IntSupplier coinsSupplier,
                         final Supplier<String> equippedPlaneSupplier,
                         final Runnable onStart, final Runnable onShop,
@@ -45,16 +44,16 @@ public final class MainMenuView extends JPanel {
         setLayout(new BorderLayout());
 
         // ── username top-right and wallet ──────────────────────────────────────────
-        userLabel = Theme.outlinedLabel("", new Font(Font.MONOSPACED, Font.PLAIN, Theme.FONT_SMALL), Theme.TEXT_BODY, SwingConstants.LEFT);
+        userLabel = Theme.outlinedLabel("", new Font(Font.MONOSPACED, Font.PLAIN, metrics.sf(Theme.FONT_SMALL)), Theme.TEXT_BODY, SwingConstants.LEFT);
 
-        coinsLabel = Theme.outlinedLabel("Coins: 0", new Font(Font.MONOSPACED, Font.BOLD, Theme.FONT_BODY), Theme.TEXT_ACCENT, SwingConstants.CENTER);
+        coinsLabel = Theme.outlinedLabel("Coins: 0", new Font(Font.MONOSPACED, Font.BOLD, metrics.sf(Theme.FONT_BODY)), Theme.TEXT_ACCENT, SwingConstants.CENTER);
 
         final JPanel topBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 6));
         topBar.setBackground(Theme.BACKGROUND);
         topBar.add(userLabel);
         topBar.add(coinsLabel);
 
-        planeLabel = Theme.outlinedLabel("", new Font(Font.MONOSPACED, Font.PLAIN, Theme.FONT_SMALL), Theme.TEXT_INFO, SwingConstants.LEFT);
+        planeLabel = Theme.outlinedLabel("", new Font(Font.MONOSPACED, Font.PLAIN, metrics.sf(Theme.FONT_SMALL)), Theme.TEXT_INFO, SwingConstants.LEFT);
 
         final JPanel topLeft = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 6));
         topLeft.setBackground(Theme.BACKGROUND);
@@ -73,16 +72,16 @@ public final class MainMenuView extends JPanel {
         final ImageIcon logoIcon = new ImageIcon(
             new ImageIcon(getClass().getResource("/assets/sprites/logo.png"))
                 .getImage()
-                .getScaledInstance(LOGO_WIDTH, -1, Image.SCALE_SMOOTH)
+                .getScaledInstance(metrics.sw(600), -1, Image.SCALE_SMOOTH)
         );
         final JLabel title = new JLabel(logoIcon);
 
 
 
-        final JButton startButton       = Theme.styledButton("START",       Theme.FONT_BUTTON, Theme.BUTTON_WIDTH, Theme.BUTTON_HEIGHT);
-        final JButton shopButton        = Theme.styledButton("SHOP",        Theme.FONT_BUTTON, Theme.BUTTON_WIDTH, Theme.BUTTON_HEIGHT);
-        final JButton leaderboardButton = Theme.styledButton("LEADERBOARD", Theme.FONT_BUTTON, Theme.BUTTON_WIDTH, Theme.BUTTON_HEIGHT);
-        final JButton exitButton        = Theme.styledButton("EXIT",        Theme.FONT_BUTTON, Theme.BUTTON_WIDTH, Theme.BUTTON_HEIGHT);
+        final JButton startButton       = Theme.styledButton("START",       metrics.sf(Theme.FONT_BUTTON), metrics.sw(Theme.BUTTON_WIDTH), metrics.sh(Theme.BUTTON_HEIGHT));
+        final JButton shopButton        = Theme.styledButton("SHOP",        metrics.sf(Theme.FONT_BUTTON), metrics.sw(Theme.BUTTON_WIDTH), metrics.sh(Theme.BUTTON_HEIGHT));
+        final JButton leaderboardButton = Theme.styledButton("LEADERBOARD", metrics.sf(Theme.FONT_BUTTON), metrics.sw(Theme.BUTTON_WIDTH), metrics.sh(Theme.BUTTON_HEIGHT));
+        final JButton exitButton        = Theme.styledButton("EXIT",        metrics.sf(Theme.FONT_BUTTON), metrics.sw(Theme.BUTTON_WIDTH), metrics.sh(Theme.BUTTON_HEIGHT));
         startButton.addActionListener(e -> safeStart.run());
         shopButton.addActionListener(e -> safeShop.run());
         leaderboardButton.addActionListener(e -> safeLeaderboard.run());
@@ -91,7 +90,7 @@ public final class MainMenuView extends JPanel {
         final GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx  = 0;
         gbc.fill   = GridBagConstraints.NONE;
-        gbc.insets = new Insets(VGAP, 0, 0, 0);
+        gbc.insets = new Insets(metrics.sh(20), 0, 0, 0);
 
         gbc.gridy = 0; center.add(title,            gbc);
         gbc.gridy = 2; center.add(startButton,      gbc);

@@ -12,17 +12,14 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import outmaneuver.factory.ScreenFactory.ScreenMetrics;
 import outmaneuver.view.swing.Theme;
 
 public final class UsernameSetupView extends JPanel {
 
-    private static final int TITLE_FONT_SIZE  = 40;
-    private static final int LABEL_FONT_SIZE  = 18;
-    private static final int FIELD_COLUMNS    = 20;
-    private static final int VGAP             = 16;
     private static final int MAX_NAME_LENGTH  = 24;
 
-    public UsernameSetupView(final Consumer<String> onConfirm) {
+    public UsernameSetupView(final ScreenMetrics metrics, final Consumer<String> onConfirm) {
         Objects.requireNonNull(onConfirm, "onConfirm must not be null");
 
         setBackground(Theme.BACKGROUND);
@@ -31,19 +28,19 @@ public final class UsernameSetupView extends JPanel {
         final GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx  = 0;
         gbc.fill   = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(VGAP, 0, 0, 0);
+        gbc.insets = new Insets(metrics.sh(16), 0, 0, 0);
 
-        final JLabel title = Theme.outlinedLabel("WELCOME", new Font(Font.SANS_SERIF, Font.BOLD, TITLE_FONT_SIZE), Theme.TEXT_TITLE);
+        final JLabel title = Theme.outlinedLabel("WELCOME", new Font(Font.SANS_SERIF, Font.BOLD, metrics.sf(40)), Theme.TEXT_TITLE);
 
-        final JLabel prompt = Theme.outlinedLabel("Enter your username:", new Font(Font.MONOSPACED, Font.PLAIN, LABEL_FONT_SIZE), Theme.TEXT_BODY);
+        final JLabel prompt = Theme.outlinedLabel("Enter your username:", new Font(Font.MONOSPACED, Font.PLAIN, metrics.sf(18)), Theme.TEXT_BODY);
 
-        final JTextField nameField = new JTextField(FIELD_COLUMNS);
-        nameField.setFont(new Font(Font.MONOSPACED, Font.PLAIN, LABEL_FONT_SIZE));
+        final JTextField nameField = new JTextField(Math.max(10, metrics.sw(20)));
+        nameField.setFont(new Font(Font.MONOSPACED, Font.PLAIN, metrics.sf(18)));
         nameField.setHorizontalAlignment(JTextField.CENTER);
 
-        final JLabel errorLabel = Theme.outlinedLabel(" ", new Font(Font.MONOSPACED, Font.PLAIN, LABEL_FONT_SIZE - 4), Theme.TEXT_ERROR);
+        final JLabel errorLabel = Theme.outlinedLabel(" ", new Font(Font.MONOSPACED, Font.PLAIN, metrics.sf(14)), Theme.TEXT_ERROR);
 
-        final JButton confirmButton = Theme.styledButton("CONFIRM", Theme.FONT_BUTTON, Theme.BUTTON_WIDTH, Theme.BUTTON_HEIGHT);
+        final JButton confirmButton = Theme.styledButton("CONFIRM", metrics.sf(Theme.FONT_BUTTON), metrics.sw(Theme.BUTTON_WIDTH), metrics.sh(Theme.BUTTON_HEIGHT));
 
         final Runnable doConfirm = () -> {
             final String name = nameField.getText().strip();

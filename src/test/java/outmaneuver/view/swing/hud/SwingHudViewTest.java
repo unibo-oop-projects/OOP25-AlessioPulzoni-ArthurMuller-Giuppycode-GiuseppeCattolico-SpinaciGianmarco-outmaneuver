@@ -8,10 +8,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import outmaneuver.view.GameView;
+import outmaneuver.factory.ScreenFactory.ScreenMetrics;
 import outmaneuver.view.HudSnapshot;
 import outmaneuver.view.RenderState;
 
 class SwingHudViewTest {
+
+    private static final ScreenMetrics METRICS = new ScreenMetrics(1400, 1000);
 
     private static final int WIDTH = 800;
     private static final int HEIGHT = 600;
@@ -22,7 +25,7 @@ class SwingHudViewTest {
 
     @BeforeEach
     void setUp() {
-        hudView = new SwingHudView();
+        hudView = new SwingHudView(METRICS);
         g2d = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_ARGB).createGraphics();
         stubView = new GameView() {
             @Override public void renderFrame(final RenderState state) { }

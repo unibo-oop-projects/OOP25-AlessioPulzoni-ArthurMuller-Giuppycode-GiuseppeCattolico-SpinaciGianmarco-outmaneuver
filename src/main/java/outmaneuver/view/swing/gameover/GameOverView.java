@@ -13,22 +13,18 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import outmaneuver.model.session.ScoreEntry;
+import outmaneuver.factory.ScreenFactory.ScreenMetrics;
 import outmaneuver.view.swing.Theme;
 import outmaneuver.view.swing.leaderboard.LeaderboardTablePanel;
 
 public final class GameOverView extends JPanel {
-
-    private static final int TITLE_FONT_SIZE   = 64;
-    private static final int SCORE_FONT_SIZE   = 28;
-    private static final int RECAP_FONT_SIZE   = 22;
-    private static final int VGAP              = 14;
 
     private final JLabel scoreLabel;
     private final JLabel recapStarsLabel;
     private final JLabel recapMissilesLabel;
     private final LeaderboardTablePanel tablePanel;
 
-    public GameOverView(final Runnable onPlayAgain, final Runnable onMenu) {
+    public GameOverView(final ScreenMetrics metrics, final Runnable onPlayAgain, final Runnable onMenu) {
         final Runnable safePlayAgain = Objects.requireNonNull(onPlayAgain);
         final Runnable safeMenu      = Objects.requireNonNull(onMenu);
 
@@ -38,20 +34,20 @@ public final class GameOverView extends JPanel {
         final GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx  = 0;
         gbc.fill   = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(VGAP, 0, 0, 0);
+        gbc.insets = new Insets(metrics.sh(14), 0, 0, 0);
 
-        final JLabel title = Theme.outlinedLabel("GAME OVER", new Font(Font.SANS_SERIF, Font.BOLD, TITLE_FONT_SIZE), Theme.TEXT_ERROR);
+        final JLabel title = Theme.outlinedLabel("GAME OVER", new Font(Font.SANS_SERIF, Font.BOLD, metrics.sf(64)), Theme.TEXT_ERROR);
 
-        scoreLabel = Theme.outlinedLabel("Score: 0", new Font(Font.MONOSPACED, Font.BOLD, SCORE_FONT_SIZE), Theme.TEXT_TITLE);
+        scoreLabel = Theme.outlinedLabel("Score: 0", new Font(Font.MONOSPACED, Font.BOLD, metrics.sf(28)), Theme.TEXT_TITLE);
 
-        final var recapFont = new Font(Font.MONOSPACED, Font.BOLD, RECAP_FONT_SIZE);
+        final var recapFont = new Font(Font.MONOSPACED, Font.BOLD, metrics.sf(22));
         recapStarsLabel    = Theme.outlinedLabel("Stelle collezionate + 0", recapFont, Theme.TEXT_TITLE);
         recapMissilesLabel = Theme.outlinedLabel("Missili fatti scontrare + 0", recapFont, Theme.TEXT_TITLE);
 
-        tablePanel = new LeaderboardTablePanel(5);
+        tablePanel = new LeaderboardTablePanel(metrics, 5);
 
-        final JButton playAgainButton = Theme.styledButton("PLAY AGAIN", Theme.FONT_BUTTON, Theme.BUTTON_WIDTH, Theme.BUTTON_HEIGHT);
-        final JButton menuButton      = Theme.styledButton("MENU",       Theme.FONT_BUTTON, Theme.BUTTON_WIDTH, Theme.BUTTON_HEIGHT);
+        final JButton playAgainButton = Theme.styledButton("PLAY AGAIN", metrics.sf(Theme.FONT_BUTTON), metrics.sw(Theme.BUTTON_WIDTH), metrics.sh(Theme.BUTTON_HEIGHT));
+        final JButton menuButton      = Theme.styledButton("MENU",       metrics.sf(Theme.FONT_BUTTON), metrics.sw(Theme.BUTTON_WIDTH), metrics.sh(Theme.BUTTON_HEIGHT));
         playAgainButton.addActionListener(e -> safePlayAgain.run());
         menuButton.addActionListener(e -> safeMenu.run());
 

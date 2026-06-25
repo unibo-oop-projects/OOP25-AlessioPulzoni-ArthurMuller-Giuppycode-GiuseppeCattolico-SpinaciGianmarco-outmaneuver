@@ -11,14 +11,12 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import outmaneuver.factory.ScreenFactory.ScreenMetrics;
 import outmaneuver.view.swing.Theme;
 
 public final class PauseView extends JPanel {
 
-    private static final int TITLE_FONT_SIZE  = 64;
-    private static final int VGAP             = 20;
-
-    public PauseView(final Runnable onResume, final Runnable onQuit) {
+    public PauseView(final ScreenMetrics metrics, final Runnable onResume, final Runnable onQuit) {
         Objects.requireNonNull(onResume, "onResume must not be null");
         Objects.requireNonNull(onQuit,   "onQuit must not be null");
 
@@ -28,12 +26,12 @@ public final class PauseView extends JPanel {
         final GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx  = 0;
         gbc.fill   = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(VGAP, 0, 0, 0);
+        gbc.insets = new Insets(metrics.sh(20), 0, 0, 0);
 
-        final JLabel title = Theme.outlinedLabel("PAUSED", new Font(Font.SANS_SERIF, Font.BOLD, TITLE_FONT_SIZE), Theme.TEXT_ACCENT);
+        final JLabel title = Theme.outlinedLabel("PAUSED", new Font(Font.SANS_SERIF, Font.BOLD, metrics.sf(64)), Theme.TEXT_ACCENT);
 
-        final JButton resumeButton = Theme.styledButton("RESUME", Theme.FONT_BUTTON, Theme.BUTTON_WIDTH, Theme.BUTTON_HEIGHT);
-        final JButton quitButton   = Theme.styledButton("QUIT",   Theme.FONT_BUTTON, Theme.BUTTON_WIDTH, Theme.BUTTON_HEIGHT);
+        final JButton resumeButton = Theme.styledButton("RESUME", metrics.sf(Theme.FONT_BUTTON), metrics.sw(Theme.BUTTON_WIDTH), metrics.sh(Theme.BUTTON_HEIGHT));
+        final JButton quitButton   = Theme.styledButton("QUIT",   metrics.sf(Theme.FONT_BUTTON), metrics.sw(Theme.BUTTON_WIDTH), metrics.sh(Theme.BUTTON_HEIGHT));
         resumeButton.addActionListener(e -> onResume.run());
         quitButton.addActionListener(e -> onQuit.run());
 

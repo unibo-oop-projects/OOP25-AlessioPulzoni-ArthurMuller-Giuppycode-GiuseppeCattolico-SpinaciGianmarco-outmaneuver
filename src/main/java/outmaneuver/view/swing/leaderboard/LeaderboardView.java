@@ -16,19 +16,15 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
 import outmaneuver.model.session.ScoreEntry;
+import outmaneuver.factory.ScreenFactory.ScreenMetrics;
 import outmaneuver.view.swing.Theme;
 
 public final class LeaderboardView extends JPanel {
 
-    private static final int TITLE_FONT_SIZE   = 48;
-    private static final int VGAP              = 14;
-    private static final int SCROLL_PANE_WIDTH = 800;
-    private static final int SCROLL_PANE_HEIGHT = 420;
-
     private final Supplier<List<ScoreEntry>> scoresSupplier;
     private final LeaderboardTablePanel tablePanel;
 
-    public LeaderboardView(final Supplier<List<ScoreEntry>> scoresSupplier, final Runnable onBack) {
+    public LeaderboardView(final ScreenMetrics metrics, final Supplier<List<ScoreEntry>> scoresSupplier, final Runnable onBack) {
         this.scoresSupplier = Objects.requireNonNull(scoresSupplier, "scoresSupplier must not be null");
         final Runnable safeBack = Objects.requireNonNull(onBack, "onBack must not be null");
 
@@ -38,22 +34,22 @@ public final class LeaderboardView extends JPanel {
         final GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx  = 0;
         gbc.fill   = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(VGAP, 0, 0, 0);
+        gbc.insets = new Insets(metrics.sh(14), 0, 0, 0);
 
-        final JLabel title = Theme.outlinedLabel("LEADERBOARD", new Font(Font.SANS_SERIF, Font.BOLD, TITLE_FONT_SIZE), Theme.TEXT_ACCENT);
-        final JLabel subtitle = Theme.outlinedLabel("TOP 20 SCORES", new Font(Font.SANS_SERIF, Font.BOLD, Theme.FONT_BODY), Theme.TEXT_ACCENT);
+        final JLabel title = Theme.outlinedLabel("LEADERBOARD", new Font(Font.SANS_SERIF, Font.BOLD, metrics.sf(48)), Theme.TEXT_ACCENT);
+        final JLabel subtitle = Theme.outlinedLabel("TOP 20 SCORES", new Font(Font.SANS_SERIF, Font.BOLD, metrics.sf(Theme.FONT_BODY)), Theme.TEXT_ACCENT);
 
-        tablePanel = new LeaderboardTablePanel(Integer.MAX_VALUE);
+        tablePanel = new LeaderboardTablePanel(metrics, Integer.MAX_VALUE);
 
         final JScrollPane scrollPane = new JScrollPane(tablePanel,
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.setPreferredSize(new Dimension(SCROLL_PANE_WIDTH, SCROLL_PANE_HEIGHT));
+        scrollPane.setPreferredSize(new Dimension(metrics.sw(800), metrics.sh(420)));
         scrollPane.getViewport().setBackground(Theme.BACKGROUND);
         scrollPane.setBackground(Theme.BACKGROUND);
         scrollPane.setBorder(null);
 
-        final JButton backButton = Theme.styledButton("BACK", Theme.FONT_BUTTON, Theme.BUTTON_WIDTH, Theme.BUTTON_HEIGHT);
+        final JButton backButton = Theme.styledButton("BACK", metrics.sf(Theme.FONT_BUTTON), metrics.sw(Theme.BUTTON_WIDTH), metrics.sh(Theme.BUTTON_HEIGHT));
         backButton.addActionListener(e -> safeBack.run());
 
         gbc.gridy = 0; add(title,      gbc);

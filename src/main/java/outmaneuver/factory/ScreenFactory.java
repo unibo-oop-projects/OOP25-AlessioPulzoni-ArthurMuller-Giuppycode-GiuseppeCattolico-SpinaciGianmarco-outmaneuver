@@ -53,6 +53,23 @@ public final class ScreenFactory {
     public record Result(Map<ScreenId, JPanel> screens, SwingGameView gameView) { }
 
     /**
+     * Provides proportional scaling from the reference 1400×1000 game size
+     * to the actual panel dimensions.
+     */
+    public record ScreenMetrics(int width, int height) {
+        private static final int REF_W = 1400;
+        private static final int REF_H = 1000;
+
+        public double scaleX() { return (double) width / REF_W; }
+        public double scaleY() { return (double) height / REF_H; }
+        public double scale()  { return Math.min(scaleX(), scaleY()); }
+
+        public int sw(int v) { return (int) Math.round(v * scaleX()); }
+        public int sh(int v) { return (int) Math.round(v * scaleY()); }
+        public int sf(int v) { return Math.max(12, (int) Math.round(v * scale())); }
+    }
+
+    /**
      * Computes a game-window size that:
      * <ol>
      *   <li>Preserves the original 1.4 : 1 aspect ratio.</li>
@@ -93,14 +110,17 @@ public final class ScreenFactory {
 
         final MasterControllerImpl master = ctrl.master();
 
+        final Dimension gameSize = scaledGameSize();
+        final ScreenMetrics metrics = new ScreenMetrics(gameSize.width, gameSize.height);
+
         // L'asset store carica tutti gli sprite una volta sola (cache eager) e li fornisce
         // alla view: dipendenza iniettata dall'esterno, la view non sa COME sono caricati.
         final AssetStore assets = new ClasspathAssetStore();
         final SwingGameView gameView = new SwingGameView(
                 new GameKeyListener(ctrl.input(), master),
-                new SwingHudView(),
+                new SwingHudView(metrics),
                 assets);
-        gameView.setPreferredSize(scaledGameSize());
+        gameView.setPreferredSize(gameSize);
         gameView.init();
         master.attachView(gameView);
 
@@ -108,6 +128,7 @@ public final class ScreenFactory {
         final LeaderboardView[] leaderboardRef = { null };
 
         final ShopView shopView = new ShopView(
+                metrics,
                 assets,
                 shop.getCatalog(),
                 profile::getCoins,
@@ -130,17 +151,20 @@ public final class ScreenFactory {
         );
 
         final GameOverView gameOverView = new GameOverView(
+                metrics,
                 () -> onPlayAgain(uiRef[0], master, gameView, session),
                 () -> uiRef[0].showScreen(ScreenId.MENU)
         );
 
         final LeaderboardView leaderboardView = new LeaderboardView(
+                metrics,
                 profile::getTopScores,
                 () -> uiRef[0].showScreen(ScreenId.MENU)
         );
         leaderboardRef[0] = leaderboardView;
 
         final MainMenuView mainMenuView = new MainMenuView(
+                metrics,
                 profile::getPlayerName,
                 profile::getCoins,
                 () -> plane.getStats().getId(),
@@ -164,6 +188,7 @@ public final class ScreenFactory {
         });
 
         final PauseView pauseView = new PauseView(
+                metrics,
                 () -> master.handleEvent(GameEvent.PAUSED),
                 () -> {
                     master.stop();
@@ -171,11 +196,13 @@ public final class ScreenFactory {
                 }
         );
 
-        final Map<ScreenId, JPanel> screens = new EnumMap<>(ScreenId.class);
-        screens.put(ScreenId.SETUP, new UsernameSetupView(name -> {
+        final UsernameSetupView setupView = new UsernameSetupView(metrics, name -> {
             profile.setPlayerName(name);
             uiRef[0].showScreen(ScreenId.MENU);
-        }));
+        });
+
+        final Map<ScreenId, JPanel> screens = new EnumMap<>(ScreenId.class);
+        screens.put(ScreenId.SETUP, setupView);
         screens.put(ScreenId.MENU, mainMenuView);
         screens.put(ScreenId.PLAYING, gameView);
         screens.put(ScreenId.PAUSED, pauseView);

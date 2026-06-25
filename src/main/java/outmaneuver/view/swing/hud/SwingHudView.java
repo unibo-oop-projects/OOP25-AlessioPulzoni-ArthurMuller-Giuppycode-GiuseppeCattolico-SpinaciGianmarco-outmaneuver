@@ -5,22 +5,26 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 
+import outmaneuver.factory.ScreenFactory.ScreenMetrics;
 import outmaneuver.view.GameView;
 import outmaneuver.view.HudSnapshot;
 
 public final class SwingHudView implements IHudView {
 
-    private static final int HUD_MARGIN = 12;
-    private static final int HUD_LINE_HEIGHT = 22;
-    private static final int HUD_FONT_SIZE = 16;
-    private static final int PAUSED_FONT_SIZE = 48;
+    private final ScreenMetrics metrics;
+
+    public SwingHudView(final ScreenMetrics metrics) {
+        this.metrics = metrics;
+    }
 
     @Override
     public void render(final Graphics2D g2d, final HudSnapshot hud,
                        final GameView view) {
         final int width = view.getWidth();
         final int height = view.getHeight();
-        final Font hudFont = new Font(Font.MONOSPACED, Font.BOLD, HUD_FONT_SIZE);
+        final int hudMargin = metrics.sw(12);
+        final int hudLineHeight = metrics.sh(22);
+        final Font hudFont = new Font(Font.MONOSPACED, Font.BOLD, metrics.sf(16));
         g2d.setFont(hudFont);
         final FontMetrics fm = g2d.getFontMetrics();
 
@@ -31,17 +35,17 @@ public final class SwingHudView implements IHudView {
         final String starsStr  = "Stars: " + hud.stars();
 
         g2d.setColor(Color.WHITE);
-        g2d.drawString(timeStr,  HUD_MARGIN, HUD_MARGIN + HUD_LINE_HEIGHT);
-        g2d.drawString(speedStr, HUD_MARGIN, HUD_MARGIN + HUD_LINE_HEIGHT * 2);
+        g2d.drawString(timeStr,  hudMargin, hudMargin + hudLineHeight);
+        g2d.drawString(speedStr, hudMargin, hudMargin + hudLineHeight * 2);
 
         g2d.setColor(hud.shieldActive() ? Color.CYAN : Color.GRAY);
-        g2d.drawString(shieldStr, HUD_MARGIN, HUD_MARGIN + HUD_LINE_HEIGHT * 3);
+        g2d.drawString(shieldStr, hudMargin, hudMargin + hudLineHeight * 3);
 
         g2d.setColor(Color.YELLOW);
-        g2d.drawString(starsStr, width - fm.stringWidth(starsStr) - HUD_MARGIN, HUD_MARGIN + HUD_LINE_HEIGHT);
+        g2d.drawString(starsStr, width - fm.stringWidth(starsStr) - hudMargin, hudMargin + hudLineHeight);
 
         if (hud.paused()) {
-            final Font pausedFont = new Font(Font.SANS_SERIF, Font.BOLD, PAUSED_FONT_SIZE);
+            final Font pausedFont = new Font(Font.SANS_SERIF, Font.BOLD, metrics.sf(48));
             g2d.setFont(pausedFont);
             final FontMetrics pfm = g2d.getFontMetrics();
             final String pausedStr = "PAUSED";

@@ -12,17 +12,20 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import outmaneuver.model.session.ScoreEntry;
+import outmaneuver.factory.ScreenFactory.ScreenMetrics;
 import outmaneuver.view.swing.Theme;
 
 public final class LeaderboardTablePanel extends JPanel {
 
     private final int maxEntries;
+    private final ScreenMetrics metrics;
 
-    public LeaderboardTablePanel(final int maxEntries) {
+    public LeaderboardTablePanel(final ScreenMetrics metrics, final int maxEntries) {
         if (maxEntries <= 0) {
             throw new IllegalArgumentException("maxEntries must be positive, was: " + maxEntries);
         }
         this.maxEntries = maxEntries;
+        this.metrics = metrics;
         setLayout(new GridBagLayout());
         setBackground(Theme.BACKGROUND);
     }
@@ -58,7 +61,7 @@ public final class LeaderboardTablePanel extends JPanel {
                         final String score, final String date,
                         final boolean header) {
         final Font font = new Font(Font.MONOSPACED,
-                header ? Font.BOLD : Font.PLAIN, Theme.FONT_BODY);
+                header ? Font.BOLD : Font.PLAIN, metrics.sf(Theme.FONT_BODY));
         final Color color = header ? Theme.TEXT_ACCENT : Theme.TEXT_TITLE;
 
         int col = 0;

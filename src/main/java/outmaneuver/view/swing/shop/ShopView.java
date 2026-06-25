@@ -23,17 +23,12 @@ import outmaneuver.model.area.entity.plane.PlaneStats;
 import outmaneuver.model.shop.ShopItem;
 import outmaneuver.util.assets.AssetStore;
 import outmaneuver.util.assets.SpriteId;
+import outmaneuver.factory.ScreenFactory.ScreenMetrics;
 import outmaneuver.view.swing.Theme;
 
 public final class ShopView extends JPanel {
 
-    private static final int TITLE_FONT_SIZE   = 48;
-    private static final int BUTTON_WIDTH      = 160;
-    private static final int BUTTON_HEIGHT     = 48;
-    private static final int NAV_SIZE          = 48;
-    private static final int VGAP              = 12;
-    private static final int HGAP              = 16;
-
+    private final ScreenMetrics metrics;
     private final AssetStore assets;
     private final List<ShopItem> catalog;
     private final Supplier<Integer> coinsSupplier;
@@ -52,7 +47,8 @@ public final class ShopView extends JPanel {
 
     private int currentIndex;
 
-    public ShopView(final AssetStore assets,
+    public ShopView(final ScreenMetrics metrics,
+                    final AssetStore assets,
                     final List<ShopItem> catalog,
                     final Supplier<Integer> coinsSupplier,
                     final Supplier<PlaneStats> equippedStatsSupplier,
@@ -64,6 +60,7 @@ public final class ShopView extends JPanel {
         if (catalog.isEmpty()) {
             throw new IllegalArgumentException("catalog must not be empty");
         }
+        this.metrics               = metrics;
         this.assets                = assets;
         this.catalog               = List.copyOf(catalog);
         this.coinsSupplier         = Objects.requireNonNull(coinsSupplier);
@@ -79,20 +76,20 @@ public final class ShopView extends JPanel {
         gbc.gridx  = 0;
         gbc.gridwidth = 3;
         gbc.fill   = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(VGAP, HGAP, 0, HGAP);
+        gbc.insets = new Insets(metrics.sh(12), metrics.sw(16), 0, metrics.sw(16));
 
-        final JLabel title = Theme.outlinedLabel("SHOP", new Font(Font.SANS_SERIF, Font.BOLD, TITLE_FONT_SIZE), Theme.TEXT_TITLE);
+        final JLabel title = Theme.outlinedLabel("SHOP", new Font(Font.SANS_SERIF, Font.BOLD, metrics.sf(48)), Theme.TEXT_TITLE);
 
-        coinsLabel = Theme.outlinedLabel("Coins: 0", new Font(Font.MONOSPACED, Font.BOLD, Theme.FONT_BUTTON), Theme.TEXT_ACCENT);
+        coinsLabel = Theme.outlinedLabel("Coins: 0", new Font(Font.MONOSPACED, Font.BOLD, metrics.sf(Theme.FONT_BUTTON)), Theme.TEXT_ACCENT);
 
-        nameLabel  = outlinedLabel("", Theme.FONT_BODY + 4, Font.BOLD,  Theme.TEXT_INFO);
+        nameLabel  = outlinedLabel("", metrics.sf(30), Font.BOLD,  Theme.TEXT_INFO);
         spriteLabel = new JLabel();
         spriteLabel.setHorizontalAlignment(JLabel.CENTER);
-        spriteLabel.setPreferredSize(new Dimension(96, 96));
-        speedLabel = outlinedLabel("", Theme.FONT_BODY,      Font.PLAIN, Theme.TEXT_TITLE);
-        turnLabel  = outlinedLabel("", Theme.FONT_BODY,      Font.PLAIN, Theme.TEXT_TITLE);
-        priceLabel = outlinedLabel("", Theme.FONT_BODY,      Font.BOLD,  Theme.TEXT_ACCENT);
-        feedbackLabel = outlinedLabel("", Theme.FONT_BODY,   Font.BOLD,  Theme.TEXT_SUCCESS);
+        spriteLabel.setPreferredSize(new Dimension(metrics.sw(96), metrics.sh(96)));
+        speedLabel = outlinedLabel("", metrics.sf(Theme.FONT_BODY),      Font.PLAIN, Theme.TEXT_TITLE);
+        turnLabel  = outlinedLabel("", metrics.sf(Theme.FONT_BODY),      Font.PLAIN, Theme.TEXT_TITLE);
+        priceLabel = outlinedLabel("", metrics.sf(Theme.FONT_BODY),      Font.BOLD,  Theme.TEXT_ACCENT);
+        feedbackLabel = outlinedLabel("", metrics.sf(Theme.FONT_BODY),   Font.BOLD,  Theme.TEXT_SUCCESS);
 
         gbc.gridy = 0; add(title,         gbc);
         gbc.gridy = 1; add(coinsLabel,    gbc);
@@ -108,10 +105,11 @@ public final class ShopView extends JPanel {
         gbc.gridwidth = 1;
         gbc.fill     = GridBagConstraints.NONE;
 
-        final JButton prevBtn = Theme.styledButton("<--", Theme.FONT_BUTTON, NAV_SIZE, NAV_SIZE);
-        final JButton nextBtn = Theme.styledButton("-->", Theme.FONT_BUTTON, NAV_SIZE, NAV_SIZE);
-        buyBtn = Theme.styledButton("BUY", Theme.FONT_BUTTON, BUTTON_WIDTH, BUTTON_HEIGHT);
-        final JButton backBtn = Theme.styledButton("BACK", Theme.FONT_BUTTON, BUTTON_WIDTH, BUTTON_HEIGHT);
+        final int navSize = metrics.sh(48);
+        final JButton prevBtn = Theme.styledButton("<--", metrics.sf(Theme.FONT_BUTTON), navSize, navSize);
+        final JButton nextBtn = Theme.styledButton("-->", metrics.sf(Theme.FONT_BUTTON), navSize, navSize);
+        buyBtn = Theme.styledButton("BUY", metrics.sf(Theme.FONT_BUTTON), metrics.sw(160), metrics.sh(48));
+        final JButton backBtn = Theme.styledButton("BACK", metrics.sf(Theme.FONT_BUTTON), metrics.sw(160), metrics.sh(48));
 
         gbc.gridx = 0; add(prevBtn, gbc);
         gbc.gridx = 1; add(buyBtn,  gbc);
@@ -160,7 +158,7 @@ public final class ShopView extends JPanel {
 
         final SpriteId spriteId = SpriteId.fromFilename(item.stats().getSpriteId());
         final BufferedImage img = assets.getSprite(spriteId);
-        final ImageIcon icon = new ImageIcon(img.getScaledInstance(96, 96, java.awt.Image.SCALE_SMOOTH));
+        final ImageIcon icon = new ImageIcon(img.getScaledInstance(metrics.sw(96), metrics.sh(96), java.awt.Image.SCALE_SMOOTH));
         spriteLabel.setIcon(icon);
         speedLabel.setText(String.format("Speed: %.0f   Radius: %.0f",
                 item.stats().getBaseSpeed(), item.stats().getHitboxRadius()));
