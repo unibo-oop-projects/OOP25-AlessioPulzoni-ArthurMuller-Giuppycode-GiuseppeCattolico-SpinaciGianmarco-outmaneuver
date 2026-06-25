@@ -14,6 +14,7 @@ import outmaneuver.controller.impl.missile.MissileSpawnDirector;
 import outmaneuver.controller.impl.PlaneControllerImpl;
 import outmaneuver.controller.impl.RenderStateAssemblerImpl;
 import outmaneuver.controller.impl.ScoreControllerImpl;
+import outmaneuver.controller.impl.SessionState;
 import outmaneuver.model.area.entity.Entity;
 import outmaneuver.model.area.entity.missile.data.JsonMissileRepository;
 import outmaneuver.model.area.entity.missile.data.MissileData;
@@ -63,14 +64,16 @@ public final class ControllerAssembler {
         master.addEntityController(planeCtrl);
         master.addEntityController(collectibleCtrl);
         master.addEntityController(missileCtrl);
+        final SessionState sessionState = new SessionState();
         final EventController eventController = new EventController(
-                master, score, () -> master.handleEvent(GameEvent.GAME_OVER));
+                master, sessionState, score, () -> master.handleEvent(GameEvent.GAME_OVER));
         
         master.setCollisionEngine(collision);
         master.setScoreController(score); // va qui?
+        master.setSessionState(sessionState);
         master.setSceneEntities(sharedEntities);
         master.setInputController(input);
-        master.setStateAssembler(new RenderStateAssemblerImpl(eventController));
+        master.setStateAssembler(new RenderStateAssemblerImpl());
         master.setEventController(eventController);
         
         planeCtrl.setEventListener(eventController);
