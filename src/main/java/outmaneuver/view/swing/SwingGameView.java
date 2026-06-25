@@ -103,23 +103,14 @@ public final class SwingGameView extends JPanel implements GameView {
         g2d.dispose();
     }
 
-    // [Alessio - asset loader] Il collectible ora usa il suo sprite (star/speed/shield) al posto
-    // del cerchio giallo. Nessuna rotazione: i collectible non hanno un orientamento.
+    // [Alessio - asset loader] Il collectible usa il suo sprite (il nome arriva gia' pronto dal DTO).
+    // Nessuna rotazione: i collectible non hanno un orientamento.
     private void drawCollectible(final Graphics2D g2d, final EntityRenderData data,
             final double cameraX, final double cameraY) {
-        final BufferedImage sprite = assets.getSprite(collectibleSprite(data.getSpriteId()));
+        final BufferedImage sprite = assets.getSprite(SpriteId.fromFilename(data.getSpriteId())); //AGGIUNTO: niente piu' switch, la view traduce solo il nome->enum (come l'aereo)
         // Scala = misura dell'hitbox (AbstractCollectible.HITBOX_RADIUS, via DTO): come aerei/missili.
         final double scale = 2.0 * data.getRadius() / sprite.getWidth();
         drawSprite(g2d, sprite, data.getX(), data.getY(), cameraX, cameraY, 0, scale);
-    }
-
-    // Mappa tipo di collectible -> sprite (stessa logica di missileSprite per i missili).
-    private SpriteId collectibleSprite(final String type) {
-        return switch (type) {
-            case "speed"  -> SpriteId.COLLECTIBLE_SPEED;
-            case "shield" -> SpriteId.COLLECTIBLE_SHIELD;
-            default       -> SpriteId.COLLECTIBLE_STAR;
-        };
     }
 
     // [Alessio - asset loader] L'aereo ora e' disegnato con il suo sprite (plane_standard/fast/
@@ -178,31 +169,18 @@ public final class SwingGameView extends JPanel implements GameView {
         g2d.drawImage(img, at, null);
     }
 
-    // [Alessio - asset loader] Ogni tipo di missile usa il proprio sprite (vedi missileSprite),
+    // [Alessio - asset loader] Ogni missile usa il proprio sprite (il nome arriva gia' pronto dal DTO),
     // ruotato verso la direzione di volo e scalato sulla misura del suo HITBOX (dal JSON, via DTO):
     // cosi' sprite e collisione restano sempre allineati.
     private void drawMissiles(final Graphics2D g2d,
             final List<EntityRenderData> missiles,
             final double cameraX, final double cameraY) {
         for (final EntityRenderData m : missiles) {
-            final BufferedImage sprite = assets.getSprite(missileSprite(m.getSpriteId()));
+            final BufferedImage sprite = assets.getSprite(SpriteId.fromFilename(m.getSpriteId())); //AGGIUNTO: niente piu' switch, la view traduce solo il nome->enum (come l'aereo); la scelta dello sprite la fa l'assembler
             final double scale = 2.0 * m.getRadius() / sprite.getWidth();   // sprite = hitbox
             drawSprite(g2d, sprite, m.getX(), m.getY(), cameraX, cameraY,
                     m.getDirectionRad() + Math.PI / 2, scale);
         }
-    }
-
-    // Mappa tipo di missile -> sprite. Il default (basic) copre anche eventuali tipi nuovi
-    // ancora senza sprite dedicato: nessun crash, restano sull'aspetto base.
-    private SpriteId missileSprite(final String type) {
-        return switch (type) {
-            case "fast"   -> SpriteId.MISSILE_FAST;
-            case "sniper" -> SpriteId.MISSILE_SNIPER;
-            case "bounce" -> SpriteId.MISSILE_BOUNCE;
-            case "shield" -> SpriteId.MISSILE_SHIELD;
-            case "clock"  -> SpriteId.MISSILE_CLOCK;
-            default       -> SpriteId.MISSILE_BASIC;
-        };
     }
 
     private void updateClouds(final double cameraX, final double cameraY) {
