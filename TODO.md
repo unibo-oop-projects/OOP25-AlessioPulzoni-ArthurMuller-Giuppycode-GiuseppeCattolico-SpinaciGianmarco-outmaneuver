@@ -25,7 +25,7 @@ ale
 - asset loader
 
 Giup
-- screen page view + uiManager -> appBootstrapper + factory
+- theme + screen page view + uiManager -> appBootstrapper + factory
 - shop / wallet -> player profile
 - session / score / hudSnapshot
 

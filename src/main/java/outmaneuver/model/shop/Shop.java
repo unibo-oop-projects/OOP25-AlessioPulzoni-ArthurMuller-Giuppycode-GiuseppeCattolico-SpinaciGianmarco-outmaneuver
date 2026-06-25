@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.model.wallet.IWallet;
 
 public final class Shop implements IShop {
@@ -25,17 +24,12 @@ public final class Shop implements IShop {
     }
 
     @Override
-    public boolean purchase(final ShopItem item, final Plane plane, final IWallet wallet) {
+    public boolean purchase(final ShopItem item, final IWallet wallet) {
         Objects.requireNonNull(item, "item must not be null");
-        Objects.requireNonNull(plane, "plane must not be null");
         Objects.requireNonNull(wallet, "wallet must not be null");
         if (!catalog.contains(item)) {
             throw new IllegalArgumentException("item not in catalog: " + item);
         }
-        if (!wallet.spend(item.price())) {
-            return false;
-        }
-        plane.setStats(item.stats());
-        return true;
+        return wallet.spend(item.price());
     }
 }

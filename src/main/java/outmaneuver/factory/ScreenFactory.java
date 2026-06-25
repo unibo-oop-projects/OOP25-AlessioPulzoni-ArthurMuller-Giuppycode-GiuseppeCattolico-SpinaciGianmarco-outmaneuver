@@ -140,7 +140,7 @@ public final class ScreenFactory {
                         plane.setStats(item.stats());
                         return true;
                     }
-                    if (!profile.spend(item.price())) {
+                    if (!shop.purchase(item, profile)) {
                         return false;
                     }
                     profile.addOwnedPlane(id);

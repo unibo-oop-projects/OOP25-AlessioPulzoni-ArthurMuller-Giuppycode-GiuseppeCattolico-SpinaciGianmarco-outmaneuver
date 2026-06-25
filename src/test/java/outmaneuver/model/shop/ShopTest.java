@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -14,7 +12,6 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.model.area.entity.plane.PlaneStats;
 import outmaneuver.model.wallet.IWallet;
 
@@ -43,32 +40,27 @@ class ShopTest {
 
     @Test
     void purchaseSucceedsWhenWalletHasEnoughCoins() {
-        final Plane plane   = mock(Plane.class);
         final IWallet wallet = mock(IWallet.class);
         when(wallet.spend(200)).thenReturn(true);
 
-        assertTrue(shop.purchase(item, plane, wallet));
-        verify(plane).setStats(stats);
+        assertTrue(shop.purchase(item, wallet));
     }
 
     @Test
     void purchaseFailsWhenWalletHasInsufficientCoins() {
-        final Plane plane   = mock(Plane.class);
         final IWallet wallet = mock(IWallet.class);
         when(wallet.spend(200)).thenReturn(false);
 
-        assertFalse(shop.purchase(item, plane, wallet));
-        verify(plane, never()).setStats(stats);
+        assertFalse(shop.purchase(item, wallet));
     }
 
     @Test
     void purchaseThrowsForItemNotInCatalog() {
         final PlaneStats other = mock(PlaneStats.class);
         final ShopItem unknown = new ShopItem(other, 100);
-        final Plane plane      = mock(Plane.class);
         final IWallet wallet    = mock(IWallet.class);
 
-        assertThrows(IllegalArgumentException.class, () -> shop.purchase(unknown, plane, wallet));
+        assertThrows(IllegalArgumentException.class, () -> shop.purchase(unknown, wallet));
     }
 
     @Test
