@@ -43,31 +43,29 @@ public final class ControllerAssembler {
         final InputControllerImpl input = new InputControllerImpl();
         final MasterControllerImpl master = new MasterControllerImpl();
         final CollisionEngine collision = new CollisionEngine(master);
-        final ScoreControllerImpl score = new ScoreControllerImpl(session);
+        final ScoreControllerImpl score = new ScoreControllerImpl(session, master::getTickMs);
         final List<Entity> sharedEntities = new ArrayList<>();
         final PlaneControllerImpl planeCtrl = new PlaneControllerImpl(input, sharedEntities, collision);
         final CollectibleControllerImpl collectibleCtrl = new CollectibleControllerImpl(
                 sharedEntities, collision);
         final MissileControllerImpl missileCtrl = new MissileControllerImpl(
                 sharedEntities, collision, missileRepo, new MissileSpawnDirector());
-                
-        // [Alessio - missili] registra il controller dei missili nel master
-        planeCtrl.spawnEntity(plane); //TODO: QUESTO NON VA BENE QUI, IL PLANE VA SPAWNATO ALTROVE
+
+        planeCtrl.spawnEntity(plane);
 
         master.addEntityController(planeCtrl);
         master.addEntityController(collectibleCtrl);
         master.addEntityController(missileCtrl);
         final EventController eventController = new EventController(
-                master, session, score, () -> master.handleEvent(GameEvent.GAME_OVER));
-        
+                master, score, () -> master.handleEvent(GameEvent.GAME_OVER));
+
         master.setCollisionEngine(collision);
-        master.setScoreController(score); // va qui?
-        master.setSession(session);
+        master.setScoreController(score);
         master.setSceneEntities(sharedEntities);
         master.setInputController(input);
         master.setStateAssembler(new RenderStateAssemblerImpl());
         master.setEventController(eventController);
-        
+
         planeCtrl.setEventListener(eventController);
         collectibleCtrl.setEventListener(eventController);
         missileCtrl.setEventListener(eventController);

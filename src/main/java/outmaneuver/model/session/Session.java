@@ -20,8 +20,18 @@ public final class Session implements ISession {
     }
 
     @Override
+    public void setScore(final int score) {
+        this.score = score;
+    }
+
+    @Override
     public int getStarsScore() {
         return starsScore;
+    }
+
+    @Override
+    public void setStarsScore(final int starsScore) {
+        this.starsScore = starsScore;
     }
 
     @Override
@@ -29,40 +39,49 @@ public final class Session implements ISession {
         return missilesScore;
     }
 
+    @Override
+    public void setMissilesScore(final int missilesScore) {
+        this.missilesScore = missilesScore;
+    }
+
+    @Override
     public int getStars() {
         return stars;
     }
 
+    @Override
     public void setStars(final int stars) {
         this.stars = stars;
     }
 
+    @Override
     public double getSpeedMultiplier() {
         return speedMultiplier;
     }
 
+    @Override
     public void setSpeedMultiplier(final double speedMultiplier) {
         this.speedMultiplier = speedMultiplier;
     }
 
+    @Override
     public boolean isShieldActive() {
         return shieldActive;
     }
 
+    @Override
     public void setShieldActive(final boolean shieldActive) {
         this.shieldActive = shieldActive;
     }
 
+    @Override
     public long getElapsedMs() {
         return elapsedMs;
     }
 
-    public void addElapsed(final long ms) {
-        this.elapsedMs += ms;
-    }
-
-    public void increaseStars() {
-        this.stars += 1;
+    @Override
+    public void setElapsedMs(final long elapsedMs) {
+        this.elapsedMs = elapsedMs;
     }
 
     @Override
@@ -74,29 +93,5 @@ public final class Session implements ISession {
         this.speedMultiplier = 1.0;
         this.shieldActive = false;
         this.elapsedMs = 0;
-    }
-
-    @Override
-    public void incrementScore(final int delta) {
-        if (delta <= 0) {
-            throw new IllegalArgumentException("delta must be positive, was: " + delta);
-        }
-        score += delta;
-    }
-
-    @Override
-    public void incrementStarsScore(final int delta) {
-        if (delta <= 0) {
-            throw new IllegalArgumentException("delta must be positive, was: " + delta);
-        }
-        starsScore += delta;
-    }
-
-    @Override
-    public void incrementMissilesScore(final int delta) {
-        if (delta <= 0) {
-            throw new IllegalArgumentException("delta must be positive, was: " + delta);
-        }
-        missilesScore += delta;
     }
 }

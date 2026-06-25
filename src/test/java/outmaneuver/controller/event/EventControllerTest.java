@@ -87,11 +87,10 @@ class EventControllerTest {
         master.addEntityController(missileCtrl);
 
         session = new Session();
-        master.setSession(session);
-        scoreController = new ScoreControllerImpl(session);
+        scoreController = new ScoreControllerImpl(session, () -> 16L);
         gameOverTriggered = new AtomicBoolean(false);
 
-        eventController = new EventController(master, session, scoreController, () -> gameOverTriggered.set(true));
+        eventController = new EventController(master, scoreController, () -> gameOverTriggered.set(true));
 
         // Mirrors ControllerAssembler: the EventController is each EntityController's
         // internal-event sink, so effects raised by CollectibleControllerImpl route back here.

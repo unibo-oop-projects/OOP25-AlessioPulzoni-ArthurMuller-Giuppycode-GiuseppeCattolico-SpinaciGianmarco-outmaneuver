@@ -6,7 +6,6 @@ import outmaneuver.controller.ScoreController;
 import outmaneuver.controller.impl.CollectibleControllerImpl;
 import outmaneuver.controller.impl.MasterControllerImpl;
 import outmaneuver.controller.impl.PlaneControllerImpl;
-import outmaneuver.model.session.ISession;
 import outmaneuver.controller.impl.missile.MissileControllerImpl;
 import outmaneuver.model.area.collision.CollisionData;
 import outmaneuver.model.area.effect.Effect;
@@ -18,7 +17,6 @@ import outmaneuver.model.area.entity.missile.Missile;
 
 public final class EventController implements InternalEventListener {
 
-    private final ISession session;
     private final PlaneControllerImpl planeController;
     private final CollectibleControllerImpl collectibleController;
     private final MissileControllerImpl missileController;
@@ -27,14 +25,12 @@ public final class EventController implements InternalEventListener {
 
     public EventController(
             final MasterControllerImpl master,
-            final ISession session,
             final ScoreController scoreController,
             final Runnable onGameOver) {
-        this.session = Objects.requireNonNull(session);
         this.planeController = master.getEntityController(PlaneControllerImpl.class).orElseThrow();
         this.collectibleController = master.getEntityController(CollectibleControllerImpl.class).orElseThrow();
         this.missileController = master.getEntityController(MissileControllerImpl.class).orElseThrow();
-        this.scoreController = scoreController;
+        this.scoreController = Objects.requireNonNull(scoreController, "scoreController must not be null");
         this.onGameOver = Objects.requireNonNull(onGameOver, "onGameOver must not be null");
     }
 
@@ -51,7 +47,7 @@ public final class EventController implements InternalEventListener {
 
         switch ((CollisionEvent) evt) {
             case PLANE_MISSILE_COLLISION -> {
-                if (session.isShieldActive()) {
+                if (scoreController.isShieldActive()) {
                     final Missile missile = (Missile) collisionData.getEntityA();
                     missile.onCollision(missileController.activeMissiles());
                     missileController.removeEntity((Entity) missile);
@@ -70,7 +66,7 @@ public final class EventController implements InternalEventListener {
                     scoreController.onInternalEvent(CollisionEvent.PLANE_COLLECTIBLE_COLLISION, collectible);
                 }
                 if (collectible instanceof StarCollectible) {
-                    session.increaseStars();
+                    scoreController.increaseStars();
                 }
             }
             case MISSILE_MISSILE_COLLISION -> {
@@ -97,24 +93,24 @@ public final class EventController implements InternalEventListener {
         switch (evt) {
             case EFFECT_APPLIED -> {
                 if (effect.getType() == EffectType.SHIELD) {
-                    session.setShieldActive(true);
+                    scoreController.setShieldActive(true);
                     missileController.setShieldActive(true);
                 }
                 if (effect.getType() == EffectType.SPEED_BOOST) {
                     planeController.setSpeedMultiplier(effect.getMultiplier());
                     missileController.setSpeedMultiplier(effect.getMultiplier());
-                    session.setSpeedMultiplier(effect.getMultiplier());
+                    scoreController.setSpeedMultiplier(effect.getMultiplier());
                 }
             }
             case EFFECT_EXPIRED -> {
                 if (effect.getType() == EffectType.SHIELD) {
-                    session.setShieldActive(false);
+                    scoreController.setShieldActive(false);
                     missileController.setShieldActive(false);
                 }
                 if (effect.getType() == EffectType.SPEED_BOOST) {
                     planeController.setSpeedMultiplier(1.0);
                     missileController.setSpeedMultiplier(1.0);
-                    session.setSpeedMultiplier(1.0);
+                    scoreController.setSpeedMultiplier(1.0);
                 }
             }
         }

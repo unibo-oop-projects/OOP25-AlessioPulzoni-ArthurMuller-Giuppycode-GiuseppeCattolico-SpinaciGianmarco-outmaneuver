@@ -22,12 +22,17 @@ class ScoreControllerImplTest {
     @BeforeEach
     void setUp() {
         session = new Session();
-        scoreCtrl = new ScoreControllerImpl(session);
+        scoreCtrl = new ScoreControllerImpl(session, () -> 16L);
     }
 
     @Test
     void constructorRejectsNullSession() {
-        assertThrows(NullPointerException.class, () -> new ScoreControllerImpl(null));
+        assertThrows(NullPointerException.class, () -> new ScoreControllerImpl(null, () -> 16L));
+    }
+
+    @Test
+    void constructorRejectsNullSupplier() {
+        assertThrows(NullPointerException.class, () -> new ScoreControllerImpl(session, null));
     }
 
     @Test
