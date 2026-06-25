@@ -97,7 +97,7 @@ public final class EventController implements InternalEventListener {
             case EFFECT_APPLIED -> {
                 if (effect.getType() == EffectType.SHIELD) {
                     shieldActive = true;
-                    missileController.setShieldActrive(true);
+                    missileController.setShieldActive(true);
                 }
                 if (effect.getType() == EffectType.SPEED_BOOST) {
                     planeController.setSpeedMultiplier(effect.getMultiplier());
@@ -108,7 +108,7 @@ public final class EventController implements InternalEventListener {
             case EFFECT_EXPIRED -> {
                 if (effect.getType() == EffectType.SHIELD) {
                     shieldActive = false;
-                    missileController.setShieldActrive(false);
+                    missileController.setShieldActive(false);
                 }
                 if (effect.getType() == EffectType.SPEED_BOOST) {
                     planeController.setSpeedMultiplier(1.0);

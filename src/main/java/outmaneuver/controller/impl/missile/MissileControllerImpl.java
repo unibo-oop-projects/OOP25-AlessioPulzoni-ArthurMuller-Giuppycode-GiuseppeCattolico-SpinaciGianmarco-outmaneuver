@@ -52,7 +52,7 @@ public final class MissileControllerImpl extends EntityControllerImpl {
     private double spawnInterval = INITIAL_INTERVAL;
     private double elapsedTime;
     private boolean shieldActive;
-    private double speedMutltiplier = 1.0;
+    private double speedMultiplier = 1.0;
 
     public MissileControllerImpl(final List<Entity> entities,
             final CollisionEngine collisionEngine,
@@ -84,22 +84,26 @@ public final class MissileControllerImpl extends EntityControllerImpl {
 
     @Override
     public void clearAll() {
-        startDelay    = START_DELAY;
-        spawnTimer    = INITIAL_INTERVAL;
-        elapsedTime   = 0;
-        spawnInterval = INITIAL_INTERVAL;
+        startDelay      = START_DELAY;
+        spawnTimer      = INITIAL_INTERVAL;
+        elapsedTime     = 0;
+        spawnInterval   = INITIAL_INTERVAL;
+        // azzero anche gli effetti: senza questo, dopo un "Play Again" restavano
+        // lo scudo o lo speed boost dell'ultima partita (stato sporco)
+        shieldActive    = false;
+        speedMultiplier = 1.0;
     }
 
     public List<Missile> activeMissiles() { //AGGIUNTO: reso public per far reagire i missili nell'EventController (lista passata a onCollision)
         return getEntities().stream().filter(Missile.class::isInstance).map(Missile.class::cast).toList();
     }
 
-    public void setShieldActrive(final boolean active) {
+    public void setShieldActive(final boolean active) {
         this.shieldActive = active;
     }
 
-    public void setSpeedMultiplier(double multiplier) {
-        this.speedMutltiplier = multiplier;
+    public void setSpeedMultiplier(final double multiplier) {
+        this.speedMultiplier = multiplier;
     }
 
     private void maybeSpawn(final double dt, final Plane plane, final Dimension screen) {
@@ -122,7 +126,7 @@ public final class MissileControllerImpl extends EntityControllerImpl {
     }
 
     private void moveMissiles(final Plane plane, final Dimension screen, final double dt) {
-        final double effectiveSpeed = plane.getStats().getBaseSpeed() * speedMutltiplier;
+        final double effectiveSpeed = plane.getStats().getBaseSpeed() * speedMultiplier;
         for (final Missile m : activeMissiles()) {
             if (m.isAlive()) {
                 m.update(plane, dt);
