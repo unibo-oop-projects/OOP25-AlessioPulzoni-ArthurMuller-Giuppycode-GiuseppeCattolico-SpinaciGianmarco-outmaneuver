@@ -16,4 +16,8 @@ public interface Plane extends Entity {
     TurnState getTurnState();
 
     void setTurnState(TurnState state);
+
+    void update(double deltaSec, double turnInput, double speedMultiplier);
+
+    void reset();
 }

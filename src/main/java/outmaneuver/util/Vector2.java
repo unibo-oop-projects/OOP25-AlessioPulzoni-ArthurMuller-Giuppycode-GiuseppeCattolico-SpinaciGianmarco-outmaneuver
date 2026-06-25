@@ -60,6 +60,18 @@ public final class Vector2 {
         return Math.atan2(this.y, this.x);
     }
 
+    /** Normalises an angle in radians to the range [-π, π]. */
+    public static double normaliseAngle(final double angle) {
+        final double twoPi = 2 * Math.PI;
+        double normalised = angle % twoPi;
+        if (normalised > Math.PI) {
+            normalised -= twoPi;
+        } else if (normalised < -Math.PI) {
+            normalised += twoPi;
+        }
+        return normalised;
+    }
+
     // [Alessio - missili] reflectX/reflectY aggiunti per il rimbalzo del BounceMissile
     /** Inverte la componente orizzontale (rimbalzo su un bordo verticale). */
     public Vector2 reflectX() {

@@ -60,6 +60,23 @@ public final class PlaneImpl implements Plane {
     }
 
     @Override
+    public void update(final double deltaSec, final double turnInput, final double speedMultiplier) {
+        this.turnState = turnInput < 0 ? TurnState.LEFT
+                : turnInput > 0 ? TurnState.RIGHT
+                        : TurnState.NONE;
+        this.direction = Vector2.normaliseAngle(direction + turnInput * stats.getTurnRate() * deltaSec);
+        final double speed = stats.getBaseSpeed() * speedMultiplier;
+        this.position = position.add(Vector2.fromAngle(direction).scale(speed * deltaSec));
+    }
+
+    @Override
+    public void reset() {
+        this.position = Vector2.ZERO;
+        this.direction = 0;
+        this.turnState = TurnState.NONE;
+    }
+
+    @Override
     public Hitbox getHitbox() {
         return new Hitbox(position, stats.getHitboxRadius());
     }

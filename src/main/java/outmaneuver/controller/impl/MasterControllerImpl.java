@@ -20,7 +20,6 @@ import outmaneuver.controller.MasterController;
 import outmaneuver.controller.RenderStateAssembler;
 import outmaneuver.controller.ScoreController;
 import outmaneuver.model.profile.PlayerProfile;
-import outmaneuver.model.session.ISession;
 import outmaneuver.model.area.collision.CollisionData;
 import outmaneuver.model.area.entity.Entity;
 import outmaneuver.util.Vector2;
@@ -31,7 +30,7 @@ import outmaneuver.view.RenderState;
 public final class MasterControllerImpl implements MasterController {
 
     private static final long TICK_MS = 16;
-    private static final int GAME_OVER_DELAY_TICKS = 80; // ~2 secondi per l'animazione esplosione
+    private static final int GAME_OVER_DELAY_TICKS = 80;
 
     private final List<GameView> views = new ArrayList<>();
     private final List<EntityController> entityControllers = new ArrayList<>();
@@ -45,7 +44,6 @@ public final class MasterControllerImpl implements MasterController {
     private volatile boolean running;
     private volatile GameEvent gameState;
     private final AtomicInteger gameOverDelayTicks = new AtomicInteger(-1);
-    private volatile ISession session;
     private PlayerProfile playerProfile;
     private final List<Vector2> pendingCollisionPoints = new ArrayList<>();
     private Runnable onGameOver;
@@ -54,6 +52,10 @@ public final class MasterControllerImpl implements MasterController {
 
     public MasterControllerImpl() {
         this.gameState = GameEvent.PAUSED;
+    }
+
+    public long getTickMs() {
+        return TICK_MS;
     }
 
     public void setOnGameOver(final Runnable onGameOver) {
@@ -106,10 +108,6 @@ public final class MasterControllerImpl implements MasterController {
         this.scoreController = Objects.requireNonNull(scoreController, "scoreController must not be null");
     }
 
-    public void setSession(final ISession session) {
-        this.session = Objects.requireNonNull(session, "session must not be null");
-    }
-
     public void setPlayerProfile(final PlayerProfile playerProfile) {
         this.playerProfile = Objects.requireNonNull(playerProfile, "playerProfile must not be null");
     }
@@ -156,18 +154,15 @@ public final class MasterControllerImpl implements MasterController {
         }
         Objects.requireNonNull(collisionEngine, "collisionEngine must be set before start()");
         Objects.requireNonNull(stateAssembler, "stateAssembler must be set before start()");
-        Objects.requireNonNull(session, "session must be set before start()");
+        Objects.requireNonNull(scoreController, "scoreController must be set before start()");
         if (running) {
             return;
         }
         gameState = GameEvent.RUNNING;
         stateAssembler.reset();
-        session.reset();
+        scoreController.reset();
         gameOverDelayTicks.set(-1);
         pendingCollisionPoints.clear();
-        if (scoreController != null) {
-            scoreController.reset();
-        }
         inputController.reset();
         entityControllers.forEach(EntityController::removeAll);
         entityControllers.forEach(EntityController::clearAll);
@@ -177,20 +172,11 @@ public final class MasterControllerImpl implements MasterController {
         gameLoopThread.start();
     }
 
-    /**
-     * Non-blocking stop. Sets {@code running = false}; the game loop thread
-     * exits after its current iteration completes. The controller can be
-     * restarted via {@link #start()}.
-     */
     @Override
     public void stop() {
         running = false;
     }
 
-    /**
-     * Terminal shutdown. Interrupts the game loop thread and waits for it to
-     * terminate. The controller cannot be restarted after this call.
-     */
     @Override
     public void shutdown() {
         stop();
@@ -207,7 +193,7 @@ public final class MasterControllerImpl implements MasterController {
 
     @SuppressFBWarnings(
             value = "AT_UNSAFE_RESOURCE_ACCESS_IN_THREAD",
-            justification = "session is only mutated by the dedicated game-loop thread while running; "
+            justification = "scoreController is only mutated by the dedicated game-loop thread while running; "
                     + "external access only happens before start() or after the loop has stopped")
     private void gameLoop() {
         while (running && !Thread.currentThread().isInterrupted()) {
@@ -220,7 +206,7 @@ public final class MasterControllerImpl implements MasterController {
             if (gameOverDelayTicks.get() > 0 && gameOverDelayTicks.decrementAndGet() == 0) {
                 gameState = GameEvent.GAME_OVER;
                 running = false;
-                final int finalScore = session.getScore();
+                final int finalScore = scoreController.getScore();
                 if (finalScore > 0 && playerProfile != null) {
                     playerProfile.addCoins(finalScore);
                 }
@@ -250,15 +236,12 @@ public final class MasterControllerImpl implements MasterController {
 
     @SuppressFBWarnings(
             value = "AT_UNSAFE_RESOURCE_ACCESS_IN_THREAD",
-            justification = "session is only mutated by the dedicated game-loop thread while running; "
+            justification = "scoreController is only mutated by the dedicated game-loop thread while running; "
                     + "external access only happens before start() or after the loop has stopped")
     private void updateFrame() {
         entityControllers.forEach(ec -> ec.updateEntities(TICK_MS));
         collisionEngine.tick();
-        if (scoreController != null) {
-            scoreController.onTick(TICK_MS);
-        }
-        session.addElapsed(TICK_MS);
+        scoreController.onTick();
     }
 
     private void renderFrame() {
@@ -266,10 +249,10 @@ public final class MasterControllerImpl implements MasterController {
         final RenderState state = stateAssembler.assemble(
                 sceneEntities,
                 paused,
-                session.getElapsedMs(),
-                session.getStars(),
-                session.getSpeedMultiplier(),
-                session.isShieldActive(),
+                scoreController.getElapsedMs(),
+                scoreController.getStars(),
+                scoreController.getSpeedMultiplier(),
+                scoreController.isShieldActive(),
                 pendingCollisionPoints);
         notifyViews(v -> v.renderFrame(state));
     }
@@ -280,7 +263,6 @@ public final class MasterControllerImpl implements MasterController {
 
     @Override
     public void onInternalEvent(final Event evt, final Object data) {
-        // do we need it?
         if (evt instanceof EffectEvent) {
             entityControllers.forEach(ec -> ec.onInternalEvent(evt, data));
         }

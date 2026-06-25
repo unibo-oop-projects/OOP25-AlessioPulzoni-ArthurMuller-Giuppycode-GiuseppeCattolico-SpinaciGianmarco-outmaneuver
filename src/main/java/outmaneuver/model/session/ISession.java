@@ -4,33 +4,31 @@ public interface ISession {
 
     int getScore();
 
+    void setScore(int score);
+
     int getStarsScore();
+
+    void setStarsScore(int starsScore);
 
     int getMissilesScore();
 
-    void setStars(int stars);
+    void setMissilesScore(int missilesScore);
 
     int getStars();
 
-    void setSpeedMultiplier(double speedMultiplier);
+    void setStars(int stars);
 
     double getSpeedMultiplier();
 
-    void setShieldActive(boolean shieldActive);
+    void setSpeedMultiplier(double speedMultiplier);
 
     boolean isShieldActive();
 
+    void setShieldActive(boolean shieldActive);
+
     long getElapsedMs();
 
-    void addElapsed(long ms);
-
-    void increaseStars();
+    void setElapsedMs(long elapsedMs);
 
     void reset();
-
-    void incrementScore(int delta);
-
-    void incrementStarsScore(int delta);
-
-    void incrementMissilesScore(int delta);
 }

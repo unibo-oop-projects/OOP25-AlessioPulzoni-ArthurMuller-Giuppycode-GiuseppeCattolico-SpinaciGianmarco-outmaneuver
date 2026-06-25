@@ -9,8 +9,6 @@ import outmaneuver.controller.InputController;
 
 import outmaneuver.model.area.entity.Entity;
 import outmaneuver.model.area.entity.plane.Plane;
-import outmaneuver.model.area.entity.plane.TurnState;
-import outmaneuver.util.Vector2;
 
 public final class PlaneControllerImpl extends EntityControllerImpl {
 
@@ -32,7 +30,7 @@ public final class PlaneControllerImpl extends EntityControllerImpl {
     public void spawnEntity(final Entity entity) {
         if (entity instanceof final Plane p) {
             plane = p;
-            planeReset(p);
+            p.reset();
         }
         super.spawnEntity(entity);
     }
@@ -49,39 +47,10 @@ public final class PlaneControllerImpl extends EntityControllerImpl {
         if (plane == null) {
             return;
         }
-        final double deltaSec = deltaMs / 1000.0;
-        final double turnDir = inputController.getTurnDirection();
-
-        plane.setTurnState(turnDir < 0 ? TurnState.LEFT
-                : turnDir > 0 ? TurnState.RIGHT
-                        : TurnState.NONE);
-
-        final double newDir = plane.getDirection() + turnDir * plane.getStats().getTurnRate() * deltaSec;
-        plane.setDirection(normaliseAngle(newDir));
-
-        final double speed = plane.getStats().getBaseSpeed() * speedMutltiplier;
-        final Vector2 velocity = Vector2.fromAngle(plane.getDirection()).scale(speed);
-        plane.setPosition(plane.getPosition().add(velocity.scale(deltaSec)));
+        plane.update(deltaMs / 1000.0, inputController.getTurnDirection(), speedMutltiplier);
     }
 
     public void setSpeedMultiplier(final double multiplier) {
         this.speedMutltiplier = multiplier;
-    }
-
-    private static double normaliseAngle(final double angle) {
-        final double twoPi = 2 * Math.PI;
-        double normalised = angle % twoPi;
-        if (normalised > Math.PI) {
-            normalised -= twoPi;
-        } else if (normalised < -Math.PI) {
-            normalised += twoPi;
-        }
-        return normalised;
-    }
-
-    protected void planeReset(final Plane plane) {
-        plane.setPosition(Vector2.ZERO);
-        plane.setDirection(0);
-        plane.setTurnState(TurnState.NONE);
     }
 }
