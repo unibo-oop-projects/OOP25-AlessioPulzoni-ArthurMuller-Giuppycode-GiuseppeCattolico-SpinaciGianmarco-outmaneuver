@@ -10,9 +10,10 @@ import outmaneuver.model.session.ISession;
 
 public final class ScoreControllerImpl implements ScoreController {
 
+    private static final int MISSILES_SCORE = 20;
+
     private final ISession session;
     private long pendingMs;
-    private int missilesScore = 20;
 
     public ScoreControllerImpl(final ISession session) {
         this.session = Objects.requireNonNull(session, "session must not be null");
@@ -47,8 +48,8 @@ public final class ScoreControllerImpl implements ScoreController {
                 }
             }
             case MISSILE_MISSILE_COLLISION -> {
-                    session.incrementScore(missilesScore);
-                    session.incrementMissilesScore(missilesScore);
+                    session.incrementScore(MISSILES_SCORE);
+                    session.incrementMissilesScore(MISSILES_SCORE);
             }
             default -> { }
         }

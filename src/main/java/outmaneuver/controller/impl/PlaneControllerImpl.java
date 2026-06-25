@@ -64,7 +64,7 @@ public final class PlaneControllerImpl extends EntityControllerImpl {
         plane.setPosition(plane.getPosition().add(velocity.scale(deltaSec)));
     }
 
-    public void setSpeedMultiplier(double multiplier) {
+    public void setSpeedMultiplier(final double multiplier) {
         this.speedMutltiplier = multiplier;
     }
 

@@ -17,7 +17,7 @@ public final class ClasspathAssetStore implements AssetStore {
     private final Map<SpriteId, BufferedImage> cache;
 
     public ClasspathAssetStore() {
-        final EnumMap<SpriteId, BufferedImage> map = new EnumMap<>(SpriteId.class);
+        final Map<SpriteId, BufferedImage> map = new EnumMap<>(SpriteId.class);
         for (final var id : SpriteId.values()) {
             map.put(id, load(id));
         }
@@ -29,6 +29,7 @@ public final class ClasspathAssetStore implements AssetStore {
         return cache.get(id);
     }
 
+    @SuppressWarnings("PMD.SystemPrintln")
     private static BufferedImage load(final SpriteId id) {
         final String path = BASE_PATH + id.getFilename() + ".png";
         try (InputStream in = ClasspathAssetStore.class.getResourceAsStream(path)) {

@@ -18,6 +18,9 @@ import outmaneuver.util.Vector2;
 
 class CollisionEngineTest {
 
+    private RecordingListener listener;
+    private CollisionEngine engine;
+
     /** Missile concreto minimale per i test: raggio 8 cosi' due missili vicini collidono. */
     private static final class TestMissile extends MissileImpl {
         TestMissile(final Vector2 pos) {
@@ -25,7 +28,7 @@ class CollisionEngineTest {
         }
     }
 
-    private static class RecordingListener implements InternalEventListener {
+    private static final class RecordingListener implements InternalEventListener {
         final List<Event> events = new ArrayList<>();
         final List<Object> payloads = new ArrayList<>();
 
@@ -36,9 +39,6 @@ class CollisionEngineTest {
         }
     }
 
-    private RecordingListener listener;
-    private CollisionEngine engine;
-
     @BeforeEach
     void setUp() {
         listener = new RecordingListener();
@@ -46,6 +46,7 @@ class CollisionEngineTest {
     }
 
     @Test
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
     void overlappingMissilesTriggerCollisionEvent() {
         final MissileImpl a = new TestMissile(new Vector2(0, 0));
         final MissileImpl b = new TestMissile(new Vector2(5, 0));

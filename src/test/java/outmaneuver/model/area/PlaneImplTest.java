@@ -50,11 +50,11 @@ class PlaneImplTest {
     @Test
     void testSetStats() {
         final var customStats = new PlaneStats() {
-            public String getId() { return "custom"; }
-            public double getBaseSpeed() { return 999; }
-            public double getTurnRate() { return 5; }
-            public double getHitboxRadius() { return 10; }
-            public String getSpriteId() { return "custom_sprite"; }
+            @Override public String getId() { return "custom"; }
+            @Override public double getBaseSpeed() { return 999; }
+            @Override public double getTurnRate() { return 5; }
+            @Override public double getHitboxRadius() { return 10; }
+            @Override public String getSpriteId() { return "custom_sprite"; }
         };
         plane.setStats(customStats);
         assertEquals("custom", plane.getStats().getId());

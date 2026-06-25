@@ -29,7 +29,12 @@ class CollectibleControllerImplTest {
 
     private static final long SPAWN_INTERVAL_MS = 3000;
 
-    private static class RecordingListener implements InternalEventListener {
+    private CollisionEngine collisionEngine;
+    private PlaneImpl plane;
+    private RecordingListener listener;
+    private CollectibleControllerImpl collectibleCtrl;
+
+    private static final class RecordingListener implements InternalEventListener {
         final List<Event> events = new ArrayList<>();
         final List<Object> payloads = new ArrayList<>();
 
@@ -54,11 +59,6 @@ class CollectibleControllerImplTest {
         @Override public int getHeight() { return height; }
     }
 
-    private CollisionEngine collisionEngine;
-    private PlaneImpl plane;
-    private RecordingListener listener;
-    private CollectibleControllerImpl collectibleCtrl;
-
     @BeforeEach
     void setUp() {
         plane = new PlaneImpl(new PlaneData("standard", 200, 3, 20, "aircraft_standard", 0));
@@ -72,14 +72,14 @@ class CollectibleControllerImplTest {
     // ── spawnEntity / removeEntity (inherited from EntityControllerImpl) ──
 
     @Test
-    void spawnEntity_addsCollectibleToEntities() {
+    void spawnEntityAddsCollectibleToEntities() {
         final Collectible col = star(new Vector2(500, 500));
         collectibleCtrl.spawnEntity(col);
         assertTrue(collectibleCtrl.getEntities().contains(col));
     }
 
     @Test
-    void removeEntity_removesCollectible() {
+    void removeEntityRemovesCollectible() {
         final Collectible col = star(Vector2.ZERO);
         collectibleCtrl.spawnEntity(col);
         collectibleCtrl.removeEntity(col);
@@ -89,7 +89,7 @@ class CollectibleControllerImplTest {
     // ── addEffect / hasEffect / getEffectMultiplier ───────────────────
 
     @Test
-    void addEffect_activatesEffectAndFiresEffectApplied() {
+    void addEffectActivatesEffectAndFiresEffectApplied() {
         final Effect effect = new EffectImpl(EffectType.SPEED_BOOST, 2.0, 3000L);
         collectibleCtrl.addEffect(effect);
 
@@ -100,7 +100,7 @@ class CollectibleControllerImplTest {
     }
 
     @Test
-    void addEffect_sameTypeReplacesPreviousEffect() {
+    void addEffectSameTypeReplacesPreviousEffect() {
         collectibleCtrl.addEffect(new EffectImpl(EffectType.SPEED_BOOST, 2.0, 3000L));
         final Effect replacement = new EffectImpl(EffectType.SPEED_BOOST, 4.0, 1000L);
         collectibleCtrl.addEffect(replacement);
@@ -110,19 +110,19 @@ class CollectibleControllerImplTest {
     }
 
     @Test
-    void hasEffect_falseWhenNoEffectActive() {
+    void hasEffectFalseWhenNoEffectActive() {
         assertFalse(collectibleCtrl.hasEffect(EffectImpl.class));
     }
 
     @Test
-    void getEffectMultiplier_defaultsToOneWithoutActiveEffect() {
+    void effectMultiplierDefaultsToOneWithoutActiveEffect() {
         assertEquals(1.0, collectibleCtrl.getEffectMultiplier());
     }
 
     // ── updateEntities – effect expiry (CollectibleControllerImpl-specific) ──
 
     @Test
-    void updateEntities_expiresEffectAfterItsDurationAndFiresEffectExpired() {
+    void updateEntitiesExpiresEffectAfterItsDurationAndFiresEffectExpired() {
         final Effect effect = new EffectImpl(EffectType.SHIELD, 100L);
         collectibleCtrl.addEffect(effect);
         listener.events.clear();
@@ -136,7 +136,7 @@ class CollectibleControllerImplTest {
     }
 
     @Test
-    void updateEntities_doesNotExpireEffectBeforeItsDuration() {
+    void updateEntitiesDoesNotExpireEffectBeforeItsDuration() {
         collectibleCtrl.addEffect(new EffectImpl(EffectType.SHIELD, 1000L));
         collectibleCtrl.updateEntities(10L);
         assertTrue(collectibleCtrl.hasEffect(EffectImpl.class));
@@ -145,7 +145,7 @@ class CollectibleControllerImplTest {
     // ── clearAll – clears active effects only, leaves entities untouched ──
 
     @Test
-    void clearAll_clearsActiveEffectsAndFiresEffectExpired() {
+    void clearAllClearsActiveEffectsAndFiresEffectExpired() {
         final Effect effect = new EffectImpl(EffectType.SHIELD, 5000L);
         collectibleCtrl.addEffect(effect);
         listener.events.clear();
@@ -158,7 +158,7 @@ class CollectibleControllerImplTest {
     }
 
     @Test
-    void clearAll_doesNotRemoveSpawnedEntities() {
+    void clearAllDoesNotRemoveSpawnedEntities() {
         collectibleCtrl.spawnEntity(plane);
         final Collectible col = star(new Vector2(200, 200));
         collectibleCtrl.spawnEntity(col);
@@ -173,7 +173,7 @@ class CollectibleControllerImplTest {
     // ── updateEntities – spawn timing ─────────────────────────────────
 
     @Test
-    void updateEntities_doesNotSpawnBeforeInterval() {
+    void updateEntitiesDoesNotSpawnBeforeInterval() {
         collectibleCtrl.spawnEntity(plane);
         collectibleCtrl.updateEntities(SPAWN_INTERVAL_MS - 1);
         assertEquals(1, collectibleCtrl.getEntities().size(),
@@ -181,7 +181,7 @@ class CollectibleControllerImplTest {
     }
 
     @Test
-    void updateEntities_spawnsCollectibleAfterInterval() {
+    void updateEntitiesSpawnsCollectibleAfterInterval() {
         collectibleCtrl.spawnEntity(plane);
         collectibleCtrl.updateEntities(SPAWN_INTERVAL_MS);
 
@@ -192,7 +192,7 @@ class CollectibleControllerImplTest {
     }
 
     @Test
-    void updateEntities_accumulatesDeltaAcrossTicks() {
+    void updateEntitiesAccumulatesDeltaAcrossTicks() {
         collectibleCtrl.spawnEntity(plane);
         collectibleCtrl.updateEntities(SPAWN_INTERVAL_MS / 2);
         collectibleCtrl.updateEntities(SPAWN_INTERVAL_MS / 2);
@@ -204,14 +204,14 @@ class CollectibleControllerImplTest {
     }
 
     @Test
-    void updateEntities_doesNotSpawnWithoutPlane() {
+    void updateEntitiesDoesNotSpawnWithoutPlane() {
         collectibleCtrl.updateEntities(SPAWN_INTERVAL_MS);
         assertTrue(collectibleCtrl.getEntities().isEmpty(),
                 "No spawn should happen without a plane to anchor the spawn position");
     }
 
     @Test
-    void updateEntities_doesNotSpawnWithZeroViewSize() {
+    void updateEntitiesDoesNotSpawnWithZeroViewSize() {
         final CollectibleControllerImpl zeroViewCtrl =
                 new CollectibleControllerImpl(new ArrayList<>(), collisionEngine);
         zeroViewCtrl.setView(new StubGameView(0, 0));

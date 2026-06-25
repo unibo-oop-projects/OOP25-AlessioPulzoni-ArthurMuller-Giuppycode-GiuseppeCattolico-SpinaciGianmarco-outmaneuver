@@ -22,7 +22,7 @@ public interface ISession {
 
     long getElapsedMs();
 
-    void addElapsed(final long ms);
+    void addElapsed(long ms);
 
     void increaseStars();
 

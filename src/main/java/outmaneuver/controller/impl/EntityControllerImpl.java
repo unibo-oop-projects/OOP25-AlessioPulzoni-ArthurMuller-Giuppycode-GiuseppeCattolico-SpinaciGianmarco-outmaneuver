@@ -23,6 +23,7 @@ public abstract class EntityControllerImpl implements EntityController {
         this.collisionEngine = Objects.requireNonNull(collisionEngine, "collisionEngine must not be null");
     }
 
+    @Override
     public void setView(final GameView view) {
         this.view = view;
     }

@@ -11,7 +11,9 @@ public final class Hitbox {
 
     public Hitbox(final Vector2 center, final double radius) {
         this.center = Objects.requireNonNull(center, "center");
-        if (radius < 0) throw new IllegalArgumentException("radius must be >= 0");
+        if (radius < 0) {
+            throw new IllegalArgumentException("radius must be >= 0");
+        }
         this.radius = radius;
     }
 

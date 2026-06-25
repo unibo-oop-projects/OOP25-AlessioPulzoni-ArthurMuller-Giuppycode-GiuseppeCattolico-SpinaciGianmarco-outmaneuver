@@ -29,38 +29,47 @@ public final class Session implements ISession {
         return missilesScore;
     }
 
+    @Override
     public int getStars() {
         return stars;
     }
 
+    @Override
     public void setStars(final int stars) {
         this.stars = stars;
     }
 
+    @Override
     public double getSpeedMultiplier() {
         return speedMultiplier;
     }
 
+    @Override
     public void setSpeedMultiplier(final double speedMultiplier) {
         this.speedMultiplier = speedMultiplier;
     }
 
+    @Override
     public boolean isShieldActive() {
         return shieldActive;
     }
 
+    @Override
     public void setShieldActive(final boolean shieldActive) {
         this.shieldActive = shieldActive;
     }
 
+    @Override
     public long getElapsedMs() {
         return elapsedMs;
     }
 
+    @Override
     public void addElapsed(final long ms) {
         this.elapsedMs += ms;
     }
 
+    @Override
     public void increaseStars() {
         this.stars += 1;
     }

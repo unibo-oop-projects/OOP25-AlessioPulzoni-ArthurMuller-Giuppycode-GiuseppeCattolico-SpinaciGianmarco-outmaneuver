@@ -14,11 +14,11 @@ public abstract class AbstractCollectible implements Collectible {
     Vector2 position;
     Effect effect;
 
-    public AbstractCollectible(Vector2 position) {
+    public AbstractCollectible(final Vector2 position) {
         this.position = Objects.requireNonNull(position, "position must not be null");
     }
 
-    public AbstractCollectible(Vector2 position, Effect effect) {
+    public AbstractCollectible(final Vector2 position, final Effect effect) {
         this.position = Objects.requireNonNull(position, "position must not be null");
         this.effect = Objects.requireNonNull(effect, "effect must not be null");
     }
@@ -29,7 +29,7 @@ public abstract class AbstractCollectible implements Collectible {
     }
 
     @Override
-    public void setPosition(Vector2 position) {
+    public void setPosition(final Vector2 position) {
         this.position = Objects.requireNonNull(position, "position must not be null");
     }
 

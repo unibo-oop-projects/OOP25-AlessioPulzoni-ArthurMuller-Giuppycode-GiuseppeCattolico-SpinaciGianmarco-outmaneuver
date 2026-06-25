@@ -16,6 +16,8 @@ import outmaneuver.view.swing.Theme;
 
 public final class PauseView extends JPanel {
 
+    private static final long serialVersionUID = 1L;
+
     public PauseView(final ScreenMetrics metrics, final Runnable onResume, final Runnable onQuit) {
         Objects.requireNonNull(onResume, "onResume must not be null");
         Objects.requireNonNull(onQuit,   "onQuit must not be null");

@@ -7,8 +7,8 @@ public final class CollisionData {
     private final ICollidable entityB;
     private final Vector2 collisionPoint;
 
-    public CollisionData(ICollidable entityA, ICollidable entityB,
-                         Vector2 collisionPoint) {
+    public CollisionData(final ICollidable entityA, final ICollidable entityB,
+                         final Vector2 collisionPoint) {
         this.entityA    = entityA;
         this.entityB    = entityB;
         this.collisionPoint = collisionPoint;

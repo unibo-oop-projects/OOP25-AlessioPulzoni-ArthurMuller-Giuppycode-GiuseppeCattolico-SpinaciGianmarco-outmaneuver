@@ -21,13 +21,12 @@ class ShopTest {
     private static final PlaneData PLANE_A = new PlaneData("a", 10, 5, 3, "sprite_a", 200);
     private static final PlaneData PLANE_B = new PlaneData("b", 12, 6, 4, "sprite_b", 100);
 
-    private PlaneRepository repo;
     private ShopItem item;
     private IShop shop;
 
     @BeforeEach
     void setUp() {
-        repo = mock(PlaneRepository.class);
+        final PlaneRepository repo = mock(PlaneRepository.class);
         when(repo.loadAll()).thenReturn(List.of(PLANE_A));
         shop = new Shop(repo);
         item = shop.getCatalog().getFirst();

@@ -65,9 +65,10 @@ public class CollisionEngine {
      * Testa tutte le coppie tra listA e listB.
      * Se sono la stessa lista (Missile×Missile) usa i < j per evitare duplicati.
      */
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
     private void checkPairs(final List<ICollidable> listA,
                             final List<ICollidable> listB,
-                            final CollisionEvent CollisionType) {
+                            final CollisionEvent collisionType) {
 
         final boolean sameLists = listA == listB;
 
@@ -77,15 +78,17 @@ public class CollisionEngine {
             for (int j = start; j < listB.size(); j++) {
                 final ICollidable a = listA.get(i);
                 final ICollidable b = listB.get(j);
-                if (a == b) continue;
+                if (a == b) {
+                    continue;
+                }
 
                 final Hitbox ha = a.getHitbox();
                 final Hitbox hb = b.getHitbox();
 
                 if (ha.intersects(hb)) {
                     final Vector2 point = ha.collisionPoint(hb);
-                   
-                    eventListener.onInternalEvent(CollisionType,
+
+                    eventListener.onInternalEvent(collisionType,
                             new CollisionData(a, b, point));
                 }
             }

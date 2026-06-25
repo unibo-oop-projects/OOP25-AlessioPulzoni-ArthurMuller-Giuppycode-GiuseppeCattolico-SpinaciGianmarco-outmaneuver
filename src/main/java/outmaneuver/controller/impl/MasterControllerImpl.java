@@ -217,20 +217,18 @@ public final class MasterControllerImpl implements MasterController {
                 updateFrame();
             }
 
-            if (gameOverDelayTicks.get() > 0) {
-                if (gameOverDelayTicks.decrementAndGet() == 0) {
-                    gameState = GameEvent.GAME_OVER;
-                    running = false;
-                    final int finalScore = session.getScore();
-                    if (finalScore > 0 && playerProfile != null) {
-                        playerProfile.addCoins(finalScore);
-                    }
-                    if (playerProfile != null) {
-                        playerProfile.saveScore(finalScore, playerProfile.getPlayerName());
-                    }
-                    if (onGameOver != null) {
-                        onGameOver.run();
-                    }
+            if (gameOverDelayTicks.get() > 0 && gameOverDelayTicks.decrementAndGet() == 0) {
+                gameState = GameEvent.GAME_OVER;
+                running = false;
+                final int finalScore = session.getScore();
+                if (finalScore > 0 && playerProfile != null) {
+                    playerProfile.addCoins(finalScore);
+                }
+                if (playerProfile != null) {
+                    playerProfile.saveScore(finalScore, playerProfile.getPlayerName());
+                }
+                if (onGameOver != null) {
+                    onGameOver.run();
                 }
             }
 

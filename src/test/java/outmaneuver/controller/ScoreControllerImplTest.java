@@ -31,13 +31,13 @@ class ScoreControllerImplTest {
     }
 
     @Test
-    void onTick_awardsOnePointPerElapsedSecond() {
+    void onTickAwardsOnePointPerElapsedSecond() {
         scoreCtrl.onTick(1000);
         assertEquals(1, session.getScore());
     }
 
     @Test
-    void onTick_accumulatesPartialMillisecondsAcrossTicks() {
+    void onTickAccumulatesPartialMillisecondsAcrossTicks() {
         scoreCtrl.onTick(600);
         assertEquals(0, session.getScore(), "Less than a second elapsed: no point yet");
         scoreCtrl.onTick(600);
@@ -45,13 +45,13 @@ class ScoreControllerImplTest {
     }
 
     @Test
-    void onTick_awardsMultiplePointsForMultipleElapsedSeconds() {
+    void onTickAwardsMultiplePointsForMultipleElapsedSeconds() {
         scoreCtrl.onTick(3500);
         assertEquals(3, session.getScore());
     }
 
     @Test
-    void reset_clearsPendingAccumulatedTime() {
+    void resetClearsPendingAccumulatedTime() {
         scoreCtrl.onTick(900);
         scoreCtrl.reset();
         scoreCtrl.onTick(900);
@@ -59,21 +59,21 @@ class ScoreControllerImplTest {
     }
 
     @Test
-    void onInternalEvent_starCollectibleAddsItsScoreValue() {
+    void onInternalEventStarCollectibleAddsItsScoreValue() {
         final StarCollectible star = new StarCollectible(Vector2.ZERO, 25);
         scoreCtrl.onInternalEvent(CollisionEvent.PLANE_COLLECTIBLE_COLLISION, star);
         assertEquals(25, session.getScore());
     }
 
     @Test
-    void onInternalEvent_missileMissileCollisionAddsTwentyPoints() {
+    void onInternalEventMissileMissileCollisionAddsTwentyPoints() {
         scoreCtrl.onInternalEvent(CollisionEvent.MISSILE_MISSILE_COLLISION,
                 new CollisionData(null, null, Vector2.ZERO));
         assertEquals(20, session.getScore());
     }
 
     @Test
-    void onInternalEvent_planeMissileCollisionDoesNotAwardPoints() {
+    void onInternalEventPlaneMissileCollisionDoesNotAwardPoints() {
         scoreCtrl.onInternalEvent(CollisionEvent.PLANE_MISSILE_COLLISION,
                 new CollisionData(null, null, Vector2.ZERO));
         assertEquals(0, session.getScore());

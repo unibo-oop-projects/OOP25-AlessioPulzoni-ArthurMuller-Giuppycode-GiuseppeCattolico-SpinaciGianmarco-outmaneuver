@@ -31,6 +31,10 @@ class MasterControllerImplTest {
      * called has time to land before the test samples "during pause" state. */
     private static final long PAUSE_SETTLE_MS = 30;
 
+    private Plane plane;
+    private MasterControllerImpl master;
+    private SpyView spyView;
+
     /**
      * Minimal EntityController double: advances any spawned plane along +X by
      * deltaMs on every updateEntities() call, so tests can observe movement
@@ -89,13 +93,7 @@ class MasterControllerImplTest {
         }
     }
 
-    private Plane plane;
-    private FakeEntityController entityCtrl;
-    private MasterControllerImpl master;
-    private SpyView spyView;
-    private List<Entity> sharedEntities;
-
-    private static class SpyView implements GameView {
+    private static final class SpyView implements GameView {
         final List<RenderState> frames = new ArrayList<>();
 
         @Override
@@ -119,8 +117,8 @@ class MasterControllerImplTest {
         plane = new PlaneImpl(new PlaneData("standard", 200, 3, 20, "aircraft_standard", 0));
         spyView = new SpyView();
         master = new MasterControllerImpl();
-        sharedEntities = new ArrayList<>();
-        entityCtrl = new FakeEntityController(sharedEntities);
+        final List<Entity> sharedEntities = new ArrayList<>();
+        final FakeEntityController entityCtrl = new FakeEntityController(sharedEntities);
         entityCtrl.spawnEntity(plane);
         master.addEntityController(entityCtrl);
         master.setSceneEntities(sharedEntities);

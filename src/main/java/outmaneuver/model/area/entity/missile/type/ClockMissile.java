@@ -23,9 +23,12 @@ public final class ClockMissile extends MissileImpl {
     }
 
     @Override
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
     public void onCollision(final List<Missile> activeMissiles) {
         for (final Missile other : activeMissiles) {
-            if (!other.isAlive() || other == this) continue;
+            if (!other.isAlive() || other == this) {
+                continue;
+            }
             other.slowDown(slow.factor(), slow.duration());
         }
         destroy();

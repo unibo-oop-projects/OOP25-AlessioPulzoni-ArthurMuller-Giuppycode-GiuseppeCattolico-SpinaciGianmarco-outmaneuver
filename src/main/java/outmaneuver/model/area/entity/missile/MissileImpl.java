@@ -47,13 +47,17 @@ public abstract class MissileImpl implements Missile {
 
     @Override
     public void update(final Plane plane, final double dt) {
-        if (shouldSkipUpdate(dt)) return;
+        if (shouldSkipUpdate(dt)) {
+            return;
+        }
         steer(plane.getPosition());
         move(dt);
     }
 
     protected final boolean shouldSkipUpdate(final double dt) {
-        if (!alive) return true;
+        if (!alive) {
+            return true;
+        }
 
         if (lifetime >= 0) {
             lifetime -= dt;
@@ -122,7 +126,7 @@ public abstract class MissileImpl implements Missile {
     }
 
     @Override
-    public void redirectIfOutOfBounds(final Plane plane, final Dimension screenSize, double effectiveSpeed) {
+    public void redirectIfOutOfBounds(final Plane plane, final Dimension screenSize, final double effectiveSpeed) {
         if (!isOffScreen(plane, screenSize)) {
             return;
         }

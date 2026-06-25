@@ -29,6 +29,8 @@ import outmaneuver.view.swing.hud.IHudView;
         justification = "SwingGameView is a Swing JPanel that is never actually serialized")
 public final class SwingGameView extends JPanel implements GameView {
 
+    private static final long serialVersionUID = 1L;
+
     private static final Color SKY_COLOR = new Color(180, 225, 245); // azzurrino chiaro (cielo)
     private static final int EXPLOSION_FRAMES = 12;
     private static final double EXPLOSION_SIZE = 80.0;

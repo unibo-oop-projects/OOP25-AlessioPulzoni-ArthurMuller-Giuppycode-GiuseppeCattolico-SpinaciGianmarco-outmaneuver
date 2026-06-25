@@ -34,18 +34,26 @@ public final class BounceMissile extends MissileImpl {
         double clampedY = pos.getY();
 
         if (rel.getX() < -halfW + margin) {
-            if (vel.getX() < 0) vel = vel.reflectX();   // tocca il bordo sinistro -> rimbalza a destra
+            if (vel.getX() < 0) {
+                vel = vel.reflectX();   // tocca il bordo sinistro -> rimbalza a destra
+            }
             clampedX = planePos.getX() - halfW + margin;
         } else if (rel.getX() > halfW - margin) {
-            if (vel.getX() > 0) vel = vel.reflectX();   // bordo destro -> rimbalza a sinistra
+            if (vel.getX() > 0) {
+                vel = vel.reflectX();   // bordo destro -> rimbalza a sinistra
+            }
             clampedX = planePos.getX() + halfW - margin;
         }
 
         if (rel.getY() < -halfH + margin) {
-            if (vel.getY() < 0) vel = vel.reflectY();   // bordo superiore -> rimbalza in giu'
+            if (vel.getY() < 0) {
+                vel = vel.reflectY();   // bordo superiore -> rimbalza in giu'
+            }
             clampedY = planePos.getY() - halfH + margin;
         } else if (rel.getY() > halfH - margin) {
-            if (vel.getY() > 0) vel = vel.reflectY();   // bordo inferiore -> rimbalza in su'
+            if (vel.getY() > 0) {
+                vel = vel.reflectY();   // bordo inferiore -> rimbalza in su'
+            }
             clampedY = planePos.getY() + halfH - margin;
         }
 

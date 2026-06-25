@@ -24,15 +24,15 @@ class PlaneControllerImplTest {
     private static final int KEY_LEFT_A = 65;
     private static final int KEY_RIGHT_D = 68;
 
+    private InputControllerImpl input;
+    private Plane plane;
+    private PlaneControllerImpl planeCtrl;
+
     private static final class NoOpListener implements InternalEventListener {
         @Override
         public void onInternalEvent(final Event evt, final Object data) {
         }
     }
-
-    private InputControllerImpl input;
-    private Plane plane;
-    private PlaneControllerImpl planeCtrl;
 
     @BeforeEach
     void setUp() {
@@ -43,21 +43,21 @@ class PlaneControllerImplTest {
     }
 
     @Test
-    void updateEntities_movesPlaneAlongItsDirection() {
+    void updateEntitiesMovesPlaneAlongItsDirection() {
         planeCtrl.updateEntities(1000);
         assertEquals(200.0, plane.getPosition().getX(), EPS);
         assertEquals(0.0, plane.getPosition().getY(), EPS);
     }
 
     @Test
-    void updateEntities_withoutPlaneDoesNotThrow() {
+    void updateEntitiesWithoutPlaneDoesNotThrow() {
         final PlaneControllerImpl emptyCtrl =
                 new PlaneControllerImpl(input, new ArrayList<>(), new CollisionEngine(new NoOpListener()));
         org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> emptyCtrl.updateEntities(1000));
     }
 
     @Test
-    void updateEntities_turnsLeftWhenLeftKeyPressed() {
+    void updateEntitiesTurnsLeftWhenLeftKeyPressed() {
         input.onKeyPressed(KEY_LEFT_A);
         planeCtrl.updateEntities(1000);
         assertEquals(TurnState.LEFT, plane.getTurnState());
@@ -65,7 +65,7 @@ class PlaneControllerImplTest {
     }
 
     @Test
-    void updateEntities_turnsRightWhenRightKeyPressed() {
+    void updateEntitiesTurnsRightWhenRightKeyPressed() {
         input.onKeyPressed(KEY_RIGHT_D);
         planeCtrl.updateEntities(1000);
         assertEquals(TurnState.RIGHT, plane.getTurnState());
@@ -73,20 +73,20 @@ class PlaneControllerImplTest {
     }
 
     @Test
-    void updateEntities_turnStateIsNoneWithoutInput() {
+    void updateEntitiesTurnStateIsNoneWithoutInput() {
         planeCtrl.updateEntities(1000);
         assertEquals(TurnState.NONE, plane.getTurnState());
     }
 
     @Test
-    void setSpeedMultiplier_scalesMovementSpeed() {
+    void setSpeedMultiplierScalesMovementSpeed() {
         planeCtrl.setSpeedMultiplier(2.0);
         planeCtrl.updateEntities(1000);
         assertEquals(400.0, plane.getPosition().getX(), EPS);
     }
 
     @Test
-    void clearAll_resetsPlaneStateAndKeepsItRegistered() {
+    void clearAllResetsPlaneStateAndKeepsItRegistered() {
         plane.setPosition(new Vector2(300, 400));
         plane.setDirection(Math.PI / 2);
         plane.setTurnState(TurnState.LEFT);

@@ -25,6 +25,11 @@ import outmaneuver.view.RenderState;
 
 class EntityControllerImplTest {
 
+    // ── Fixtures ─────────────────────────────────────────────────────
+
+    private PlaneImpl plane;
+    private ConcreteEntityController entityCtrl;
+
     // ── Test doubles ─────────────────────────────────────────────────
 
     /** Bare concrete subclass: exercises the base-class behaviour with no overrides. */
@@ -45,7 +50,7 @@ class EntityControllerImplTest {
         }
     }
 
-    private static class RecordingListener implements InternalEventListener {
+    private static final class RecordingListener implements InternalEventListener {
         final List<Event> events = new ArrayList<>();
         final List<Object> payloads = new ArrayList<>();
 
@@ -62,29 +67,23 @@ class EntityControllerImplTest {
         @Override public int getHeight() { return 600; }
     }
 
-    // ── Fixtures ─────────────────────────────────────────────────────
-
-    private PlaneImpl plane;
-    private CollisionEngine collisionEngine;
-    private ConcreteEntityController entityCtrl;
-
     @BeforeEach
     void setUp() {
         plane = new PlaneImpl(new PlaneData("standard", 200, 3, 20, "aircraft_standard", 0));
-        collisionEngine = new CollisionEngine(new RecordingListener());
+        final CollisionEngine collisionEngine = new CollisionEngine(new RecordingListener());
         entityCtrl = new ConcreteEntityController(new ArrayList<>(), collisionEngine);
     }
 
     // ── spawnEntity ──────────────────────────────────────────────────
 
     @Test
-    void spawnEntity_addsToEntities() {
+    void spawnEntityAddsToEntities() {
         entityCtrl.spawnEntity(plane);
         assertTrue(entityCtrl.getEntities().contains(plane));
     }
 
     @Test
-    void spawnEntity_registersWithCollisionEngine() {
+    void spawnEntityRegistersWithCollisionEngine() {
         final RecordingListener listener = new RecordingListener();
         final CollisionEngine engine = new CollisionEngine(listener);
         final ConcreteEntityController ctrl = new ConcreteEntityController(new ArrayList<>(), engine);
@@ -100,7 +99,7 @@ class EntityControllerImplTest {
     }
 
     @Test
-    void spawnEntity_nullThrows() {
+    void spawnEntityNullThrows() {
         org.junit.jupiter.api.Assertions.assertThrows(NullPointerException.class,
                 () -> entityCtrl.spawnEntity(null));
     }
@@ -108,14 +107,14 @@ class EntityControllerImplTest {
     // ── removeEntity ─────────────────────────────────────────────────
 
     @Test
-    void removeEntity_removesFromEntities() {
+    void removeEntityRemovesFromEntities() {
         entityCtrl.spawnEntity(plane);
         entityCtrl.removeEntity(plane);
         assertFalse(entityCtrl.getEntities().contains(plane));
     }
 
     @Test
-    void removeEntity_unregistersFromCollisionEngine() {
+    void removeEntityUnregistersFromCollisionEngine() {
         final RecordingListener listener = new RecordingListener();
         final CollisionEngine engine = new CollisionEngine(listener);
         final ConcreteEntityController ctrl = new ConcreteEntityController(new ArrayList<>(), engine);
@@ -133,7 +132,7 @@ class EntityControllerImplTest {
     // ── removeAll ────────────────────────────────────────────────────
 
     @Test
-    void removeAll_clearsEntitiesAndUnregistersFromCollisionEngine() {
+    void removeAllClearsEntitiesAndUnregistersFromCollisionEngine() {
         final RecordingListener listener = new RecordingListener();
         final CollisionEngine engine = new CollisionEngine(listener);
         final ConcreteEntityController ctrl = new ConcreteEntityController(new ArrayList<>(), engine);
@@ -153,7 +152,7 @@ class EntityControllerImplTest {
     // ── clearAll (default no-op, overridable by subclasses) ───────────
 
     @Test
-    void clearAll_isNoOpByDefault() {
+    void clearAllIsNoOpByDefault() {
         entityCtrl.spawnEntity(plane);
         entityCtrl.clearAll();
         assertTrue(entityCtrl.getEntities().contains(plane),
@@ -163,7 +162,7 @@ class EntityControllerImplTest {
     // ── getEntities ──────────────────────────────────────────────────
 
     @Test
-    void getEntities_returnsSnapshotNotBackedByInternalList() {
+    void entitiesReturnsSnapshotNotBackedByInternalList() {
         entityCtrl.spawnEntity(plane);
         final List<Entity> snapshot = entityCtrl.getEntities();
         entityCtrl.spawnEntity(new TestMissile(Vector2.ZERO));
@@ -174,7 +173,7 @@ class EntityControllerImplTest {
     // ── onInternalEvent ──────────────────────────────────────────────
 
     @Test
-    void onInternalEvent_forwardsToRegisteredListener() {
+    void onInternalEventForwardsToRegisteredListener() {
         final RecordingListener listener = new RecordingListener();
         entityCtrl.setEventListener(listener);
 
@@ -186,7 +185,7 @@ class EntityControllerImplTest {
     }
 
     @Test
-    void onInternalEvent_withoutListenerDoesNotThrow() {
+    void onInternalEventWithoutListenerDoesNotThrow() {
         org.junit.jupiter.api.Assertions.assertDoesNotThrow(
                 () -> entityCtrl.onInternalEvent(CollisionEvent.MISSILE_MISSILE_COLLISION, null));
     }
@@ -194,7 +193,7 @@ class EntityControllerImplTest {
     // ── setView/getView ──────────────────────────────────────────────
 
     @Test
-    void setView_isVisibleToSubclassesViaGetView() {
+    void setViewIsVisibleToSubclassesViaGetView() {
         final StubGameView view = new StubGameView();
         entityCtrl.setView(view);
         assertEquals(view, entityCtrl.exposeView());

@@ -22,6 +22,8 @@ import outmaneuver.view.swing.Theme;
 
 public final class MainMenuView extends JPanel {
 
+    private static final long serialVersionUID = 1L;
+
     private final JLabel coinsLabel;
     private final JLabel userLabel;
     private final JLabel planeLabel;

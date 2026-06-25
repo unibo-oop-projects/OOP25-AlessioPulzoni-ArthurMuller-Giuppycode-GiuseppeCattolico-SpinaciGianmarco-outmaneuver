@@ -10,6 +10,8 @@ import javax.swing.JPanel;
 
 public final class UIManager extends JPanel {
 
+    private static final long serialVersionUID = 1L;
+
     private final CardLayout cardLayout;
     private final Map<ScreenId, String> cardNames;
 

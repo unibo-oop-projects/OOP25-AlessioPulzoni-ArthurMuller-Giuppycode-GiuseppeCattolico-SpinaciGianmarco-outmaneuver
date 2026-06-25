@@ -80,10 +80,10 @@ public final class Theme {
                 final float x;
                 final int sw = fm.stringWidth(txt);
                 switch (horizontalAlignment) {
-                    case SwingConstants.LEFT:
+                    case LEFT:
                         x = 0f;
                         break;
-                    case SwingConstants.RIGHT:
+                    case RIGHT:
                         x = getWidth() - sw;
                         break;
                     default:

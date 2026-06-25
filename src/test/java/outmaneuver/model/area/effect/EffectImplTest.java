@@ -40,18 +40,18 @@ class EffectImplTest {
     }
 
     @Test
-    void getTypeReturnsConfiguredType() {
+    void typeReturnsConfiguredType() {
         assertEquals(EffectType.SHIELD, new EffectImpl(EffectType.SHIELD, 1000L).getType());
         assertEquals(EffectType.SPEED_BOOST, new EffectImpl(EffectType.SPEED_BOOST, 2.0, 1000L).getType());
     }
 
     @Test
-    void getMultiplierDefaultsToZeroWithoutDurationOnlyConstructor() {
+    void multiplierDefaultsToZeroWithoutDurationOnlyConstructor() {
         assertEquals(0.0, new EffectImpl(EffectType.SHIELD, 1000L).getMultiplier());
     }
 
     @Test
-    void getMultiplierReturnsConfiguredValue() {
+    void multiplierReturnsConfiguredValue() {
         assertEquals(2.5, new EffectImpl(EffectType.SPEED_BOOST, 2.5, 1000L).getMultiplier());
     }
 }

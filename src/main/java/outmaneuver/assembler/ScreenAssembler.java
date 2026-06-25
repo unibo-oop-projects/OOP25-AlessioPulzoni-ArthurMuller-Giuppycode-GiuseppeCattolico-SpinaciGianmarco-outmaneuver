@@ -82,9 +82,9 @@ public final class ScreenAssembler {
         public double scaleY() { return (double) height / REF_H; }
         public double scale()  { return Math.min(scaleX(), scaleY()); }
 
-        public int sw(int v) { return (int) Math.round(v * scaleX()); }
-        public int sh(int v) { return (int) Math.round(v * scaleY()); }
-        public int sf(int v) { return Math.max(12, (int) Math.round(v * scale())); }
+        public int sw(final int v) { return (int) Math.round(v * scaleX()); }
+        public int sh(final int v) { return (int) Math.round(v * scaleY()); }
+        public int sf(final int v) { return Math.max(12, (int) Math.round(v * scale())); }
     }
 
     /**

@@ -2,7 +2,7 @@ package outmaneuver.model.area.effect;
 
 public interface Effect {
 
-    void update(final long deltaMs);
+    void update(long deltaMs);
 
     boolean isActive();
 

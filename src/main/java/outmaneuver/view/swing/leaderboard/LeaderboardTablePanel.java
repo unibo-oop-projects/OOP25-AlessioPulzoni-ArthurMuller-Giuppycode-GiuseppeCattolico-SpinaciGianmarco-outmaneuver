@@ -21,6 +21,8 @@ import outmaneuver.view.swing.Theme;
         justification = "LeaderboardTablePanel is a Swing JPanel that is never actually serialized")
 public final class LeaderboardTablePanel extends JPanel {
 
+    private static final long serialVersionUID = 1L;
+
     private final int maxEntries;
     private final ScreenMetrics metrics;
 
@@ -71,7 +73,8 @@ public final class LeaderboardTablePanel extends JPanel {
         int col = 0;
         for (final String text : new String[]{rank, name, score, date}) {
             final JLabel lbl = Theme.outlinedLabel(text, font, color);
-            gbc.gridx = col++;
+            gbc.gridx = col;
+            col++;
             add(lbl, gbc);
         }
         gbc.gridy++;

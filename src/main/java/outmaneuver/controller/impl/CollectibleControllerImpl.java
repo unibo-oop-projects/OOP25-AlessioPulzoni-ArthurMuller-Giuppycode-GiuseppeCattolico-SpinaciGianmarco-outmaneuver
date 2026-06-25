@@ -51,7 +51,7 @@ public final class CollectibleControllerImpl extends EntityControllerImpl {
     }
 
     public boolean hasEffect(final Class<? extends Effect> type) {
-        return activeEffects.stream().anyMatch(e -> type.isInstance(e));
+        return activeEffects.stream().anyMatch(type::isInstance);
     }
 
     public double getEffectMultiplier() {

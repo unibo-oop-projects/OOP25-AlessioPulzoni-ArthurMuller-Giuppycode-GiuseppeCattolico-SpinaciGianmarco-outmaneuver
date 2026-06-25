@@ -15,11 +15,17 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import outmaneuver.assembler.ScreenAssembler.ScreenMetrics;
 import outmaneuver.model.session.ScoreEntry;
 import outmaneuver.view.swing.Theme;
 
+@SuppressFBWarnings(
+        value = "SE_BAD_FIELD",
+        justification = "LeaderboardView is a Swing JPanel that is never actually serialized")
 public final class LeaderboardView extends JPanel {
+
+    private static final long serialVersionUID = 1L;
 
     private final Supplier<List<ScoreEntry>> scoresSupplier;
     private final LeaderboardTablePanel tablePanel;

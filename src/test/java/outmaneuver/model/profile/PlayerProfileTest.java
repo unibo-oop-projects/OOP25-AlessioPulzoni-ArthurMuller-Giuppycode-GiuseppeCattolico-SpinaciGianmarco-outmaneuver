@@ -13,6 +13,8 @@ import org.junit.jupiter.api.io.TempDir;
 
 class PlayerProfileTest {
 
+    private static final String FAST_PLANE_ID = "fast";
+
     private PlayerProfile profile;
 
     @BeforeEach
@@ -37,7 +39,7 @@ class PlayerProfileTest {
 
     @Test
     void defaultDoesNotOwnUnknownPlane() {
-        assertFalse(profile.ownsPlane("fast"));
+        assertFalse(profile.ownsPlane(FAST_PLANE_ID));
     }
 
     @Test
@@ -77,15 +79,15 @@ class PlayerProfileTest {
 
     @Test
     void addOwnedPlaneTracksNewPlane() {
-        profile.addOwnedPlane("fast");
-        assertTrue(profile.ownsPlane("fast"));
+        profile.addOwnedPlane(FAST_PLANE_ID);
+        assertTrue(profile.ownsPlane(FAST_PLANE_ID));
     }
 
     @Test
     void addOwnedPlaneDuplicateIsIdempotent() {
-        profile.addOwnedPlane("fast");
-        profile.addOwnedPlane("fast");
-        assertTrue(profile.ownsPlane("fast"));
+        profile.addOwnedPlane(FAST_PLANE_ID);
+        profile.addOwnedPlane(FAST_PLANE_ID);
+        assertTrue(profile.ownsPlane(FAST_PLANE_ID));
     }
 
     // ── scores ──

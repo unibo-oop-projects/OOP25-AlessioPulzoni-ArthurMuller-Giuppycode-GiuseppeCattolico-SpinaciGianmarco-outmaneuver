@@ -17,6 +17,8 @@ import outmaneuver.view.swing.Theme;
 
 public final class UsernameSetupView extends JPanel {
 
+    private static final long serialVersionUID = 1L;
+
     private static final int MAX_NAME_LENGTH  = 24;
 
     public UsernameSetupView(final ScreenMetrics metrics, final Consumer<String> onConfirm) {

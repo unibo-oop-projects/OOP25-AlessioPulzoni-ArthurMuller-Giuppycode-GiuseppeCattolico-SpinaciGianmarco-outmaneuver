@@ -33,6 +33,8 @@ import outmaneuver.view.swing.Theme;
         justification = "ShopView is a Swing JPanel that is never actually serialized")
 public final class ShopView extends JPanel {
 
+    private static final long serialVersionUID = 1L;
+
     private final ScreenMetrics metrics;
     private final AssetStore assets;
     private final List<ShopItem> catalog;
@@ -48,7 +50,7 @@ public final class ShopView extends JPanel {
     private final JLabel turnLabel;
     private final JLabel priceLabel;
     private final JLabel feedbackLabel;
-    private JButton buyBtn;
+    private final JButton buyBtn;
 
     private int currentIndex;
 

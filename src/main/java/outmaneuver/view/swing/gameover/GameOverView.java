@@ -19,6 +19,8 @@ import outmaneuver.view.swing.leaderboard.LeaderboardTablePanel;
 
 public final class GameOverView extends JPanel {
 
+    private static final long serialVersionUID = 1L;
+
     private final JLabel scoreLabel;
     private final JLabel recapStarsLabel;
     private final JLabel recapMissilesLabel;
