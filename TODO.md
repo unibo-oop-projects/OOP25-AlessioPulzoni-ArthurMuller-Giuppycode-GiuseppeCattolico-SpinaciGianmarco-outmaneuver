@@ -26,12 +26,10 @@ ale
 
 Giup
 - screen page view + uiManager -> appBootstrapper + factory
+- shop / wallet -> player profile
 - session / score / hudSnapshot
- 
-- shop / wallet
-- player profile
 
 Art
 - plane + json loader + dto + resourceLoader
-- gameloop EventController
+- MasterController gameloop -> EventController
 - RenderState system
