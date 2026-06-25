@@ -14,6 +14,12 @@ public final class ShieldMissile extends MissileImpl {
 
     private boolean shielded = true;
 
+    /**
+     * Creates a shield missile.
+     *
+     * @param spawnPos the initial position in world coordinates
+     * @param data the missile's type definition
+     */
     public ShieldMissile(final Vector2 spawnPos, final MissileData data) {
         super(spawnPos, data);
     }

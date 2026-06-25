@@ -20,6 +20,10 @@ import javax.swing.SwingConstants;
 import outmaneuver.assembler.ScreenAssembler.ScreenMetrics;
 import outmaneuver.view.swing.Theme;
 
+/**
+ * Swing main menu screen: shows the player's name, coins and equipped plane, and
+ * offers navigation to start a game, open the shop, view the leaderboard, or exit.
+ */
 public final class MainMenuView extends JPanel {
 
     private static final long serialVersionUID = 1L;
@@ -32,6 +36,18 @@ public final class MainMenuView extends JPanel {
     private final JLabel userLabel;
     private final JLabel planeLabel;
 
+    /**
+     * Creates the main menu screen.
+     *
+     * @param metrics scaling metrics for the current window size
+     * @param playerNameSupplier supplies the player's display name
+     * @param coinsSupplier supplies the player's current coin balance
+     * @param equippedPlaneSupplier supplies the id of the currently equipped plane
+     * @param onStart callback invoked when the player clicks "Start"
+     * @param onShop callback invoked when the player clicks "Shop"
+     * @param onLeaderboard callback invoked when the player clicks "Leaderboard"
+     * @param onExit callback invoked when the player clicks "Exit"
+     */
     public MainMenuView(final ScreenMetrics metrics,
                         final Supplier<String> playerNameSupplier,
                         final IntSupplier coinsSupplier,

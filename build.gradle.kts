@@ -46,13 +46,3 @@ tasks.withType<Test>().configureEach {
 tasks.withType<Javadoc>().configureEach {
     isFailOnError = false
 }
-
-javaQA {
-    checkstyle {
-        // Ignora le regole di checkstyle relative alla Javadoc (commenti mancanti, formattazione, ecc.)
-        // senza disattivare le altre regole di stile.
-        additionalSuppressions.set(
-            """<suppress files=".*" checks="(Javadoc.*|MissingJavadoc.*|SingleLineJavadoc)" />"""
-        )
-    }
-}

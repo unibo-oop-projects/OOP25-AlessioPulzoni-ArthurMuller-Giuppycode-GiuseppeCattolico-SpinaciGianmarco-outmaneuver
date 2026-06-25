@@ -30,6 +30,11 @@ public final class ControllerAssembler {
 
     /**
      * Creates every controller, wires them together, and returns the bundle.
+     *
+     * @param plane the player's plane entity to register with the plane controller
+     * @param session the game session used to track score
+     * @param missileRepo repository providing missile definitions to the missile controller
+     * @return the bundle of wired controllers
      */
     public static Controllers assemble(final Plane plane, final ISession session,
             final MissileRepository missileRepo) {
@@ -68,6 +73,9 @@ public final class ControllerAssembler {
 
     /**
      * Immutable bundle of the assembled controllers.
+     *
+     * @param input the wired input controller
+     * @param master the wired master controller
      */
     @SuppressFBWarnings(
             value = "EI_EXPOSE_REP",

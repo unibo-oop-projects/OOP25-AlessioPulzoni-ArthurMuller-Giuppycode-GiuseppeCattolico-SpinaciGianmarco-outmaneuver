@@ -15,6 +15,10 @@ import javax.swing.JTextField;
 import outmaneuver.assembler.ScreenAssembler.ScreenMetrics;
 import outmaneuver.view.swing.Theme;
 
+/**
+ * Swing screen shown on first launch (or when no username is set) to let the player
+ * choose a username, validating it before confirming.
+ */
 public final class UsernameSetupView extends JPanel {
 
     private static final long serialVersionUID = 1L;
@@ -25,6 +29,12 @@ public final class UsernameSetupView extends JPanel {
     private static final int PROMPT_FONT_SIZE = 18;
     private static final int ERROR_FONT_SIZE = 14;
 
+    /**
+     * Creates the username setup screen.
+     *
+     * @param metrics scaling metrics for the current window size
+     * @param onConfirm callback invoked with the validated username once confirmed
+     */
     public UsernameSetupView(final ScreenMetrics metrics, final Consumer<String> onConfirm) {
         Objects.requireNonNull(onConfirm, "onConfirm must not be null");
 

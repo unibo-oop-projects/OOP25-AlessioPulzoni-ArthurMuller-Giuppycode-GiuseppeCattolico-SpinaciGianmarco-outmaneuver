@@ -20,6 +20,10 @@ import outmaneuver.assembler.ScreenAssembler.ScreenMetrics;
 import outmaneuver.model.session.ScoreEntry;
 import outmaneuver.view.swing.Theme;
 
+/**
+ * Swing screen that shows the full leaderboard (up to the top 20 scores) in a
+ * scrollable table, with a button to go back to the menu.
+ */
 @SuppressFBWarnings(
         value = "SE_BAD_FIELD",
         justification = "LeaderboardView is a Swing JPanel that is never actually serialized")
@@ -35,6 +39,13 @@ public final class LeaderboardView extends JPanel {
     private final Supplier<List<ScoreEntry>> scoresSupplier;
     private final LeaderboardTablePanel tablePanel;
 
+    /**
+     * Creates the leaderboard screen.
+     *
+     * @param metrics scaling metrics for the current window size
+     * @param scoresSupplier supplies the current leaderboard entries when refreshed
+     * @param onBack callback invoked when the player clicks "Back"
+     */
     public LeaderboardView(final ScreenMetrics metrics, final Supplier<List<ScoreEntry>> scoresSupplier,
             final Runnable onBack) {
         this.scoresSupplier = Objects.requireNonNull(scoresSupplier, "scoresSupplier must not be null");

@@ -11,6 +11,11 @@ import outmaneuver.model.area.entity.Entity;
 import outmaneuver.view.GameView;
 
 // CHECKSTYLE: AbstractClassName OFF
+/**
+ * Base {@link EntityController} implementation shared by concrete controllers
+ * (plane, missiles, collectibles): owns the entity list and collision engine
+ * registration, and forwards internal events to an optional listener.
+ */
 public abstract class EntityControllerImpl implements EntityController {
     // CHECKSTYLE: AbstractClassName ON
 
@@ -19,21 +24,42 @@ public abstract class EntityControllerImpl implements EntityController {
     private InternalEventListener eventListener;
     private GameView view;
 
+    /**
+     * Creates a controller backed by the given shared entity list and collision engine.
+     *
+     * @param entities the shared list of entities in the scene
+     * @param collisionEngine the collision engine entities register with
+     */
     protected EntityControllerImpl(final List<Entity> entities,
                                 final CollisionEngine collisionEngine) {
         this.entities = Objects.requireNonNull(entities, "entities must not be null");
         this.collisionEngine = Objects.requireNonNull(collisionEngine, "collisionEngine must not be null");
     }
 
+    /**
+     * Stores the game view for subclasses needing screen bounds (via {@link #getView()}).
+     *
+     * @param view the active game view
+     */
     @Override
     public final void setView(final GameView view) {
         this.view = view;
     }
 
+    /**
+     * Sets the listener notified of internal events raised by this controller.
+     *
+     * @param listener the listener to notify
+     */
     public final void setEventListener(final InternalEventListener listener) {
         this.eventListener = listener;
     }
 
+    /**
+     * Returns the game view previously supplied via {@link #setView}.
+     *
+     * @return the active game view, or {@code null} if none has been set
+     */
     protected final GameView getView() {
         return view;
     }

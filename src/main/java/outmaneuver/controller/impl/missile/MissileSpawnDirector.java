@@ -29,7 +29,7 @@ import outmaneuver.model.area.entity.missile.Missile;
  *          P(i) = w_i / somma(w_j)
  * </pre>
  *
- * Con due regole sopra: ogni tipo si sblocca a un certo tempo e ha un tetto a schermo.
+ * <p>Con due regole sopra: ogni tipo si sblocca a un certo tempo e ha un tetto a schermo.
  * Classe pura (stato solo nel generatore casuale): testabile in isolamento con un seed.
  */
 public final class MissileSpawnDirector {
@@ -53,10 +53,17 @@ public final class MissileSpawnDirector {
 
     private final Random rng;
 
+    /** Creates a director using a non-seeded random generator. */
     public MissileSpawnDirector() {
         this(new Random());
     }
 
+    /**
+     * Creates a director using the given random generator, allowing deterministic
+     * behavior in tests via a seeded instance.
+     *
+     * @param rng the random generator used for weighted kind selection
+     */
     @SuppressFBWarnings(
             value = "EI_EXPOSE_REP2",
             justification = "Random is intentionally shared so callers can inject a seeded instance for testing")
@@ -97,12 +104,23 @@ public final class MissileSpawnDirector {
         return chosen != null ? chosen : MissileKind.BASIC;
     }
 
-    /** (1) STIMA: D(t) = D_MIN + (D_MAX - D_MIN) / (1 + e^(-k (t - t0))). */
+    /**
+     * (1) STIMA: D(t) = D_MIN + (D_MAX - D_MIN) / (1 + e^(-k (t - t0))).
+     *
+     * @param elapsedTime secondi di gioco trascorsi (t)
+     * @return la difficolta' media-per-missile desiderata in quel momento
+     */
     private double targetAverage(final double elapsedTime) {
         return D_MIN + (D_MAX - D_MIN) / (1.0 + Math.exp(-D_STEEP * (elapsedTime - D_MID)));
     }
 
-    /** (3) peso del tipo: w = e^(-BETA p c) [+ bonus clock quando lo schermo e' pieno]. */
+    /**
+     * (3) peso del tipo: w = e^(-BETA p c) [+ bonus clock quando lo schermo e' pieno].
+     *
+     * @param kind il tipo di missile di cui calcolare il peso
+     * @param p il divario normalizzato in [-1, 1] tra difficolta' attuale e desiderata
+     * @return il peso (non normalizzato) usato nella selezione softmax
+     */
     private double weightFor(final MissileKind kind, final double p) {
         final double c = kind.weight() / MAX_WEIGHT;
         double w = Math.exp(-BETA * p * c);
@@ -112,7 +130,12 @@ public final class MissileSpawnDirector {
         return w;
     }
 
-    /** Difficolta' media dei missili vivi: Savg = (somma pesi) / (numero), 0 se vuoto. */
+    /**
+     * Difficolta' media dei missili vivi: Savg = (somma pesi) / (numero), 0 se vuoto.
+     *
+     * @param active missili attualmente in scena
+     * @return la difficolta' media dei missili vivi, o 0 se nessuno e' vivo
+     */
     private double averageThreat(final List<Missile> active) {
         double sum = 0.0;
         int n = 0;
@@ -132,7 +155,12 @@ public final class MissileSpawnDirector {
                 .count();
     }
 
-    /** Estrazione casuale pesata sui pesi del softmax. */
+    /**
+     * Estrazione casuale pesata sui pesi del softmax.
+     *
+     * @param pool i tipi candidati con il rispettivo peso
+     * @return il tipo estratto, o {@code null} se il pool e' vuoto o a peso totale nullo
+     */
     private MissileKind pickWeighted(final List<Weighted> pool) {
         final double total = pool.stream().mapToDouble(Weighted::weight).sum();
         if (total <= 0) {

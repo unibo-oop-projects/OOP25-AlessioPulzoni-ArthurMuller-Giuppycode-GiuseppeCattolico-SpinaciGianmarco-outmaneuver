@@ -1,5 +1,6 @@
 package outmaneuver.model.area.effect;
 
+/** Default {@link Effect} implementation with a fixed duration and optional multiplier. */
 public final class EffectImpl implements Effect {
 
     private final EffectType type;
@@ -7,6 +8,13 @@ public final class EffectImpl implements Effect {
     private boolean active;
     private double multiplier;
 
+    /**
+     * Creates an active effect with an explicit multiplier.
+     *
+     * @param type the kind of effect
+     * @param multiplier the multiplier applied while the effect is active
+     * @param durationMs how long the effect lasts, in milliseconds
+     */
     public EffectImpl(final EffectType type, final double multiplier, final long durationMs) {
         this.type = type;
         this.remainingMs = durationMs;
@@ -14,6 +22,12 @@ public final class EffectImpl implements Effect {
         this.active = true;
     }
 
+    /**
+     * Creates an active effect with no multiplier.
+     *
+     * @param type the kind of effect
+     * @param durationMs how long the effect lasts, in milliseconds
+     */
     public EffectImpl(final EffectType type, final long durationMs) {
         this.type = type;
         this.remainingMs = durationMs;

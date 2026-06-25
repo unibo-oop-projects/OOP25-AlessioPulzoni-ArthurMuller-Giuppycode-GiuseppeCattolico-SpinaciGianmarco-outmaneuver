@@ -28,6 +28,10 @@ import outmaneuver.util.assets.AssetStore;
 import outmaneuver.util.assets.SpriteId;
 import outmaneuver.view.swing.Theme;
 
+/**
+ * Swing screen for browsing the plane catalog, previewing stats, equipping owned
+ * planes and purchasing new ones.
+ */
 @SuppressFBWarnings(
         value = "SE_BAD_FIELD",
         justification = "ShopView is a Swing JPanel that is never actually serialized")
@@ -65,6 +69,18 @@ public final class ShopView extends JPanel {
 
     private int currentIndex;
 
+    /**
+     * Creates the shop screen.
+     *
+     * @param metrics scaling metrics for the current window size
+     * @param assets provides the sprites already loaded in memory
+     * @param catalog non-empty list of items available in the shop
+     * @param coinsSupplier supplies the player's current coin balance
+     * @param equippedStatsSupplier supplies the stats of the currently equipped plane
+     * @param isOwnedFn predicate that tells whether a plane id is already owned
+     * @param onPurchase callback invoked to attempt a purchase/equip; returns whether it succeeded
+     * @param onBack callback invoked when the player clicks "Back"
+     */
     public ShopView(final ScreenMetrics metrics,
                     final AssetStore assets,
                     final List<ShopItem> catalog,

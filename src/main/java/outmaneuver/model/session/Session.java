@@ -1,5 +1,6 @@
 package outmaneuver.model.session;
 
+/** Default {@link ISession} implementation: a plain, mutable holder of session state. */
 public final class Session implements ISession {
 
     private int score;
@@ -10,6 +11,7 @@ public final class Session implements ISession {
     private boolean shieldActive;
     private long elapsedMs;
 
+    /** Creates a new session, already reset to its initial state. */
     public Session() {
         reset();
     }

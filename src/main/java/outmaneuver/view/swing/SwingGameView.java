@@ -24,6 +24,11 @@ import outmaneuver.view.GameView;
 import outmaneuver.view.RenderState;
 import outmaneuver.view.swing.hud.IHudView;
 
+/**
+ * Swing implementation of {@link GameView}: a {@link JPanel} that renders the plane,
+ * missiles, collectibles, collisions, background clouds and HUD onto a {@link Graphics2D}
+ * canvas, and forwards keyboard input to the supplied {@link KeyListener}.
+ */
 @SuppressFBWarnings(
         value = "SE_BAD_FIELD",
         justification = "SwingGameView is a Swing JPanel that is never actually serialized")
@@ -49,6 +54,13 @@ public final class SwingGameView extends JPanel implements GameView {
     private volatile RenderState latestState;
     private final List<Cloud> clouds;
 
+    /**
+     * Creates the game view.
+     *
+     * @param keyListener listener that receives keyboard input forwarded from this panel
+     * @param hudView renderer used to draw the HUD overlay on top of the scene
+     * @param assets provides the sprites already loaded in memory
+     */
     public SwingGameView(final KeyListener keyListener, final IHudView hudView,
             final AssetStore assets) {
         this.keyListener = Objects.requireNonNull(keyListener, "keyListener must not be null");
@@ -58,6 +70,7 @@ public final class SwingGameView extends JPanel implements GameView {
         this.clouds = new ArrayList<>(CLOUD_TARGET);
     }
 
+    /** Makes the panel focusable and attaches the key listener so it can receive input. */
     public void init() {
         setFocusable(true);
         addKeyListener(keyListener);
@@ -160,6 +173,13 @@ public final class SwingGameView extends JPanel implements GameView {
      * <p>La trasformazione affine si legge dall'ultima riga alla prima: prima centra lo sprite
      * sul proprio centro, poi lo scala, poi lo ruota e infine lo porta sul punto di schermo.
      *
+     * @param g2d graphics context to draw onto
+     * @param img sprite image to draw
+     * @param worldX world X coordinate of the sprite's center
+     * @param worldY world Y coordinate of the sprite's center
+     * @param cameraX world X coordinate the camera is centered on
+     * @param cameraY world Y coordinate the camera is centered on
+     * @param angleRad rotation to apply to the sprite, in radians
      * @param scale 1.0 = grandezza originale; minore di 1 rimpicciolisce, maggiore ingrandisce
      */
     private void drawSprite(final Graphics2D g2d, final BufferedImage img,

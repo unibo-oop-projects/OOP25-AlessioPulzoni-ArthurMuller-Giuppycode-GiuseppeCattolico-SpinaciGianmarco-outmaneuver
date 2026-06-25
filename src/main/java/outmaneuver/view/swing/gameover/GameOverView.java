@@ -17,6 +17,10 @@ import outmaneuver.model.session.ScoreEntry;
 import outmaneuver.view.swing.Theme;
 import outmaneuver.view.swing.leaderboard.LeaderboardTablePanel;
 
+/**
+ * Swing screen shown when a run ends: displays the final score, the stars/missiles
+ * recap, a leaderboard excerpt and buttons to play again or return to the menu.
+ */
 public final class GameOverView extends JPanel {
 
     private static final long serialVersionUID = 1L;
@@ -32,6 +36,13 @@ public final class GameOverView extends JPanel {
     private final JLabel recapMissilesLabel;
     private final LeaderboardTablePanel tablePanel;
 
+    /**
+     * Creates the game-over screen.
+     *
+     * @param metrics scaling metrics for the current window size
+     * @param onPlayAgain callback invoked when the player clicks "Play again"
+     * @param onMenu callback invoked when the player clicks "Menu"
+     */
     public GameOverView(final ScreenMetrics metrics, final Runnable onPlayAgain, final Runnable onMenu) {
         final Runnable safePlayAgain = Objects.requireNonNull(onPlayAgain);
         final Runnable safeMenu = Objects.requireNonNull(onMenu);
@@ -82,6 +93,11 @@ public final class GameOverView extends JPanel {
     /**
      * Aggiorna il contenuto della schermata con i dati della partita appena conclusa.
      * Deve essere chiamato sull'EDT, subito prima di mostrare questa schermata.
+     *
+     * @param finalScore the final score of the run
+     * @param topScores the current leaderboard entries to display in the recap table
+     * @param starsScore points earned from collected stars
+     * @param missilesScore points earned from missiles destroyed/avoided
      */
     public void show(final int finalScore, final List<ScoreEntry> topScores, final int starsScore, final int missilesScore) {
         Objects.requireNonNull(topScores, "topScores must not be null");

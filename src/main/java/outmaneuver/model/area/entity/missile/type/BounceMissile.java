@@ -12,6 +12,12 @@ import outmaneuver.util.Vector2;
  */
 public final class BounceMissile extends MissileImpl {
 
+    /**
+     * Creates a bounce missile.
+     *
+     * @param spawnPos the initial position in world coordinates
+     * @param data the missile's type definition
+     */
     public BounceMissile(final Vector2 spawnPos, final MissileData data) {
         super(spawnPos, data);
     }

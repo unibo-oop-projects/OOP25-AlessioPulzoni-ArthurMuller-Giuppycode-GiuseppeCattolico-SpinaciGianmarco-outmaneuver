@@ -4,6 +4,12 @@ import outmaneuver.controller.InputController;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Default {@link InputController} implementation that tracks pressed keys and derives
+ * a turn direction from the left/right key bindings (arrow keys and A/D). All methods
+ * are synchronized so input events from the UI thread are safely visible to the game
+ * loop thread.
+ */
 public final class InputControllerImpl implements InputController {
 
     private static final int KEY_LEFT_A = 65;

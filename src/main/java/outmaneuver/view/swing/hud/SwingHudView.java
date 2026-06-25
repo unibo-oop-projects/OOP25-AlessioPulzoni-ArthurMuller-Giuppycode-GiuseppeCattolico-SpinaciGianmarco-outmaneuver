@@ -9,12 +9,21 @@ import outmaneuver.assembler.ScreenAssembler.ScreenMetrics;
 import outmaneuver.view.GameView;
 import outmaneuver.view.HudSnapshot;
 
+/**
+ * Swing/AWT implementation of {@link IHudView}: draws the elapsed time, speed,
+ * shield status, star count and a "PAUSED" overlay using {@link Graphics2D}.
+ */
 public final class SwingHudView implements IHudView {
 
     private static final int PAUSED_TEXT_RGB_COMPONENT = 255;
 
     private final ScreenMetrics metrics;
 
+    /**
+     * Creates the HUD renderer.
+     *
+     * @param metrics scaling metrics for the current window size
+     */
     public SwingHudView(final ScreenMetrics metrics) {
         this.metrics = metrics;
     }

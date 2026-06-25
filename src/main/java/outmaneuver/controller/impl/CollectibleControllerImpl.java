@@ -18,6 +18,11 @@ import outmaneuver.model.area.entity.collectibles.StarCollectible;
 import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.util.Vector2;
 
+/**
+ * Manages collectibles (stars, speed boosts, shields): periodically spawns one at a
+ * random edge position around the plane, and tracks the active effects granted by
+ * collected power-ups, expiring them over time.
+ */
 public final class CollectibleControllerImpl extends EntityControllerImpl {
 
     private static final long SPAWN_INTERVAL_MS = 3000;
@@ -28,6 +33,12 @@ public final class CollectibleControllerImpl extends EntityControllerImpl {
     private final List<Effect> activeEffects = new ArrayList<>();
     private long accumulatedMs;
 
+    /**
+     * Creates a controller managing collectibles within the given shared entity list.
+     *
+     * @param entities the shared list of entities in the scene
+     * @param collisionEngine the collision engine collectibles register with
+     */
     public CollectibleControllerImpl(
             final List<Entity> entities,
             final CollisionEngine collisionEngine) {
@@ -40,6 +51,12 @@ public final class CollectibleControllerImpl extends EntityControllerImpl {
         tickEffect(deltaMs);
     }
 
+    /**
+     * Activates an effect, replacing any currently active effect of the same type, and
+     * notifies listeners that it was applied.
+     *
+     * @param effect the effect to activate
+     */
     public void addEffect(final Effect effect) {
         for (int i = 0; i < activeEffects.size(); i++) {
             if (activeEffects.get(i).getType() == effect.getType()) {
@@ -52,10 +69,21 @@ public final class CollectibleControllerImpl extends EntityControllerImpl {
         onInternalEvent(EffectEvent.EFFECT_APPLIED, effect);
     }
 
+    /**
+     * Checks whether an effect of the given type is currently active.
+     *
+     * @param type the effect type to check for
+     * @return {@code true} if an active effect of that type is present
+     */
     public boolean hasEffect(final Class<? extends Effect> type) {
         return activeEffects.stream().anyMatch(type::isInstance);
     }
 
+    /**
+     * Returns the multiplier of the first active effect with a positive multiplier.
+     *
+     * @return the active multiplier, or {@code 1.0} if no effect with a positive multiplier is active
+     */
     public double getEffectMultiplier() {
         return activeEffects.stream()
                 .mapToDouble(Effect::getMultiplier)

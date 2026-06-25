@@ -7,6 +7,10 @@ import java.util.Objects;
 
 import javax.swing.JPanel;
 
+/**
+ * Swaps between the game's Swing screens using a {@link CardLayout}, keyed by
+ * {@link ScreenId}.
+ */
 public final class UIManager extends JPanel {
 
     private static final long serialVersionUID = 1L;
@@ -14,6 +18,11 @@ public final class UIManager extends JPanel {
     private final CardLayout cardLayout;
     private final Map<ScreenId, String> cardNames;
 
+    /**
+     * Creates the manager and registers every screen with its corresponding card.
+     *
+     * @param screens non-empty map from screen identifier to its Swing panel
+     */
     public UIManager(final Map<ScreenId, JPanel> screens) {
         Objects.requireNonNull(screens, "screens must not be null");
         if (screens.isEmpty()) {
@@ -37,6 +46,11 @@ public final class UIManager extends JPanel {
         });
     }
 
+    /**
+     * Switches the visible card to the screen registered for the given identifier.
+     *
+     * @param state identifier of the screen to show
+     */
     public void showScreen(final ScreenId state) {
         final String card = cardNames.get(Objects.requireNonNull(state));
         if (card == null) {

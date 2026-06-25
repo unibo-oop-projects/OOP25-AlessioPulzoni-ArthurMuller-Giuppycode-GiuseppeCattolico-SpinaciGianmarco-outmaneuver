@@ -9,6 +9,11 @@ import outmaneuver.controller.event.Event;
 import outmaneuver.model.area.entity.collectibles.StarCollectible;
 import outmaneuver.model.session.ISession;
 
+/**
+ * Default {@link ScoreController} implementation backed by an {@link ISession}: accrues
+ * score from elapsed time and from collision events (stars, missile-missile collisions),
+ * and tracks the active speed/shield modifiers.
+ */
 public final class ScoreControllerImpl implements ScoreController {
 
     private static final String NEGATIVE_DELTA = "delta must be positive, was: ";
@@ -18,6 +23,12 @@ public final class ScoreControllerImpl implements ScoreController {
     private final LongSupplier tickMsSupplier;
     private long pendingMs;
 
+    /**
+     * Creates a score controller backed by the given session.
+     *
+     * @param session the session used to persist score, elapsed time and modifiers
+     * @param tickMsSupplier supplies the tick duration used by the no-arg {@link #onTick()}
+     */
     public ScoreControllerImpl(final ISession session, final LongSupplier tickMsSupplier) {
         this.session = Objects.requireNonNull(session, "session must not be null");
         this.tickMsSupplier = Objects.requireNonNull(tickMsSupplier, "tickMsSupplier must not be null");

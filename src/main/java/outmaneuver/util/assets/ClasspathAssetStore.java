@@ -9,6 +9,11 @@ import java.io.InputStream;
 import java.util.EnumMap;
 import java.util.Map;
 
+/**
+ * {@link AssetStore} that eagerly loads every sprite from the classpath
+ * (under {@code /assets/sprites/}) and caches it in memory. Missing or
+ * unreadable sprites fall back to a generated placeholder image.
+ */
 public final class ClasspathAssetStore implements AssetStore {
 
     private static final String BASE_PATH = "/assets/sprites/";
@@ -17,6 +22,7 @@ public final class ClasspathAssetStore implements AssetStore {
 
     private final Map<SpriteId, BufferedImage> cache;
 
+    /** Eagerly loads (or generates a placeholder for) every {@link SpriteId}. */
     public ClasspathAssetStore() {
         final Map<SpriteId, BufferedImage> map = new EnumMap<>(SpriteId.class);
         for (final var id : SpriteId.values()) {

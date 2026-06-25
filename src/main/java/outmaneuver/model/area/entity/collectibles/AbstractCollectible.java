@@ -7,6 +7,7 @@ import outmaneuver.model.area.collision.Hitbox;
 import outmaneuver.model.area.effect.Effect;
 import outmaneuver.util.Vector2;
 
+/** Base implementation shared by collectible pickups, providing position and hitbox handling. */
 public abstract class AbstractCollectible implements Collectible {
 
     private static final double HITBOX_RADIUS = 15.0;
@@ -15,10 +16,21 @@ public abstract class AbstractCollectible implements Collectible {
     private Vector2 position;
     private Effect effect;
 
+    /**
+     * Creates a collectible with no associated effect.
+     *
+     * @param position the spawn position in world coordinates
+     */
     public AbstractCollectible(final Vector2 position) {
         this.position = Objects.requireNonNull(position, POSITION_NOT_NULL);
     }
 
+    /**
+     * Creates a collectible that grants the given effect when picked up.
+     *
+     * @param position the spawn position in world coordinates
+     * @param effect the effect granted to the plane that collects this entity
+     */
     public AbstractCollectible(final Vector2 position, final Effect effect) {
         this.position = Objects.requireNonNull(position, POSITION_NOT_NULL);
         this.effect = Objects.requireNonNull(effect, "effect must not be null");

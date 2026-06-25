@@ -14,6 +14,11 @@ import outmaneuver.view.EntityRenderData;
 import outmaneuver.view.HudSnapshot;
 import outmaneuver.view.RenderState;
 
+/**
+ * Default {@link RenderStateAssembler} implementation. Converts the live entity list
+ * into immutable render data per entity category and tracks short-lived explosion
+ * animations triggered by collision points across frames.
+ */
 public final class RenderStateAssemblerImpl implements RenderStateAssembler {
 
     private static final int EXPLOSION_LIFETIME_TICKS = 12;

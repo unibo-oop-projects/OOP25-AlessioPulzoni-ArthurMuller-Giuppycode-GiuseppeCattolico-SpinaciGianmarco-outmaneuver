@@ -27,11 +27,15 @@ import outmaneuver.util.json.JsonResourceLoader;
 import outmaneuver.view.swing.ScreenId;
 import outmaneuver.view.swing.UIManager;
 
+/** Wires up all the game's collaborators and shows the main application window. */
 public final class AppBootstrapper {
 
     private AppBootstrapper() {
     }
 
+    /**
+     * Assembles the game's model, controllers and UI, then shows the main window.
+     */
     public static void launch() {
         final PlaneRepository planeRepo = new JsonPlaneRepository(
                 JsonResourceLoader.forList("planes.json", PlaneData.class, GsonProvider.create()));
@@ -42,9 +46,6 @@ public final class AppBootstrapper {
 
         final ISession session = new Session();
         final ControllerAssembler.Controllers ctrl = ControllerAssembler.assemble(plane, session, missileRepo);
-
-        // TODO: renderstate assembler as abstract factory here instead of
-        // controllerAssembler (remove hud deps)
 
         final Path profilePath = JsonPlayerProfileRepository.defaultProfilePath();
         final boolean isFirstLaunch = !Files.exists(profilePath);

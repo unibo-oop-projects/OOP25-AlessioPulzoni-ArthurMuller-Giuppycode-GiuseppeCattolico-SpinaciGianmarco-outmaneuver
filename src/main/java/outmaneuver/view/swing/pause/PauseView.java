@@ -14,12 +14,23 @@ import javax.swing.JPanel;
 import outmaneuver.assembler.ScreenAssembler.ScreenMetrics;
 import outmaneuver.view.swing.Theme;
 
+/**
+ * Swing overlay shown while the game is paused, offering buttons to resume play
+ * or quit to the main menu.
+ */
 public final class PauseView extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
     private static final int TITLE_INSET = 20;
 
+    /**
+     * Creates the pause screen.
+     *
+     * @param metrics scaling metrics for the current window size
+     * @param onResume callback invoked when the player clicks "Resume"
+     * @param onQuit callback invoked when the player clicks "Quit"
+     */
     public PauseView(final ScreenMetrics metrics, final Runnable onResume, final Runnable onQuit) {
         Objects.requireNonNull(onResume, "onResume must not be null");
         Objects.requireNonNull(onQuit, "onQuit must not be null");

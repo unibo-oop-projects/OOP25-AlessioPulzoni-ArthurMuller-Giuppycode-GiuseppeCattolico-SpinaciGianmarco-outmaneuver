@@ -5,6 +5,7 @@ import outmaneuver.model.area.collision.CollisionLayer;
 import outmaneuver.model.area.collision.Hitbox;
 import outmaneuver.util.Vector2;
 
+/** Default {@link Plane} implementation: tracks position, heading, stats and turn state. */
 public final class PlaneImpl implements Plane {
 
     private Vector2 position;
@@ -12,6 +13,11 @@ public final class PlaneImpl implements Plane {
     private PlaneStats stats;
     private TurnState turnState;
 
+    /**
+     * Creates a plane at the origin, facing angle zero, with the given stats.
+     *
+     * @param stats the initial stats for this plane
+     */
     public PlaneImpl(final PlaneStats stats) {
         this.position = Vector2.ZERO;
         this.direction = 0;

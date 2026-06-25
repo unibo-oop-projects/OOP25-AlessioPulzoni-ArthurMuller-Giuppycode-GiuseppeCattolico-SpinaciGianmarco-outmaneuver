@@ -9,6 +9,11 @@ import outmaneuver.model.area.entity.missile.data.MissileData;
 import outmaneuver.model.area.entity.plane.Plane;
 import outmaneuver.util.Vector2;
 
+/**
+ * Base implementation of {@link Missile} that provides shared steering, lifetime, slow
+ * effect and out-of-bounds handling; concrete missile types customise behaviour by
+ * overriding the relevant hooks.
+ */
 // CHECKSTYLE: AbstractClassName OFF
 public abstract class MissileImpl implements Missile {
     // CHECKSTYLE: AbstractClassName ON
@@ -34,6 +39,12 @@ public abstract class MissileImpl implements Missile {
     private double slowTimer;
     private double slowFactor = 1.0;
 
+    /**
+     * Creates a missile from its JSON-defined parameters.
+     *
+     * @param spawnPos the initial position in world coordinates
+     * @param data the missile's type definition (speed, turn rate, lifetime, etc.)
+     */
     protected MissileImpl(final Vector2 spawnPos, final MissileData data) {
         this.position = spawnPos;
         this.velocity = Vector2.ZERO;
@@ -56,6 +67,13 @@ public abstract class MissileImpl implements Missile {
         move(dt);
     }
 
+    /**
+     * Updates lifetime and slow-effect timers and determines whether the rest of the
+     * update (steering and movement) should be skipped this frame.
+     *
+     * @param dt elapsed time in seconds since the last update
+     * @return {@code true} if the missile is dead or otherwise should not move this frame
+     */
     protected final boolean shouldSkipUpdate(final double dt) {
         if (!alive) {
             return true;
@@ -80,11 +98,23 @@ public abstract class MissileImpl implements Missile {
         return false;
     }
 
+    /**
+     * Advances the missile's position according to its current velocity, applying the
+     * slow-down factor if active.
+     *
+     * @param dt elapsed time in seconds since the last update
+     */
     protected final void move(final double dt) {
         final double factor = slowed ? slowFactor : 1.0;
         position = position.add(velocity.scale(dt * factor));
     }
 
+    /**
+     * Steers the missile's velocity towards the given target, limited by its maximum
+     * turn angle. Subclasses may override this to change or disable steering behaviour.
+     *
+     * @param target the point to steer towards, in world coordinates
+     */
     // CHECKSTYLE: DesignForExtension OFF
     protected void steer(final Vector2 target) {
         final double desiredAngle = target.subtract(position).angle();
@@ -95,6 +125,12 @@ public abstract class MissileImpl implements Missile {
     }
     // CHECKSTYLE: DesignForExtension ON
 
+    /**
+     * Normalises an angle to the range {@code (-PI, PI]}.
+     *
+     * @param a the angle to normalise, in radians
+     * @return the equivalent angle in the range {@code (-PI, PI]}
+     */
     protected final double normalizeAngle(final double a) {
         final double twoPi = 2 * Math.PI;
         double normalised = a % twoPi;
@@ -111,10 +147,20 @@ public abstract class MissileImpl implements Missile {
         velocity = Vector2.fromAngle(target.subtract(position).angle()).scale(speed);
     }
 
+    /**
+     * Sets the missile's current velocity.
+     *
+     * @param vel the new velocity vector
+     */
     protected final void setVelocity(final Vector2 vel) {
         this.velocity = vel;
     }
 
+    /**
+     * Returns the missile's current velocity.
+     *
+     * @return the current velocity vector
+     */
     protected final Vector2 getVelocity() {
         return velocity;
     }
@@ -140,6 +186,12 @@ public abstract class MissileImpl implements Missile {
         setInitialDirection(predicted);
     }
 
+    /**
+     * Returns the extra margin beyond the screen edge before the missile is considered
+     * out of bounds.
+     *
+     * @return the out-of-bounds margin, in pixels
+     */
     protected final int getOutOfBoundsMargin() {
         return outOfBoundsMargin;
     }
@@ -154,6 +206,7 @@ public abstract class MissileImpl implements Missile {
     @Override
     public void checkBounce(final Vector2 planePos, final Dimension screenSize) { }
 
+    /** Marks the missile as no longer alive. */
     protected final void destroy() {
         this.alive = false;
     }
@@ -170,6 +223,12 @@ public abstract class MissileImpl implements Missile {
         this.slowTimer = duration;
     }
 
+    /**
+     * Destroys the missile if it has moved beyond the playable area around the plane.
+     *
+     * @param plane the plane used as the reference point for the play area
+     * @param screenSize the size of the visible play area
+     */
     protected final void destroyIfOffScreen(final Plane plane, final Dimension screenSize) {
         if (isOffScreen(plane, screenSize)) {
             destroy();

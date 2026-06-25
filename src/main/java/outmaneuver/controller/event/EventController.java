@@ -15,6 +15,11 @@ import outmaneuver.model.area.entity.collectibles.Collectible;
 import outmaneuver.model.area.entity.collectibles.StarCollectible;
 import outmaneuver.model.area.entity.missile.Missile;
 
+/**
+ * Central dispatcher that reacts to collision and effect events by routing the
+ * appropriate gameplay consequences (damage, scoring, effect toggling) to the
+ * relevant controllers.
+ */
 public final class EventController implements InternalEventListener {
 
     private final PlaneControllerImpl planeController;
@@ -23,6 +28,14 @@ public final class EventController implements InternalEventListener {
     private final ScoreController scoreController;
     private final Runnable onGameOver;
 
+    /**
+     * Creates a dispatcher wired to the plane, collectible and missile controllers
+     * registered on the given master controller.
+     *
+     * @param master the master controller from which entity controllers are looked up
+     * @param scoreController the score controller to notify of scoring events
+     * @param onGameOver callback invoked when the plane is destroyed without a shield
+     */
     public EventController(
             final MasterControllerImpl master,
             final ScoreController scoreController,

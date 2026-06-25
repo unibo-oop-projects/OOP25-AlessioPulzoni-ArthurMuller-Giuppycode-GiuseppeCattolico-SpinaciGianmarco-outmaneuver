@@ -12,6 +12,11 @@ import outmaneuver.model.area.collision.Hitbox;
 import outmaneuver.model.area.collision.ICollidable;
 import outmaneuver.util.Vector2;
 
+/**
+ * Detects collisions between registered entities by layer (missile, plane, collectible)
+ * and reports each hit to an {@link InternalEventListener} as a {@link CollisionEvent}
+ * carrying a {@link CollisionData} payload.
+ */
 public final class CollisionEngine {
 
      private final InternalEventListener eventListener;
@@ -19,6 +24,11 @@ public final class CollisionEngine {
     /** Entità attive nella scena corrente. */
     private final List<ICollidable> entities = new ArrayList<>();
 
+    /**
+     * Creates a collision engine that reports detected collisions to the given listener.
+     *
+     * @param eventListener the listener notified of each detected collision
+     */
     public CollisionEngine(final InternalEventListener eventListener) {
         this.eventListener = Objects.requireNonNull(eventListener,
                 "eventListener must not be null");
@@ -26,10 +36,20 @@ public final class CollisionEngine {
 
     // Registrazione entità (chiamato da EntityController / GameScene)
 
+    /**
+     * Registers an entity so it participates in collision checks on subsequent {@link #tick()} calls.
+     *
+     * @param entity the entity to register
+     */
     public void register(final ICollidable entity) {
         entities.add(Objects.requireNonNull(entity));
     }
 
+    /**
+     * Removes an entity from collision checking.
+     *
+     * @param entity the entity to unregister
+     */
     public void unregister(final ICollidable entity) {
         entities.remove(entity);
     }
@@ -64,6 +84,10 @@ public final class CollisionEngine {
     /**
      * Testa tutte le coppie tra listA e listB.
      * Se sono la stessa lista (Missile×Missile) usa i < j per evitare duplicati.
+     *
+     * @param listA the first list of candidates
+     * @param listB the second list of candidates
+     * @param collisionType the event to report for each detected hit
      */
     @SuppressWarnings("PMD.CompareObjectsWithEquals")
     private void checkPairs(final List<ICollidable> listA,

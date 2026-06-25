@@ -16,6 +16,12 @@ public final class ClockMissile extends MissileImpl {
 
     private final SlowEffect slow;
 
+    /**
+     * Creates a clock missile.
+     *
+     * @param spawnPos the initial position in world coordinates
+     * @param data the missile's type definition; must include a {@code slow} effect
+     */
     public ClockMissile(final Vector2 spawnPos, final MissileData data) {
         super(spawnPos, data);
         this.slow = Objects.requireNonNull(

@@ -54,6 +54,15 @@ public final class MissileControllerImpl extends EntityControllerImpl {
     private boolean shieldActive;
     private double speedMultiplier = 1.0;
 
+    /**
+     * Creates a controller that spawns and moves missiles within the given shared
+     * entity list.
+     *
+     * @param entities the shared list of entities in the scene
+     * @param collisionEngine the collision engine missiles register with
+     * @param missileRepo the repository used to load missile data by type
+     * @param spawnDirector the director deciding which missile kind to spawn next
+     */
     public MissileControllerImpl(final List<Entity> entities,
             final CollisionEngine collisionEngine,
             final MissileRepository missileRepo,
@@ -95,6 +104,11 @@ public final class MissileControllerImpl extends EntityControllerImpl {
     }
 
     // AGGIUNTO: reso public per far reagire i missili nell'EventController (lista passata a onCollision)
+    /**
+     * Returns the missiles currently managed by this controller.
+     *
+     * @return the list of active missile entities
+     */
     public List<Missile> activeMissiles() {
         return getEntities().stream()
                 .filter(Missile.class::isInstance)
@@ -102,10 +116,22 @@ public final class MissileControllerImpl extends EntityControllerImpl {
                 .toList();
     }
 
+    /**
+     * Sets whether the player's shield is active, which missiles may take into account
+     * when reacting to collisions.
+     *
+     * @param active {@code true} if the shield is active
+     */
     public void setShieldActive(final boolean active) {
         this.shieldActive = active;
     }
 
+    /**
+     * Sets the multiplier applied to the plane's speed, used to keep missile movement
+     * consistent with the plane's effective speed.
+     *
+     * @param multiplier the speed multiplier to apply
+     */
     public void setSpeedMultiplier(final double multiplier) {
         this.speedMultiplier = multiplier;
     }

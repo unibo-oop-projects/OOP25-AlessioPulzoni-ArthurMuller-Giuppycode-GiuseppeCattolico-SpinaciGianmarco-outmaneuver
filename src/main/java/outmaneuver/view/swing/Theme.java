@@ -14,6 +14,10 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
+/**
+ * Centralizes the colors, fonts and dimensions shared by the game's Swing screens,
+ * and provides factory methods for the themed widgets used throughout the UI.
+ */
 public final class Theme {
 
     public static final Color BACKGROUND = new Color(180, 225, 245);
@@ -39,6 +43,16 @@ public final class Theme {
 
     private Theme() { }
 
+    /**
+     * Creates a themed button with the given text, font size and fixed dimensions,
+     * including hover-color feedback.
+     *
+     * @param text label shown on the button
+     * @param fontSize font size to use for the label
+     * @param width preferred width of the button, in pixels
+     * @param height preferred height of the button, in pixels
+     * @return the configured button
+     */
     public static JButton styledButton(final String text, final int fontSize, final int width, final int height) {
         final JButton btn = new JButton(text);
         btn.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, fontSize));
@@ -65,6 +79,16 @@ public final class Theme {
         return btn;
     }
 
+    /**
+     * Creates a label whose text is drawn with a black outline for readability against
+     * any background, aligned as requested.
+     *
+     * @param text text to display
+     * @param font font to render the text with
+     * @param foreground fill color of the text
+     * @param horizontalAlignment one of the {@link SwingConstants} horizontal alignment values
+     * @return the configured label
+     */
     public static JLabel outlinedLabel(final String text, final Font font, final Color foreground,
             final int horizontalAlignment) {
         final JLabel label = new JLabel(text, horizontalAlignment) {
@@ -111,6 +135,15 @@ public final class Theme {
         return label;
     }
 
+    /**
+     * Creates a center-aligned outlined label. Shorthand for
+     * {@link #outlinedLabel(String, Font, Color, int)} with {@link SwingConstants#CENTER}.
+     *
+     * @param text text to display
+     * @param font font to render the text with
+     * @param foreground fill color of the text
+     * @return the configured label
+     */
     public static JLabel outlinedLabel(final String text, final Font font, final Color foreground) {
         return outlinedLabel(text, font, foreground, SwingConstants.CENTER);
     }

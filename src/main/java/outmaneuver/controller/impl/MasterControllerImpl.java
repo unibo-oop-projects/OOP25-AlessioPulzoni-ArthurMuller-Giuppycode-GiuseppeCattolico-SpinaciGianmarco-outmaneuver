@@ -27,6 +27,11 @@ import outmaneuver.util.Vector2;
 import outmaneuver.view.GameView;
 import outmaneuver.view.RenderState;
 
+/**
+ * Default {@link MasterController} implementation. Wires together the entity
+ * controllers, collision engine, score controller and state assembler, and drives
+ * them from a dedicated game-loop thread running at a fixed tick rate.
+ */
 public final class MasterControllerImpl implements MasterController {
 
     private static final long TICK_MS = 16;
@@ -50,46 +55,103 @@ public final class MasterControllerImpl implements MasterController {
     private Runnable onPause;
     private Runnable onResume;
 
+    /** Creates a new controller starting in the paused state. */
     public MasterControllerImpl() {
         this.gameState = GameEvent.PAUSED;
     }
 
+    /**
+     * Returns the fixed duration of a single game-loop tick.
+     *
+     * @return the tick duration in milliseconds
+     */
     public long getTickMs() {
         return TICK_MS;
     }
 
+    /**
+     * Registers the callback invoked when the game transitions to the game-over state.
+     *
+     * @param onGameOver the callback to invoke on game over
+     */
     public void setOnGameOver(final Runnable onGameOver) {
         this.onGameOver = Objects.requireNonNull(onGameOver);
     }
 
+    /**
+     * Registers the callback invoked when the game transitions to the paused state.
+     *
+     * @param onPause the callback to invoke on pause
+     */
     public void setOnPause(final Runnable onPause) {
         this.onPause = Objects.requireNonNull(onPause);
     }
 
+    /**
+     * Registers the callback invoked when the game resumes from the paused state.
+     *
+     * @param onResume the callback to invoke on resume
+     */
     public void setOnResume(final Runnable onResume) {
         this.onResume = Objects.requireNonNull(onResume);
     }
 
+    /**
+     * Sets the input controller polled for the plane's turn direction and reset on
+     * {@link #start()}.
+     *
+     * @param inputController the input controller to use
+     */
     public void setInputController(final InputController inputController) {
         this.inputController = Objects.requireNonNull(inputController, "inputController must not be null");
     }
 
+    /**
+     * Sets the listener notified of internal events (collisions, effects) produced
+     * during the game loop, in addition to this controller's own handling.
+     *
+     * @param eventController the event listener to notify
+     */
     public void setEventController(final InternalEventListener eventController) {
         this.eventController = Objects.requireNonNull(eventController, "eventController must not be null");
     }
 
+    /**
+     * Sets the assembler used to build the {@link RenderState} sent to views each frame.
+     *
+     * @param stateAssembler the render state assembler to use
+     */
     public void setStateAssembler(final RenderStateAssembler stateAssembler) {
         this.stateAssembler = Objects.requireNonNull(stateAssembler, "stateAssembler must not be null");
     }
 
+    /**
+     * Sets the entities of the active scene that are passed to the state assembler
+     * each frame.
+     *
+     * @param sceneEntities the entities composing the current scene
+     */
     public void setSceneEntities(final List<Entity> sceneEntities) {
         this.sceneEntities = Objects.requireNonNull(sceneEntities, "sceneEntities must not be null");
     }
 
+    /**
+     * Registers an entity controller to be driven by the game loop and looked up via
+     * {@link #getEntityController(Class)}.
+     *
+     * @param entityController the entity controller to add
+     */
     public void addEntityController(final EntityController entityController) {
         entityControllers.add(Objects.requireNonNull(entityController, "entityController must not be null"));
     }
 
+    /**
+     * Looks up the registered entity controller of the given concrete type.
+     *
+     * @param <T> the entity controller type
+     * @param type the class of the entity controller to look up
+     * @return the matching entity controller, or {@link Optional#empty()} if none was registered
+     */
     public <T extends EntityController> Optional<T> getEntityController(final Class<T> type) {
         return entityControllers.stream()
                 .filter(type::isInstance)
@@ -97,6 +159,12 @@ public final class MasterControllerImpl implements MasterController {
                 .findFirst();
     }
 
+    /**
+     * Sets the collision engine used to detect collisions each tick. Can only be set once.
+     *
+     * @param collisionEngine the collision engine to use
+     * @throws IllegalStateException if a collision engine has already been set
+     */
     public void setCollisionEngine(final CollisionEngine collisionEngine) {
         if (this.collisionEngine != null) {
             throw new IllegalStateException("collisionEngine already set");
@@ -104,10 +172,20 @@ public final class MasterControllerImpl implements MasterController {
         this.collisionEngine = Objects.requireNonNull(collisionEngine, "collisionEngine must not be null");
     }
 
+    /**
+     * Sets the controller tracking score, elapsed time and gameplay modifiers.
+     *
+     * @param scoreController the score controller to use
+     */
     public void setScoreController(final ScoreController scoreController) {
         this.scoreController = Objects.requireNonNull(scoreController, "scoreController must not be null");
     }
 
+    /**
+     * Sets the player profile updated with coins and saved scores when a game ends.
+     *
+     * @param playerProfile the player profile to use
+     */
     public void setPlayerProfile(final PlayerProfile playerProfile) {
         this.playerProfile = Objects.requireNonNull(playerProfile, "playerProfile must not be null");
     }

@@ -63,6 +63,8 @@ public final class ScreenAssembler {
      * Uses {@link GraphicsEnvironment#getMaximumWindowBounds()} which already
      * excludes OS chrome (taskbar on Windows, Dock on macOS) and returns
      * device-independent pixels, so this works correctly on HiDPI displays too.
+     *
+     * @return the computed window size
      */
     private static Dimension scaledGameSize() {
         final Rectangle screenBounds = GraphicsEnvironment
@@ -72,7 +74,6 @@ public final class ScreenAssembler {
         final int maxWidth = (int) (screenBounds.width * SCREEN_FILL_FACTOR);
         final int maxHeight = (int) (screenBounds.height * SCREEN_FILL_FACTOR);
 
-        // Fit inside maxWidth × maxHeight while keeping the aspect ratio.
         int width = maxWidth;
         int height = (int) Math.round(width / ASPECT_RATIO);
 
@@ -84,6 +85,19 @@ public final class ScreenAssembler {
         return new Dimension(width, height);
     }
 
+    /**
+     * Builds all Swing screens, wires their navigation callbacks together with the
+     * supplied controllers/model objects, and assembles the resulting screen map.
+     *
+     * @param ctrl the wired controller bundle to attach the game view and callbacks to
+     * @param profile the player's profile, used to read/update name, coins and owned planes
+     * @param plane the player's plane entity, used to read/update equipped stats
+     * @param shop the shop used to look up the catalog and perform purchases
+     * @param session the game session used to read score and stats for the recap screen
+     * @param uiRef single-element array holding the {@link UIManager} once created, allowing
+     *     screen callbacks to request navigation before the manager itself exists
+     * @return the assembled screens and game view
+     */
     public static Result build(
             final ControllerAssembler.Controllers ctrl,
             final PlayerProfile profile,
@@ -213,6 +227,9 @@ public final class ScreenAssembler {
     /**
      * Carries the assembled screen map and the game view (needed by the caller to
      * request focus).
+     *
+     * @param screens the assembled screen map, keyed by {@link ScreenId}
+     * @param gameView the game view embedded in the screen map, exposed directly for focus requests
      */
     public record Result(
             Map<ScreenId, JPanel> screens,
@@ -221,6 +238,12 @@ public final class ScreenAssembler {
                     justification = "gameView is a live Swing component the caller must interact with directly")
             SwingGameView gameView) {
 
+        /**
+         * Creates the result, defensively copying the screen map.
+         *
+         * @param screens the assembled screen map, keyed by {@link ScreenId}
+         * @param gameView the game view embedded in the screen map
+         */
         public Result(final Map<ScreenId, JPanel> screens, final SwingGameView gameView) {
             this.screens = Map.copyOf(screens);
             this.gameView = gameView;
@@ -230,32 +253,69 @@ public final class ScreenAssembler {
     /**
      * Provides proportional scaling from the reference 1400×1000 game size
      * to the actual panel dimensions.
+     *
+     * @param width the actual panel width, in pixels
+     * @param height the actual panel height, in pixels
      */
     public record ScreenMetrics(int width, int height) {
         private static final int REF_W = 1400;
         private static final int REF_H = 1000;
         private static final int MIN_FONT_SIZE = 12;
 
+        /**
+         * Returns the horizontal scale factor relative to the reference width.
+         *
+         * @return the horizontal scale factor
+         */
         public double scaleX() {
             return (double) width / REF_W;
         }
 
+        /**
+         * Returns the vertical scale factor relative to the reference height.
+         *
+         * @return the vertical scale factor
+         */
         public double scaleY() {
             return (double) height / REF_H;
         }
 
+        /**
+         * Returns the uniform scale factor to use for elements that must preserve
+         * their aspect ratio, the smaller of the horizontal and vertical scale factors.
+         *
+         * @return the uniform scale factor
+         */
         public double scale() {
             return Math.min(scaleX(), scaleY());
         }
 
+        /**
+         * Scales a reference width to the actual panel width.
+         *
+         * @param v width expressed in reference (1400-wide) units
+         * @return the scaled width, in pixels
+         */
         public int sw(final int v) {
             return (int) Math.round(v * scaleX());
         }
 
+        /**
+         * Scales a reference height to the actual panel height.
+         *
+         * @param v height expressed in reference (1000-tall) units
+         * @return the scaled height, in pixels
+         */
         public int sh(final int v) {
             return (int) Math.round(v * scaleY());
         }
 
+        /**
+         * Scales a reference font size, never going below {@value #MIN_FONT_SIZE}.
+         *
+         * @param v font size expressed in reference units
+         * @return the scaled font size, in points
+         */
         public int sf(final int v) {
             return Math.max(MIN_FONT_SIZE, (int) Math.round(v * scale()));
         }

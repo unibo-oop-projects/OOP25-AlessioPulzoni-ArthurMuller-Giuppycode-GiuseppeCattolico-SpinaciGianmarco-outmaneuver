@@ -22,11 +22,11 @@ import outmaneuver.util.Vector2;
  *                  (es. il clock ha senso solo se c'e' qualcosa da rallentare);
  *  - factory     : come si costruisce.
  *
- * I pesi (da ragionamento: schivata x persistenza x se aiuta il giocatore):
- *   clock 0.8 (facile e AIUTA) < basic 1.0 < bounce 1.5 (non muore mai) <
- *   sniper 2.0 (veloce ma passa) < shield 2.5 (doppia vita) < fast 3.0 (il piu' duro).
+ * <p>I pesi (da ragionamento: schivata x persistenza x se aiuta il giocatore):
+ *   clock 0.8 (facile e AIUTA) &lt; basic 1.0 &lt; bounce 1.5 (non muore mai) &lt;
+ *   sniper 2.0 (veloce ma passa) &lt; shield 2.5 (doppia vita) &lt; fast 3.0 (il piu' duro).
  *
- * Aggiungere un nuovo tipo di missile = aggiungere una sola riga qui.
+ * <p>Aggiungere un nuovo tipo di missile = aggiungere una sola riga qui.
  */
 public enum MissileKind {
 
@@ -56,6 +56,11 @@ public enum MissileKind {
         this.factory = factory;
     }
 
+    /**
+     * Returns the identifier used in JSON data files and sprite lookup for this kind.
+     *
+     * @return the missile kind identifier
+     */
     public String id() {
         return id;
     }
@@ -76,6 +81,13 @@ public enum MissileKind {
         return elapsedTime >= unlockTime;
     }
 
+    /**
+     * Instantiates a missile of this kind using its associated factory.
+     *
+     * @param spawnPos the world position where the missile should spawn
+     * @param data the missile's behavioral data loaded from the repository
+     * @return the newly created missile instance
+     */
     public Missile create(final Vector2 spawnPos, final MissileData data) {
         return factory.apply(spawnPos, data);
     }

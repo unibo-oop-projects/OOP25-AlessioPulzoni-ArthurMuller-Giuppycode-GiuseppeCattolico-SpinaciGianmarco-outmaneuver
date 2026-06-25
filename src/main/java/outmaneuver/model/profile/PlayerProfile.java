@@ -25,6 +25,11 @@ public final class PlayerProfile implements IWallet {
     private final Set<String> ownedPlaneIds;
     private final List<ScoreEntry> scores;
 
+    /**
+     * Loads the profile from the given repository.
+     *
+     * @param repository the storage backend to load from and persist to
+     */
     public PlayerProfile(final IPlayerProfileRepository repository) {
         this.repository = Objects.requireNonNull(repository, "repository must not be null");
         final PlayerProfileData data = repository.load();
@@ -34,10 +39,20 @@ public final class PlayerProfile implements IWallet {
         this.scores = new ArrayList<>(data.scores());
     }
 
+    /**
+     * Returns the player's display name.
+     *
+     * @return the current player name
+     */
     public String getPlayerName() {
         return playerName;
     }
 
+    /**
+     * Sets the player's display name and persists the profile.
+     *
+     * @param name the new, non-blank player name
+     */
     public void setPlayerName(final String name) {
         Objects.requireNonNull(name, "name must not be null");
         if (name.isBlank()) {
@@ -78,10 +93,21 @@ public final class PlayerProfile implements IWallet {
 
     // ── Owned planes ─────────────────────────────────────────────────────
 
+    /**
+     * Tells whether the player already owns the given plane.
+     *
+     * @param planeId the id of the plane to check
+     * @return {@code true} if the plane is owned, {@code false} otherwise
+     */
     public boolean ownsPlane(final String planeId) {
         return ownedPlaneIds.contains(Objects.requireNonNull(planeId));
     }
 
+    /**
+     * Marks a plane as owned and persists the profile, if it was not already owned.
+     *
+     * @param planeId the id of the plane to add
+     */
     public void addOwnedPlane(final String planeId) {
         Objects.requireNonNull(planeId, "planeId must not be null");
         if (ownedPlaneIds.add(planeId)) {
@@ -91,6 +117,12 @@ public final class PlayerProfile implements IWallet {
 
     // ── Leaderboard ───────────────────────────────────────────────────────
 
+    /**
+     * Records a new score in the leaderboard, keeping only the top {@value #MAX_SCORES} entries.
+     *
+     * @param score the achieved score
+     * @param name the name of the player who achieved it
+     */
     public void saveScore(final int score, final String name) {
         Objects.requireNonNull(name, "name must not be null");
         scores.add(new ScoreEntry(score, name, LocalDate.now()));
@@ -101,6 +133,11 @@ public final class PlayerProfile implements IWallet {
         save();
     }
 
+    /**
+     * Returns the leaderboard entries, best score first.
+     *
+     * @return an unmodifiable view of the stored top scores
+     */
     public List<ScoreEntry> getTopScores() {
         return Collections.unmodifiableList(scores);
     }

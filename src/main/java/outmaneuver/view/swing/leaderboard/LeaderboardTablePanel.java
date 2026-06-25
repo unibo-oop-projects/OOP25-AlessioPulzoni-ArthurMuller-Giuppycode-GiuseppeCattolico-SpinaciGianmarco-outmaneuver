@@ -16,6 +16,10 @@ import outmaneuver.assembler.ScreenAssembler.ScreenMetrics;
 import outmaneuver.model.session.ScoreEntry;
 import outmaneuver.view.swing.Theme;
 
+/**
+ * Swing panel that renders a table of leaderboard entries (rank, name, score, date),
+ * capped at a maximum number of rows.
+ */
 @SuppressFBWarnings(
         value = "SE_BAD_FIELD",
         justification = "LeaderboardTablePanel is a Swing JPanel that is never actually serialized")
@@ -28,6 +32,12 @@ public final class LeaderboardTablePanel extends JPanel {
     private final int maxEntries;
     private final ScreenMetrics metrics;
 
+    /**
+     * Creates the table panel.
+     *
+     * @param metrics scaling metrics for the current window size
+     * @param maxEntries maximum number of rows to display, must be positive
+     */
     public LeaderboardTablePanel(final ScreenMetrics metrics, final int maxEntries) {
         if (maxEntries <= 0) {
             throw new IllegalArgumentException("maxEntries must be positive, was: " + maxEntries);
@@ -38,7 +48,11 @@ public final class LeaderboardTablePanel extends JPanel {
         setBackground(Theme.BACKGROUND);
     }
 
-    /** Ricostruisce la tabella con i punteggi forniti. */
+    /**
+     * Ricostruisce la tabella con i punteggi forniti.
+     *
+     * @param scores leaderboard entries to display, in ranking order
+     */
     public void refresh(final List<ScoreEntry> scores) {
         Objects.requireNonNull(scores, "scores must not be null");
         removeAll();

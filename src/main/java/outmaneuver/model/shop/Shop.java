@@ -7,10 +7,16 @@ import java.util.Objects;
 import outmaneuver.model.area.entity.plane.PlaneRepository;
 import outmaneuver.model.wallet.IWallet;
 
+/** Default {@link IShop} implementation, with a catalog built from a {@link PlaneRepository}. */
 public final class Shop implements IShop {
 
     private final List<ShopItem> catalog;
 
+    /**
+     * Builds the catalog from every plane in the given repository.
+     *
+     * @param repo the plane repository to build the catalog from
+     */
     public Shop(final PlaneRepository repo) {
         Objects.requireNonNull(repo, "repo must not be null");
         final List<ShopItem> items = repo.loadAll().stream()
